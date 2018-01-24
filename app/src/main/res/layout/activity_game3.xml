@@ -1,0 +1,780 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    tools:context="com.example.hemanthlam.connectfour.Game3Activity">
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="168dp">
+
+        <ImageView
+            android:id="@+id/sevenbysiximageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/tenbyeight"
+            tools:ignore="ContentDescription" />
+
+        <RelativeLayout
+            android:id="@+id/GAME_1_INNER_RELATIVE"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_ONE"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="40dp"
+                android:layout_marginStart="33dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC00"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC02"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC03"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC04"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC05"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC06"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC07"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_TWO"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="87dp"
+                android:layout_marginStart="64dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC12"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC13"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC14"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC15"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC16"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC17"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_THREE"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="127dp"
+                android:layout_marginStart="97dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC20"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC21"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC22"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC23"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC24"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC25"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC26"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC27"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_FOUR"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="170dp"
+                android:layout_marginStart="128dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC30"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC31"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC32"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC33"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC34"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC35"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC36"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC37"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_FIVE"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="215dp"
+                android:layout_marginStart="160dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC40"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC41"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC42"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC43"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC44"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC45"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC46"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC47"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_SIX"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="257dp"
+                android:layout_marginStart="195dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC50"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC51"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC52"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC53"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC54"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC55"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC56"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC57"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_SEVEN"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="298dp"
+                android:layout_marginStart="224dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/DISC60"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC61"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC62"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC63"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC64"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC65"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC66"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC67"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_EIGHT"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="298dp"
+                android:layout_marginStart="255dp"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/DISC70"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC71"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC72"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC73"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC74"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC75"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC76"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC77"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_NINE"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="298dp"
+                android:layout_marginStart="288dp"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/DISC80"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC81"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC82"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC83"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC84"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC85"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC86"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC87"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/GAME_ONE_COLUMN_TEN"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="298dp"
+                android:layout_marginStart="320dp"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/DISC90"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="47dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC91"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue"
+                    tools:ignore="ContentDescription" />
+
+                <ImageView
+                    android:id="@+id/DISC92"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC93"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC94"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+
+                <ImageView
+                    android:id="@+id/DISC95"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC96"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+                <ImageView
+                    android:id="@+id/DISC97"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/blue" />
+            </LinearLayout>
+
+        </RelativeLayout>
+    </FrameLayout>
+</RelativeLayout>
