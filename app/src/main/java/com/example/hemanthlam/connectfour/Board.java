@@ -73,7 +73,7 @@ public class Board {
         if (col < 0 || col > (this.width-1))
             return -2;
 
-        for (int i = 0; i < this.height; ++i) {
+        for (int i = height-1; i >= 0; --i) {
             if (this.boardBounds[col][i] == 0) {
                 // Not sure what to do with the disc block when we discover its open, but this is a start (we can figure out what to do later)
                 boardBounds[col][i] = 1;

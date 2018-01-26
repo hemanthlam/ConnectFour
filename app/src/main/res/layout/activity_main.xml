@@ -7,14 +7,24 @@
     tools:context="com.example.hemanthlam.connectfour.MainActivity">
 
     <Button
-        android:id="@+id/tempButton"
+        android:id="@+id/highscorebutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="203dp"
-        android:onClick="onClick"
-        android:text="Button"
+        android:text="HighScore"
         tools:layout_editor_absoluteX="148dp"
-        tools:layout_editor_absoluteY="179dp" />
+        tools:layout_editor_absoluteY="314dp" />
+
+    <Button
+        android:id="@+id/playbutton"
+        android:layout_width="160dp"
+        android:layout_height="81dp"
+        android:layout_below="@+id/highscorebutton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="110dp"
+        android:text="Play Game"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.201" />
 </RelativeLayout>

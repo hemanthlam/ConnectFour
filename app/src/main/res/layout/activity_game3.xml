@@ -28,7 +28,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_ONE"
+                android:id="@+id/GAME_ONE_COLUMN_ZERO"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -103,7 +103,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_TWO"
+                android:id="@+id/GAME_ONE_COLUMN_ONE"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -178,7 +178,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_THREE"
+                android:id="@+id/GAME_ONE_COLUMN_TWO"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -253,7 +253,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_FOUR"
+                android:id="@+id/GAME_ONE_COLUMN_THREE"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -328,7 +328,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_FIVE"
+                android:id="@+id/GAME_ONE_COLUMN_FOUR"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -403,7 +403,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_SIX"
+                android:id="@+id/GAME_ONE_COLUMN_FIVE"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -478,7 +478,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_SEVEN"
+                android:id="@+id/GAME_ONE_COLUMN_SIX"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -554,7 +554,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_EIGHT"
+                android:id="@+id/GAME_ONE_COLUMN_SEVEN"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -628,7 +628,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_NINE"
+                android:id="@+id/GAME_ONE_COLUMN_EIGHT"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
@@ -702,7 +702,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/GAME_ONE_COLUMN_TEN"
+                android:id="@+id/GAME_ONE_COLUMN_NINE"
                 android:layout_width="32dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"

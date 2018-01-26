@@ -2,24 +2,27 @@ package com.example.hemanthlam.connectfour;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class Game1Activity extends AppCompatActivity {
-    private LinearLayout col0 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_ONE);
-    private LinearLayout col1 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_ONE);
-    private LinearLayout col2 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_TWO);
-    private LinearLayout col3 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_THREE);
-    private LinearLayout col4 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_FOUR);
-    private LinearLayout col5 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_FIVE);
-    private LinearLayout col6 = (LinearLayout) findViewById(R.id.GAME_ONE_COLUMN_SIX);
+//The activity used for the 7 x 6 game board
+public class Game1Activity extends GameActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game1);
-
-    }
-
-    protected void hidePieces(){
-
+        box = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
+        gameBoard = new Board("7x6");
+        hidePieces();
+        for(int i = 0; i < box.getChildCount();++i){
+            final int I = i;
+            box.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    placeDisc(I);
+                }
+            });
+        }
     }
 }
