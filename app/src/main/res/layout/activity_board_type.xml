@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:visibility="visible"
+    tools:context="com.example.hemanthlam.connectfour.BoardTypeActivity">
+
+
+    <Button
+        android:id="@+id/board_78"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="75dp"
+        android:layout_marginTop="75dp"
+        android:background="@android:color/holo_red_light"
+        android:onClick="boardType"
+        android:padding="15dp"
+        android:text="@string/grid78"
+        android:textColor="@android:color/background_light"
+        android:textColorLink="@android:color/background_light"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/board_76"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/board_78"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimary"
+        android:onClick="boardType"
+        android:padding="15dp"
+        android:text="@string/grid76"
+        android:textColor="@android:color/background_light"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/board_108"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/board_78"
+        android:layout_below="@+id/board_78"
+        android:background="@color/colorPrimary"
+        android:onClick="boardType"
+        android:padding="15dp"
+        android:text="@string/grid108"
+        android:textColor="@android:color/background_light"
+        android:textSize="20sp" />
+
+
+</RelativeLayout>
