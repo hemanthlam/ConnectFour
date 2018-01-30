@@ -19,16 +19,16 @@ public class BoardTypeActivity extends AppCompatActivity {
         Toast.makeText(this, "grid button clicked", Toast.LENGTH_SHORT).show();
         switch (button.getId()){
             case R.id.board_76:
-                //intent = new Intent(getApplicationContext(), X.class);
+                intent = new Intent(getApplicationContext(), Game1Activity.class);
                 break;
             case R.id.board_78:
-                //intent = new Intent(getApplicationContext(), X.class);
+                intent = new Intent(getApplicationContext(), Game2Activity.class);
                 break;
             case R.id.board_108:
-                //intent = new Intent(getApplicationContext(), X.class);
+                intent = new Intent(getApplicationContext(), Game3Activity.class);
                 break;
         }
-        //startActivity(intent);
+        startActivity(intent);
 
     }
 }
