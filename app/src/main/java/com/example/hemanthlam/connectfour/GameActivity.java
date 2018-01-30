@@ -2,6 +2,7 @@ package com.example.hemanthlam.connectfour;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -14,6 +15,8 @@ import android.widget.RelativeLayout;
 public class GameActivity extends AppCompatActivity {
     protected Board gameBoard;
     protected RelativeLayout box;
+    protected int turn = 1;
+    protected int gameType;
 
     //Hide all UI pieces from board
     protected void hidePieces(){
@@ -32,6 +35,19 @@ public class GameActivity extends AppCompatActivity {
         if(row == -1)
             return;
         LinearLayout temp = (LinearLayout) box.getChildAt(col);
-        temp.getChildAt(row).setVisibility(View.VISIBLE);
+        ImageView chip = (ImageView) temp.getChildAt(row);
+        chip.setTranslationY(-1000);
+        /*if(turn == 1)
+            chip.setImageResource(R.drawable.blue);
+        else chip.setImageResource(R.drawable.red);*/
+        chip.setVisibility(View.VISIBLE);
+        chip.animate().translationYBy(1000).setDuration(500);
+        //changeTurn();
+    }
+    //Switch turns
+    protected void changeTurn(){
+        if(turn == 1)
+            turn = 0;
+        else turn = 1;
     }
 }
