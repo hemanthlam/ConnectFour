@@ -21,7 +21,7 @@ public class BoardTypeActivity extends AppCompatActivity {
             case R.id.board_76:
                 intent = new Intent(getApplicationContext(), Game1Activity.class);
                 break;
-            case R.id.board_78:
+            case R.id.board_87:
                 intent = new Intent(getApplicationContext(), Game2Activity.class);
                 break;
             case R.id.board_108:
