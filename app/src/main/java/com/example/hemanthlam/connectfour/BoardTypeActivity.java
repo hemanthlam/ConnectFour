@@ -16,7 +16,6 @@ public class BoardTypeActivity extends AppCompatActivity {
 
     public void boardType(View button){
         Intent intent=null;
-        Toast.makeText(this, "grid button clicked", Toast.LENGTH_SHORT).show();
         switch (button.getId()){
             case R.id.board_76:
                 intent = new Intent(getApplicationContext(), Game1Activity.class);
