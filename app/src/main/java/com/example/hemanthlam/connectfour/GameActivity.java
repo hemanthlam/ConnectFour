@@ -36,18 +36,22 @@ public class GameActivity extends AppCompatActivity {
             return;
         LinearLayout temp = (LinearLayout) box.getChildAt(col);
         ImageView chip = (ImageView) temp.getChildAt(row);
-        chip.setTranslationY(-1000);
-        /*if(turn == 1)
-            chip.setImageResource(R.drawable.blue);
-        else chip.setImageResource(R.drawable.red);*/
-        chip.setVisibility(View.VISIBLE);
-        chip.animate().translationYBy(1000).setDuration(500);
-        //changeTurn();
+        animate(chip);
+        changeTurn();
     }
     //Switch turns
     protected void changeTurn(){
         if(turn == 1)
-            turn = 0;
+            turn = 2;
         else turn = 1;
+    }
+
+    protected void animate(ImageView chip){
+        if(turn == 1)
+            chip.setImageResource(R.drawable.blue);
+        else chip.setImageResource(R.drawable.red);
+        chip.setTranslationY(-1000);
+        chip.setVisibility(View.VISIBLE);
+        chip.animate().translationYBy(1000).setDuration(500);
     }
 }
