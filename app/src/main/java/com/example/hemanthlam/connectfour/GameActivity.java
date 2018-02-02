@@ -31,7 +31,7 @@ public class GameActivity extends AppCompatActivity {
 
     //Place a disc in the correct slot on the board
     protected void placeDisc(int col){
-        int row = gameBoard.findPosition(col);
+        int row = gameBoard.findPosition(col,turn);
         if(row == -1)
             return;
         LinearLayout temp = (LinearLayout) box.getChildAt(col);

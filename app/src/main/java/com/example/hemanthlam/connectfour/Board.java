@@ -67,7 +67,7 @@ public class Board {
     // OUTPUT: int
     // Purpose: gets the index of the next availalble row in a specified column.
     //          When a disc is placed in that row, it no longer becomes available
-    public int findPosition(int col) {
+    public int findPosition(int col, int player) {
         // Checking if given column is valid (if the index of the column exists in the array)
         // I am going to start an arbitrary error int return system, where -2 indicates invalid column input and -1 indicates that there are no available rows in the column
         if (col < 0 || col > (this.width-1))
@@ -76,7 +76,7 @@ public class Board {
         for (int i = height-1; i >= 0; --i) {
             if (this.boardBounds[col][i] == 0) {
                 // Not sure what to do with the disc block when we discover its open, but this is a start (we can figure out what to do later)
-                boardBounds[col][i] = 1;
+                boardBounds[col][i] = player;
                 return i;
             }
         }
