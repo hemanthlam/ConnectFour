@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+/*
+author sonam
+ */
+//This class displays the various grid boards available in the game
 public class BoardTypeActivity extends AppCompatActivity {
 
     @Override
@@ -14,6 +18,7 @@ public class BoardTypeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_board_type);
     }
 
+    //Based on which grid button is clicked, switch to corressponding activity
     public void boardType(View button){
         Intent intent=null;
         switch (button.getId()){
