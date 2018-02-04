@@ -10,6 +10,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/*
+author sonam
+ */
+//This class displays the various grid boards available in the game
 public class BoardTypeActivity extends AppCompatActivity {
 
     protected Spinner gridSpinner;
