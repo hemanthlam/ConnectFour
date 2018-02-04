@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ConnectFour</string>
+    <string name="grid76">7*6</string>
+    <string name="grid87">8*7</string>
+    <string name="grid108">10*8</string>
 </resources>
