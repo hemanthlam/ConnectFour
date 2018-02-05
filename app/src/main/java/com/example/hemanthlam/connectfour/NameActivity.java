@@ -58,33 +58,33 @@ public class NameActivity extends AppCompatActivity {
                 intent.putExtra("Board", "7 x 6");
                 intent.putExtra("Game", gameType);
                 intent.putExtra("Round",Rounds);
-                intent.putExtra("Player1", player1Name.getText());
+                intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType=="Local Multiplayer")
-                    intent.putExtra("Player2", player2Name.getText());
+                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                    intent.putExtra("Player2", player2Name.getText().toString());
                 break;
             case "8 x 7":
                 intent = new Intent(getApplicationContext(), Game2Activity.class);
                 intent.putExtra("Board", "8 x 7");
                 intent.putExtra("Game", gameType);
                 intent.putExtra("Round",Rounds);
-                intent.putExtra("Player1", player1Name.getText());
+                intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType=="Local Multiplayer")
-                    intent.putExtra("Player2", player2Name.getText());
+                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                    intent.putExtra("Player2", player2Name.getText().toString());
                 break;
             case "10 x 8":
                 intent = new Intent(getApplicationContext(), Game3Activity.class);
                 intent.putExtra("Board", "10 x 8");
                 intent.putExtra("Game", gameType);
                 intent.putExtra("Round",Rounds);
-                intent.putExtra("Player1", player1Name.getText());
+                intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType=="Local Multiplayer")
-                    intent.putExtra("Player2", player2Name.getText());
+                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                    intent.putExtra("Player2", player2Name.getText().toString());
                 break;
         }
         startActivity(intent);
