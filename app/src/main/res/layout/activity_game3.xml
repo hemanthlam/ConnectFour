@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="@drawable/universe"
     tools:context="com.example.hemanthlam.connectfour.Game3Activity">
+
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
@@ -19,7 +20,7 @@
             android:id="@+id/sevenbysiximageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/tenbyeight"
+            app:srcCompat="@drawable/tenbyeightpart2"
             tools:ignore="ContentDescription" />
 
         <RelativeLayout
@@ -86,6 +87,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC06"
                     android:layout_width="match_parent"
@@ -93,6 +95,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC07"
                     android:layout_width="match_parent"
@@ -161,6 +164,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC16"
                     android:layout_width="match_parent"
@@ -168,6 +172,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC17"
                     android:layout_width="match_parent"
@@ -236,6 +241,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC26"
                     android:layout_width="match_parent"
@@ -243,6 +249,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC27"
                     android:layout_width="match_parent"
@@ -311,6 +318,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC36"
                     android:layout_width="match_parent"
@@ -318,6 +326,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC37"
                     android:layout_width="match_parent"
@@ -386,6 +395,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC46"
                     android:layout_width="match_parent"
@@ -393,6 +403,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC47"
                     android:layout_width="match_parent"
@@ -461,6 +472,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC56"
                     android:layout_width="match_parent"
@@ -468,6 +480,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC57"
                     android:layout_width="match_parent"
@@ -536,6 +549,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC66"
                     android:layout_width="match_parent"
@@ -543,6 +557,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC67"
                     android:layout_width="match_parent"
@@ -562,6 +577,7 @@
                 android:layout_marginLeft="298dp"
                 android:layout_marginStart="255dp"
                 android:orientation="vertical">
+
                 <ImageView
                     android:id="@+id/DISC70"
                     android:layout_width="wrap_content"
@@ -611,6 +627,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC76"
                     android:layout_width="match_parent"
@@ -618,6 +635,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC77"
                     android:layout_width="match_parent"
@@ -636,6 +654,7 @@
                 android:layout_marginLeft="298dp"
                 android:layout_marginStart="288dp"
                 android:orientation="vertical">
+
                 <ImageView
                     android:id="@+id/DISC80"
                     android:layout_width="wrap_content"
@@ -685,6 +704,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC86"
                     android:layout_width="match_parent"
@@ -692,6 +712,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC87"
                     android:layout_width="match_parent"
@@ -710,6 +731,7 @@
                 android:layout_marginLeft="298dp"
                 android:layout_marginStart="320dp"
                 android:orientation="vertical">
+
                 <ImageView
                     android:id="@+id/DISC90"
                     android:layout_width="wrap_content"
@@ -759,6 +781,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC96"
                     android:layout_width="match_parent"
@@ -766,6 +789,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC97"
                     android:layout_width="match_parent"

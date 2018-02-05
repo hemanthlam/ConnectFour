@@ -3,12 +3,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="@drawable/universe"
     android:visibility="visible"
     tools:context="com.example.hemanthlam.connectfour.BoardTypeActivity">
 
 
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="450dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimary">
+
+        <Spinner
+            android:id="@+id/gridSpinner"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:layout_below="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="36dp"
+            android:background="@color/colorPrimaryDark"
+            android:entries="@array/gridArrays"
+            android:textAlignment="center" />
+
+        <Spinner
+            android:id="@+id/gameSpinner"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:layout_alignStart="@+id/gridSpinner"
+            android:layout_below="@+id/gridSpinner"
+            android:layout_marginTop="93dp"
+            android:background="@color/colorPrimaryDark"
+            android:entries="@array/gameArrays"
+            android:prompt="@string/gridPrompt"
+            android:textAlignment="center" />
+
+        <Spinner
+            android:id="@+id/roundSpinner"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_alignEnd="@+id/textView3"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="64dp"
+            android:background="@color/colorPrimaryDark"
+            android:entries="@array/roundArrays"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="17dp"
+            android:text="Game Setup"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/roundSpinner"
+            android:layout_alignStart="@+id/gameSpinner"
+            android:text="Rounds:"
+            android:textSize="25dp" />
+
+    </RelativeLayout>
+
     <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimaryDark"
+        android:text="Continue"
+        android:onClick="clickContinue"/>
+
+    <!--<Button
         android:id="@+id/board_87"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
@@ -28,9 +100,8 @@
         android:id="@+id/board_76"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_above="@id/board_87"
-        android:layout_alignParentTop="false"
-        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/board_87"
+        android:layout_alignStart="@+id/board_87"
         android:background="@color/colorPrimary"
         android:onClick="boardType"
         android:padding="15dp"
@@ -49,7 +120,7 @@
         android:padding="15dp"
         android:text="@string/grid108"
         android:textColor="@android:color/background_light"
-        android:textSize="20sp" />
+        android:textSize="20sp" />-->
 
 
 </RelativeLayout>

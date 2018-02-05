@@ -84,5 +84,193 @@ public class Board {
         // If nothing was found (which is the case if we get here), return -1 to indicated no available rows were found
         return -1;
     }
+
+
+    //checks for all the discs and compares to find if 4 are connected in a row
+    public int[][] checkHorizontal(int player){
+        int maxCol = this.width,
+                maxRow = this.height,
+                count =0;
+
+        int[][] connectedFour = new int[4][2];
+        for (int row = maxRow-1; row >= 0; row--) {
+            for(int col=0;col<maxCol;col++) {
+                if (boardBounds[col][row] == player) {
+                    connectedFour[count][0] = col;
+                    connectedFour[count][1] = row;
+                    count++;
+
+                } else {
+                    count = 0;
+                    connectedFour = new int[4][2];
+                }
+
+                if (count >= 4)
+                    return connectedFour;
+            }
+        }
+        return null;
+    }
+
+    ////checks for all the discs and compares to find if 4 are connected in a column
+    public int[][] checkVertical(int player){
+        int maxCol = this.width,
+                maxRow = this.height,
+                count =0;
+
+        int[][] connectedFour = new int[4][2];
+        for (int col = 0; col<maxCol; col++) {
+            for (int row = 0; row < maxRow; row++) {
+
+                if (boardBounds[col][row] == player) {
+                    connectedFour[count][0] = col;
+                    connectedFour[count][1] = row;
+                    count++;
+
+                } else {
+                    count = 0;
+                    connectedFour = new int[maxRow][maxCol];
+                }
+
+                if (count >= 4)
+                    return connectedFour;
+            }
+        }
+        return null;
+    }
+
+    // check Diagonal Connected Four
+    public int[][] checkDiagonal(int player){
+        int[][] connectedFour=null;
+        connectedFour = checkLeftTopToRightBottom(player);
+        if(connectedFour!=null)
+            return connectedFour;
+
+        connectedFour = checkLeftBottomToRightTop(player);
+        if(connectedFour!=null)
+            return connectedFour;
+
+        return connectedFour;
+    }
+
+    //Check all possibilities of connected four from left top to right bottom i.e 0,0 to maxRow,maxCol
+    public int[][] checkLeftTopToRightBottom(int player){
+        int maxCol = this.width,
+                maxRow = this.height,
+                count =0;
+
+        int[][] connectedFour = new int[4][2];
+
+        // Checking for connected four in left up center diagonals right diagonals
+        for( int rowStart = 0; rowStart < maxRow - 4; rowStart++){
+            count = 0;
+            //int row, col;
+            for( int row = rowStart, col = 0; row < maxRow && col < maxCol; row++, col++ ){
+                if(boardBounds[col][row] == player){
+                    count++;
+                    connectedFour[count-1][0] = row;
+                    connectedFour[count-1][1] = col;
+                    if(count >= 4) return connectedFour;
+                }
+                else {
+                    count = 0;
+                    connectedFour = new int[maxRow][maxCol];
+                }
+            }
+        }
+
+        // top-left to bottom-right - red diagonals
+        // Checking for connected four in left up center diagonals left diagonals
+        for( int colStart = 1; colStart < maxCol - 4; colStart++){
+            count = 0;
+            int row, col;
+            for( row = 0, col = colStart; row < maxRow && col < maxCol; row++, col++ ){
+                if(boardBounds[col][row] == player){
+                    count++;
+                    connectedFour[count-1][0] = row;
+                    connectedFour[count-1][1] = col;
+                    if(count >= 4) return connectedFour;
+                }
+                else {
+                    count = 0;
+                    connectedFour = new int[maxRow][maxCol];
+                }
+            }
+        }
+        return null;
+    }
+
+    //Check all possibilities of connected four from left bottom to right top i.e maxRow,0 to 0,maxCol
+    public int[][] checkLeftBottomToRightTop(int player){
+        int maxCol = this.width,
+                maxRow = this.height,
+                count =0;
+
+        int[][] connectedFour = new int[4][2];
+
+        // Checking for connected four in left bottom center diagonals left diagonals
+        for(int rowStart = maxRow-1; rowStart >=3; rowStart--){
+            count = 0;
+            int row, col;
+            for( row = rowStart, col = 0; row >=0 && col < maxCol; row--, col++ ){
+                if(boardBounds[col][row] == player){
+                    count++;
+                    connectedFour[count-1][0] = row;
+                    connectedFour[count-1][1] = col;
+                    if(count >= 4) return connectedFour;
+                }
+                else {
+                    count = 0;
+                    connectedFour = new int[maxRow][maxCol];
+                }
+            }
+        }
+
+        //checking for connected four in center diagonals' right diagonals
+        for( int colStart = 0; colStart < maxCol - 4; colStart++){
+            count = 0;
+            for(int row = maxRow-1, col = colStart; row >= 3 && col < maxCol; row--, col++ ){
+                if(boardBounds[col][row] == player){
+                    count++;
+                    connectedFour[count-1][0] = row;
+                    connectedFour[count-1][1] = col;
+                    if(count >= 4) return connectedFour;
+                }
+                else {
+                    count = 0;
+                    connectedFour = new int[maxRow][maxCol];
+                }
+            }
+        }
+        return null;
+    }
+
+    public int[][] findWinner(int player){
+        int[][] connectedFour = null;
+        connectedFour = checkHorizontal(player);
+        if(connectedFour!=null)
+            return connectedFour;
+
+        connectedFour = checkVertical(player);
+        if(connectedFour!=null)
+            return connectedFour;
+
+        connectedFour = checkDiagonal(player);
+        if(connectedFour!=null)
+            return connectedFour;
+
+        return null;
+    }
+
+    public boolean checkIfBoardFull(){
+        for(int i=0;i<this.width;i++){
+            if(boardBounds[i][0]==0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }
 
