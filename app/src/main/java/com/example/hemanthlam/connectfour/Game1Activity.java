@@ -37,7 +37,7 @@ public class Game1Activity extends GameActivity {
             @Override
             public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.player1Color); }
         });
-        else
-            System.out.println("We have a problem");
+        //else
+        //    System.out.println("We have a problem");
     }
 }

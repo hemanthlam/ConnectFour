@@ -51,8 +51,12 @@ public class GameActivity extends AppCompatActivity {
         this.activityData = getIntent().getExtras();
 
         // Saving Player Names
-        this.player1Name = this.activityData.getString("Player1", "Player 1");;
-        this.player2Name = this.activityData.getString("Player2", "AI");
+        this.player1Name = this.activityData.getString("Player1", "Player 1");
+        // Temporary. This will need to be changed to something better later
+        if (this.activityData.getString("Game").equals("Online Multiplayer"))
+            this.player2Name = "Online Player";
+        else
+            this.player2Name = this.activityData.getString("Player2", "AI");
 
         // Saving Player Colors
         this.player1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();

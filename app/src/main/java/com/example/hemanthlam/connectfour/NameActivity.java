@@ -61,7 +61,7 @@ public class NameActivity extends AppCompatActivity {
                 intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                if(gameType.equals("Local Multiplayer"))
                     intent.putExtra("Player2", player2Name.getText().toString());
                 break;
             case "8 x 7":
@@ -72,7 +72,7 @@ public class NameActivity extends AppCompatActivity {
                 intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                if(gameType.equals("Local Multiplayer"))
                     intent.putExtra("Player2", player2Name.getText().toString());
                 break;
             case "10 x 8":
@@ -83,7 +83,7 @@ public class NameActivity extends AppCompatActivity {
                 intent.putExtra("Player1", player1Name.getText().toString());
                 intent.putExtra("Player1Color", player1Color);
                 intent.putExtra("Player2Color", player2Color);
-                if(gameType.equals("Local Multiplayer") || gameType.equals("Online Multiplayer"))
+                if(gameType.equals("Local Multiplayer"))
                     intent.putExtra("Player2", player2Name.getText().toString());
                 break;
         }
