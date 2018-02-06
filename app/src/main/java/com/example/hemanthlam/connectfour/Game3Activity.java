@@ -13,7 +13,7 @@ public class Game3Activity extends GameActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game3);
-        box = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
+        box = (RelativeLayout) findViewById(R.id.GAME_3_INNER_RELATIVE);
         gameBoard = new Board("10x8");
         hidePieces();
         for(int i = 0; i < box.getChildCount();++i){
@@ -31,10 +31,12 @@ public class Game3Activity extends GameActivity {
         generatePlayerNamesAndIcons(this.player2Name, this.player2Color, 2, (RelativeLayout) findViewById(R.id.GAME_3_RELATIVE_LAYOUT));
 
         // Required to draw the edge around player 1's icon when the game starts
-        ImageView p1HighlightView = ((ImageView)findViewById((int)11));
-        p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.player1Color); }
-        });
+        if (this.p1HighlightView != null)
+            this.p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.player1Color); }
+            });
+        //else
+        //    System.out.println("We have a problem");
     }
 }
