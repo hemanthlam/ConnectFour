@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/universe"
+    tools:context="com.example.hemanthlam.connectfour.HighScoreActivity">
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="450dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/highScoreHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="17dp"
+            android:text="High Scores"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/highScoreOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/highScoreHeader"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="31dp"
+            android:text="[Empty Score]"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/highScoreTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/highScoreOne"
+            android:layout_below="@+id/highScoreOne"
+            android:layout_marginTop="47dp"
+            android:text="[Empty Score]"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/highScoreThree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/highScoreTwo"
+            android:layout_below="@+id/highScoreTwo"
+            android:layout_marginTop="47dp"
+            android:text="[Empty Score]"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/highScoreFour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/highScoreThree"
+            android:layout_below="@+id/highScoreThree"
+            android:layout_marginTop="47dp"
+            android:text="[Empty Score]"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/highScoreFive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/highScoreFour"
+            android:layout_marginBottom="49dp"
+            android:text="[Empty Score]"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+</RelativeLayout>

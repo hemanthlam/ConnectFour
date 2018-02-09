@@ -35,7 +35,7 @@
             android:background="@android:color/background_light"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Player 1"
+            android:text="Wrex"
             android:textColor="@android:color/background_dark" />
 
         <EditText
@@ -48,7 +48,7 @@
             android:background="@android:color/background_light"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Player 2"
+            android:text="Shepard"
             android:textColor="@android:color/background_dark" />
 
         <ImageView

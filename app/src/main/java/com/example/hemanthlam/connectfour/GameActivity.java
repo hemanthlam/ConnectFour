@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -123,9 +124,10 @@ public class GameActivity extends AppCompatActivity {
 
     //finds if the player who is playing has won
     public void findWinner(){
-
-        int[][] a = gameBoard.findWinner(turn);
-        final String message = "player" + turn + "won";
+        LinearLayout column;
+        ImageView row;
+        final int[][] a = gameBoard.findWinner(turn);
+        final String message = "player" + turn + " won";
         if(a!=null){
             isGameOver = true;
 
@@ -133,6 +135,20 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                    LinearLayout column;
+                    ImageView row;
+                    column = (LinearLayout) box.getChildAt(a[0][0]);
+                    row = (ImageView) column.getChildAt(a[0][1]);
+                    row.setImageResource(R.drawable.white);
+                    column = (LinearLayout) box.getChildAt(a[1][0]);
+                    row = (ImageView) column.getChildAt(a[1][1]);
+                    row.setImageResource(R.drawable.white);
+                    column = (LinearLayout) box.getChildAt(a[2][0]);
+                    row = (ImageView) column.getChildAt(a[2][1]);
+                    row.setImageResource(R.drawable.white);
+                    column = (LinearLayout) box.getChildAt(a[3][0]);
+                    row = (ImageView) column.getChildAt(a[3][1]);
+                    row.setImageResource(R.drawable.white);
                 }
             }, 100);
 
