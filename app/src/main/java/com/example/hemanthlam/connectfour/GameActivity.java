@@ -39,6 +39,7 @@ public class GameActivity extends AppCompatActivity {
     protected String player2Color;
     protected ImageView p1HighlightView;
     protected ImageView p2HighlightView;
+    protected TextView winnerText;
     GameActivity thisActivity;
     private boolean isGameOver;
 
@@ -50,7 +51,6 @@ public class GameActivity extends AppCompatActivity {
         // Save some of the data
         this.thisActivity = this;
         this.activityData = getIntent().getExtras();
-
         // Saving Player Names
         this.player1Name = this.activityData.getString("Player1", "Player 1");
         // Temporary. This will need to be changed to something better later
@@ -124,33 +124,37 @@ public class GameActivity extends AppCompatActivity {
 
     //finds if the player who is playing has won
     public void findWinner(){
-        LinearLayout column;
-        ImageView row;
         final int[][] a = gameBoard.findWinner(turn);
-        final String message = "player" + turn + " won";
+        final String message;
+        if(turn==1) {
+            message = player1Name + " won";
+        }
+        else {
+            message = player2Name + " won";
+        }
         if(a!=null){
             isGameOver = true;
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                    winnerText.setVisibility(View.VISIBLE);
+                    winnerText.setText(message);
                     LinearLayout column;
-                    ImageView row;
+                    ImageView row1, row2, row3, row4;
                     column = (LinearLayout) box.getChildAt(a[0][0]);
-                    row = (ImageView) column.getChildAt(a[0][1]);
-                    row.setImageResource(R.drawable.white);
+                    row1 = (ImageView) column.getChildAt(a[0][1]);
+                    row1.setImageResource(R.drawable.white);
                     column = (LinearLayout) box.getChildAt(a[1][0]);
-                    row = (ImageView) column.getChildAt(a[1][1]);
-                    row.setImageResource(R.drawable.white);
+                    row2 = (ImageView) column.getChildAt(a[1][1]);
+                    row2.setImageResource(R.drawable.white);
                     column = (LinearLayout) box.getChildAt(a[2][0]);
-                    row = (ImageView) column.getChildAt(a[2][1]);
-                    row.setImageResource(R.drawable.white);
+                    row3 = (ImageView) column.getChildAt(a[2][1]);
+                    row3.setImageResource(R.drawable.white);
                     column = (LinearLayout) box.getChildAt(a[3][0]);
-                    row = (ImageView) column.getChildAt(a[3][1]);
-                    row.setImageResource(R.drawable.white);
-                }
-            }, 100);
+                    row4 = (ImageView) column.getChildAt(a[3][1]);
+                    row4.setImageResource(R.drawable.white);
+                }}, 100);
 
         }
         else {
@@ -159,7 +163,8 @@ public class GameActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Stalemate" , Toast.LENGTH_SHORT).show();
+                        winnerText.setText("Stalemate");
+                        winnerText.setVisibility(View.VISIBLE);
                     }
                 }, 100);
 

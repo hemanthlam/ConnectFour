@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 //The activity used for the 10 x 8 board
 public class Game3Activity extends GameActivity {
@@ -38,5 +39,7 @@ public class Game3Activity extends GameActivity {
             });
         //else
         //    System.out.println("We have a problem");
+        this.winnerText = (TextView) findViewById(R.id.winnerText);
+        this.winnerText.setVisibility(View.INVISIBLE);
     }
 }

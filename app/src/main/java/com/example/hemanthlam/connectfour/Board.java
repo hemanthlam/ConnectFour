@@ -129,7 +129,7 @@ public class Board {
 
                 } else {
                     count = 0;
-                    connectedFour = new int[maxRow][maxCol];
+                    connectedFour = new int[4][2];
                 }
 
                 if (count >= 4)
@@ -162,38 +162,37 @@ public class Board {
         int[][] connectedFour = new int[4][2];
 
         // Checking for connected four in left up center diagonals right diagonals
-        for( int rowStart = 0; rowStart < maxRow - 4; rowStart++){
+        for( int rowStart = 0; rowStart < maxRow; rowStart++){
             count = 0;
-            //int row, col;
             for( int row = rowStart, col = 0; row < maxRow && col < maxCol; row++, col++ ){
                 if(boardBounds[col][row] == player){
                     count++;
-                    connectedFour[count-1][0] = row;
-                    connectedFour[count-1][1] = col;
+                    connectedFour[count-1][0] = col;
+                    connectedFour[count-1][1] = row;
                     if(count >= 4) return connectedFour;
                 }
                 else {
                     count = 0;
-                    connectedFour = new int[maxRow][maxCol];
+                    connectedFour = new int[4][2];
                 }
             }
         }
 
         // top-left to bottom-right - red diagonals
         // Checking for connected four in left up center diagonals left diagonals
-        for( int colStart = 1; colStart < maxCol - 4; colStart++){
+        for( int colStart = 1; colStart < maxCol; colStart++){
             count = 0;
             int row, col;
             for( row = 0, col = colStart; row < maxRow && col < maxCol; row++, col++ ){
                 if(boardBounds[col][row] == player){
                     count++;
-                    connectedFour[count-1][0] = row;
-                    connectedFour[count-1][1] = col;
+                    connectedFour[count-1][0] = col;
+                    connectedFour[count-1][1] = row;
                     if(count >= 4) return connectedFour;
                 }
                 else {
                     count = 0;
-                    connectedFour = new int[maxRow][maxCol];
+                    connectedFour = new int[4][2];
                 }
             }
         }
@@ -209,36 +208,36 @@ public class Board {
         int[][] connectedFour = new int[4][2];
 
         // Checking for connected four in left bottom center diagonals left diagonals
-        for(int rowStart = maxRow-1; rowStart >=3; rowStart--){
+        for(int rowStart = maxRow-1; rowStart >=0; rowStart--){
             count = 0;
             int row, col;
             for( row = rowStart, col = 0; row >=0 && col < maxCol; row--, col++ ){
                 if(boardBounds[col][row] == player){
                     count++;
-                    connectedFour[count-1][0] = row;
-                    connectedFour[count-1][1] = col;
+                    connectedFour[count-1][0] = col;
+                    connectedFour[count-1][1] = row;
                     if(count >= 4) return connectedFour;
                 }
                 else {
                     count = 0;
-                    connectedFour = new int[maxRow][maxCol];
+                    connectedFour = new int[4][2];
                 }
             }
         }
 
         //checking for connected four in center diagonals' right diagonals
-        for( int colStart = 0; colStart < maxCol - 4; colStart++){
+        for( int colStart = 0; colStart < maxCol; colStart++){
             count = 0;
-            for(int row = maxRow-1, col = colStart; row >= 3 && col < maxCol; row--, col++ ){
+            for(int row = maxRow-1, col = colStart; row >= 0 && col < maxCol; row--, col++ ){
                 if(boardBounds[col][row] == player){
                     count++;
-                    connectedFour[count-1][0] = row;
-                    connectedFour[count-1][1] = col;
+                    connectedFour[count-1][0] = col;
+                    connectedFour[count-1][1] = row;
                     if(count >= 4) return connectedFour;
                 }
                 else {
                     count = 0;
-                    connectedFour = new int[maxRow][maxCol];
+                    connectedFour = new int[4][2];
                 }
             }
         }

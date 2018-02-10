@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.Random;
 
@@ -39,5 +40,7 @@ public class Game1Activity extends GameActivity {
         });
         //else
         //    System.out.println("We have a problem");
+        this.winnerText = (TextView) findViewById(R.id.winnerText);
+        this.winnerText.setVisibility(View.INVISIBLE);
     }
 }
