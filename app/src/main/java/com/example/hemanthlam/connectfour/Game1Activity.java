@@ -1,8 +1,10 @@
 package com.example.hemanthlam.connectfour;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -42,5 +44,23 @@ public class Game1Activity extends GameActivity {
         //    System.out.println("We have a problem");
         this.winnerText = (TextView) findViewById(R.id.winnerText);
         this.winnerText.setVisibility(View.INVISIBLE);
+
+        roundButton = (Button) findViewById(R.id.roundButton);
+        roundButton.setVisibility(View.INVISIBLE);
+        roundButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                restartGame();
+            }
+        });
+        mainMenuButton = (Button) findViewById(R.id.menuButton);
+        mainMenuButton.setVisibility(View.INVISIBLE);
+        mainMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

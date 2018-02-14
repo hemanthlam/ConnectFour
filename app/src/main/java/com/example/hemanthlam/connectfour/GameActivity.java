@@ -12,11 +12,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
 import java.util.Random;
 
 import java.util.Dictionary;
@@ -32,6 +36,9 @@ public class GameActivity extends AppCompatActivity {
     protected RelativeLayout box;
     protected int turn = 1;
     protected int gameType;
+    protected int p1Wins = 0;
+    protected int p2Wins = 0;
+    protected int Round = 1;
     protected Bundle activityData;
     protected String player1Name;
     protected String player2Name;
@@ -41,6 +48,8 @@ public class GameActivity extends AppCompatActivity {
     protected ImageView p2HighlightView;
     protected TextView winnerText;
     GameActivity thisActivity;
+    protected Button roundButton;
+    protected Button mainMenuButton;
     private boolean isGameOver;
 
     @Override
@@ -122,57 +131,58 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    //finds if the player who is playing has won
+    //Finds if the player who is playing has won. If a player has won, we send a message to the UI
+    //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
+    //there isn't a stalemate, then we continue
     public void findWinner(){
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
-        if(turn==1) {
-            message = player1Name + " won";
-        }
-        else {
-            message = player2Name + " won";
-        }
-        if(a!=null){
+        if(a!=null) {
             isGameOver = true;
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    winnerText.setVisibility(View.VISIBLE);
-                    winnerText.setText(message);
-                    LinearLayout column;
-                    ImageView row1, row2, row3, row4;
-                    column = (LinearLayout) box.getChildAt(a[0][0]);
-                    row1 = (ImageView) column.getChildAt(a[0][1]);
-                    row1.setImageResource(R.drawable.white);
-                    column = (LinearLayout) box.getChildAt(a[1][0]);
-                    row2 = (ImageView) column.getChildAt(a[1][1]);
-                    row2.setImageResource(R.drawable.white);
-                    column = (LinearLayout) box.getChildAt(a[2][0]);
-                    row3 = (ImageView) column.getChildAt(a[2][1]);
-                    row3.setImageResource(R.drawable.white);
-                    column = (LinearLayout) box.getChildAt(a[3][0]);
-                    row4 = (ImageView) column.getChildAt(a[3][1]);
-                    row4.setImageResource(R.drawable.white);
-                }}, 100);
-
-        }
-        else {
-            if(gameBoard.checkIfBoardFull()) {
-                isGameOver = true;
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        winnerText.setText("Stalemate");
-                        winnerText.setVisibility(View.VISIBLE);
-                    }
-                }, 100);
-
+            if(turn==1) {
+                message = player1Name + " won";
+                ++p1Wins;
+                ((TextView) findViewById(R.id.Player1Points)).setText(Integer.toString(p1Wins));
             }
+            else {
+                message = player2Name + " won";
+                ++p2Wins;
+                ((TextView) findViewById(R.id.Player2Points)).setText(Integer.toString(p2Wins));
+            }
+            for (int i = 0; i < box.getChildCount();++i){
+                box.getChildAt(i).setClickable(false);
+            }
+            winnerText.setVisibility(View.VISIBLE);
+            winnerText.setText(message);
+            mainMenuButton.setVisibility(View.VISIBLE);
+            roundButton.setVisibility(View.VISIBLE);
+            LinearLayout column;
+            ImageView row1, row2, row3, row4;
+            column = (LinearLayout) box.getChildAt(a[0][0]);
+            row1 = (ImageView) column.getChildAt(a[0][1]);
+            row1.setImageResource(R.drawable.white);
+            column = (LinearLayout) box.getChildAt(a[1][0]);
+            row2 = (ImageView) column.getChildAt(a[1][1]);
+            row2.setImageResource(R.drawable.white);
+            column = (LinearLayout) box.getChildAt(a[2][0]);
+            row3 = (ImageView) column.getChildAt(a[2][1]);
+            row3.setImageResource(R.drawable.white);
+            column = (LinearLayout) box.getChildAt(a[3][0]);
+            row4 = (ImageView) column.getChildAt(a[3][1]);
+            row4.setImageResource(R.drawable.white);
+        }
+        if(gameBoard.checkIfBoardFull()) {
+            isGameOver = true;
+            for (int i = 0; i < box.getChildCount();++i){
+                box.getChildAt(i).setClickable(false);
+            }
+            winnerText.setText("Stalemate");
+            winnerText.setVisibility(View.VISIBLE);
         }
     }
 
-    //Switch turns
+    //Switches turns between players. This means changing the highlights player icon and the turn
+    //number/
     protected void changeTurn(){
         // Variables
         //ImageView p1Highlight = (ImageView)findViewById((int)11);
@@ -232,6 +242,10 @@ public class GameActivity extends AppCompatActivity {
         return colorId;
     }
 
+    // Animates a single chip on the board. These are the steps:
+    //    1) Check turn
+    //    2) Change color of chip based on player turn
+    //    3) Place it above board and drop it to it's position
     protected void animate(ImageView chip){
         int player1ColorId;
         int player2ColorId;
@@ -398,5 +412,21 @@ public class GameActivity extends AppCompatActivity {
         // Draw the circle on the bitmap and set the image view to display the bitmap
         imageViewCanvas.drawCircle(imageViewBitmap.getWidth() / 2, imageViewBitmap.getHeight() / 2, (imageView.getHeight() / 2) - 5, imageViewEdgePaint);
         imageView.setImageBitmap(imageViewBitmap);
+    }
+
+    //Reset the game board
+    protected void restartGame(){
+        isGameOver = false;
+        for (int i = 0; i < box.getChildCount();++i){
+            box.getChildAt(i).setEnabled(true);
+            box.getChildAt(i).setClickable(true);
+        }
+        hidePieces();
+        gameBoard.clearBoard();
+        roundButton.setVisibility(View.INVISIBLE);
+        mainMenuButton.setVisibility(View.INVISIBLE);
+        winnerText.setVisibility(View.INVISIBLE);
+        ++Round;
+        ((TextView) findViewById(R.id.RoundNumber)).setText(Integer.toString(Round));
     }
 }

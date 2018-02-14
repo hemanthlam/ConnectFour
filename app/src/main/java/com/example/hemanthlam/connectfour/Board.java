@@ -244,6 +244,9 @@ public class Board {
         return null;
     }
 
+    //Checks to see if theres a winner for either player1 or player2
+    //INPUT: The player with the current turn number (player1 == 1 and player2 == 2)
+    //OUTPUT: The four (x,y) coordinates for the winning chips
     public int[][] findWinner(int player){
         int[][] connectedFour = null;
         connectedFour = checkHorizontal(player);
@@ -261,6 +264,8 @@ public class Board {
         return null;
     }
 
+    //Checks to see if there's any room left on the board.
+    //OUTPUT: If the board is full, return TRUE. If it's not, return FALSE.
     public boolean checkIfBoardFull(){
         for(int i=0;i<this.width;i++){
             if(boardBounds[i][0]==0){

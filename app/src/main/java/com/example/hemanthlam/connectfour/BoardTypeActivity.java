@@ -28,6 +28,7 @@ public class BoardTypeActivity extends AppCompatActivity {
         gameSpinner = (Spinner) findViewById(R.id.gameSpinner);
         roundSpinner = (Spinner) findViewById(R.id.roundSpinner);
         gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            // Saves the gridspinner information
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (gameSpinner.getSelectedItem().toString()) {
@@ -52,7 +53,8 @@ public class BoardTypeActivity extends AppCompatActivity {
             }
         });
     }
-
+    // Sets up our transition to the NameActivity. This will send the board, gameType, and round
+    // information to the next page.
     protected void clickContinue(View view){
         Intent intent = null;
         switch (gridSpinner.getSelectedItem().toString()){
@@ -83,20 +85,4 @@ public class BoardTypeActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
-    /*public void boardType(View button){
-        Intent intent=null;
-        switch (button.getId()){
-            case R.id.board_76:
-                intent = new Intent(getApplicationContext(), Game1Activity.class);
-                break;
-            case R.id.board_87:
-                intent = new Intent(getApplicationContext(), Game2Activity.class);
-                break;
-            case R.id.board_108:
-                intent = new Intent(getApplicationContext(), Game3Activity.class);
-                break;
-        }
-        startActivity(intent);
-
-    }*/
 }
