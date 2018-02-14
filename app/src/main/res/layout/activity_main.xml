@@ -4,15 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="@drawable/universe"
     tools:context="com.example.hemanthlam.connectfour.MainActivity">
 
     <Button
         android:id="@+id/highscorebutton"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="172dp"
         android:background="@color/colorPrimary"
-        android:text="HighScore"
+        android:text="HighScores"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="314dp" />
 
@@ -22,7 +25,7 @@
         android:layout_height="81dp"
         android:layout_below="@+id/highscorebutton"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="14dp"
         android:background="@color/colorPrimary"
         android:text="Play Game"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,10 +38,11 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/highscorebutton"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="61dp"
-        android:text="Connect-4"
-        android:textColor="@android:color/holo_red_light"
-        android:textSize="30sp" />
+        android:layout_marginTop="44dp"
+        android:text="Connect-4 In Space!"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 </RelativeLayout>

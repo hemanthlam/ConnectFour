@@ -3,4 +3,32 @@
     <string name="grid76">7*6</string>
     <string name="grid87">8*7</string>
     <string name="grid108">10*8</string>
+    <string name="gridPrompt"> Choose Grid </string>
+
+    <string-array name="gridArrays">
+        <item>Board Size</item>
+        <item>7 x 6</item>
+        <item>8 x 7</item>
+        <item>10 x 8</item>
+    </string-array>
+    <string-array name="gameArrays">
+        <item>Game Mode</item>
+        <item>Local Multiplayer</item>
+        <item>Online Multiplayer</item>
+        <item>AI Mode (Single Player)</item>
+    </string-array>
+    <string-array name="roundArrays">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
 </resources>

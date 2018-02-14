@@ -18,13 +18,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Game1Activity"
-                  android:screenOrientation="portrait"/>
-        <activity android:name=".Game2Activity"
-                  android:screenOrientation="portrait"/>
-        <activity android:name=".Game3Activity"
-            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".Game1Activity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Game2Activity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Game3Activity"
+            android:screenOrientation="portrait" />
         <activity android:name=".BoardTypeActivity" />
+        <activity android:name=".NameActivity" />
+        <activity android:name=".HighScoreActivity"></activity>
     </application>
 
 </manifest>

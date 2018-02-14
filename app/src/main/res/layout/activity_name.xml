@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/universe"
+    tools:context="com.example.hemanthlam.connectfour.NameActivity">
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="450dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="17dp"
+            android:text="Player Info"
+            android:textColor="@android:color/background_light"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/player1Name"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_below="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="39dp"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Wrex"
+            android:textColor="@android:color/background_dark" />
+
+        <EditText
+            android:id="@+id/player2Name"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_alignStart="@+id/player1Name"
+            android:layout_below="@+id/player1Name"
+            android:layout_marginTop="100dp"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Shepard"
+            android:textColor="@android:color/background_dark" />
+
+        <ImageView
+            android:id="@+id/Player1Blue"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@+id/player1Name"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="30dp"
+            android:layout_toStartOf="@+id/textView3"
+            app:srcCompat="@drawable/blue" />
+
+        <ImageView
+            android:id="@+id/Player1Red"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignStart="@+id/textView3"
+            android:layout_alignTop="@+id/Player1Blue"
+            android:layout_marginStart="20dp"
+            app:srcCompat="@drawable/red" />
+
+        <ImageView
+            android:id="@+id/Player1Green"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignTop="@+id/Player1Red"
+            android:layout_toEndOf="@+id/textView3"
+            app:srcCompat="@drawable/green" />
+
+        <ImageView
+            android:id="@+id/Player1Purple"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/player1Name"
+            android:layout_alignTop="@+id/Player1Green"
+            app:srcCompat="@drawable/purple" />
+
+        <RadioButton
+            android:id="@+id/player1BlueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player1Blue"
+            android:layout_toStartOf="@+id/Player1Blue"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player1RedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/Player1Red"
+            android:layout_alignTop="@+id/Player1Red"
+            android:layout_marginEnd="29dp"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player1GreenButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player1Green"
+            android:layout_toStartOf="@+id/Player1Green"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player1PurpleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player1Purple"
+            android:layout_toStartOf="@+id/Player1Purple"
+            android:buttonTint="@android:color/background_light"/>
+
+        <ImageView
+            android:id="@+id/Player2Blue"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@+id/player2Name"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="30dp"
+            android:layout_toStartOf="@+id/textView3"
+            app:srcCompat="@drawable/blue" />
+
+        <ImageView
+            android:id="@+id/Player2Red"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignStart="@+id/textView3"
+            android:layout_alignTop="@+id/Player2Blue"
+            android:layout_marginStart="20dp"
+            app:srcCompat="@drawable/red" />
+
+        <ImageView
+            android:id="@+id/Player2Green"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignTop="@+id/Player2Red"
+            android:layout_toEndOf="@+id/textView3"
+            app:srcCompat="@drawable/green" />
+
+        <ImageView
+            android:id="@+id/Player2Purple"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/player2Name"
+            android:layout_alignTop="@+id/Player2Green"
+            app:srcCompat="@drawable/purple" />
+
+        <RadioButton
+            android:id="@+id/player2BlueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player2Blue"
+            android:layout_toStartOf="@+id/Player2Blue"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player2RedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/Player2Red"
+            android:layout_alignTop="@+id/Player2Red"
+            android:layout_marginEnd="29dp"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player2GreenButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player2Green"
+            android:layout_toStartOf="@+id/Player2Green"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/player2PurpleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/Player2Purple"
+            android:layout_toStartOf="@+id/Player2Purple"
+            android:buttonTint="@android:color/background_light"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimaryDark"
+        android:onClick="clickStart"
+        android:text="Start Game"
+        android:textColor="@android:color/background_light" />
+</RelativeLayout>

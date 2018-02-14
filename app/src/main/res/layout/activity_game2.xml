@@ -2,10 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/GAME_2_RELATIVE_LAYOUT"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="@drawable/universe"
     tools:context="com.example.hemanthlam.connectfour.Game2Activity">
+
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
@@ -19,11 +21,11 @@
             android:id="@+id/sevenbysiximageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/eightbyseven"
+            app:srcCompat="@drawable/eightbysevenpart2"
             tools:ignore="ContentDescription" />
 
         <RelativeLayout
-            android:id="@+id/GAME_1_INNER_RELATIVE"
+            android:id="@+id/GAME_2_INNER_RELATIVE"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -86,6 +88,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC06"
                     android:layout_width="match_parent"
@@ -154,6 +157,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC16"
                     android:layout_width="match_parent"
@@ -222,6 +226,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC26"
                     android:layout_width="match_parent"
@@ -290,6 +295,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC36"
                     android:layout_width="match_parent"
@@ -358,6 +364,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC46"
                     android:layout_width="match_parent"
@@ -426,6 +433,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC56"
                     android:layout_width="match_parent"
@@ -494,6 +502,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC66"
                     android:layout_width="match_parent"
@@ -512,6 +521,7 @@
                 android:layout_marginLeft="298dp"
                 android:layout_marginStart="306dp"
                 android:orientation="vertical">
+
                 <ImageView
                     android:id="@+id/DISC70"
                     android:layout_width="wrap_content"
@@ -561,6 +571,7 @@
                     android:layout_marginTop="11dp"
                     android:layout_weight="0"
                     app:srcCompat="@drawable/blue" />
+
                 <ImageView
                     android:id="@+id/DISC76"
                     android:layout_width="match_parent"
@@ -571,4 +582,65 @@
             </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/winnerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/roundButton"
+        android:layout_centerHorizontal="true"
+        android:text="TextView"
+        android:textSize="30sp" />
+
+    <Button
+        android:id="@+id/menuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="122dp"
+        android:layout_toStartOf="@+id/winnerText"
+        android:background="@color/colorPrimaryDark"
+        android:text="Main Menu" />
+
+    <Button
+        android:id="@+id/roundButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/menuButton"
+        android:layout_alignBottom="@+id/menuButton"
+        android:layout_toEndOf="@+id/winnerText"
+        android:background="@color/colorPrimaryDark"
+        android:text="Next Round" />
+
+    <TextView
+        android:id="@+id/Player1Points"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignBaseline="@+id/Player2Points"
+        android:layout_alignBottom="@+id/Player2Points"
+        android:layout_toStartOf="@+id/Player2Points"
+        android:text="0"
+        android:textAlignment="center"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/Player2Points"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp"
+        android:text="0"
+        android:textAlignment="center"
+        android:textSize="20dp" />
+    <TextView
+        android:id="@+id/RoundNumber"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignBaseline="@+id/Player2Points"
+        android:layout_alignBottom="@+id/Player2Points"
+        android:layout_toEndOf="@+id/Player2Points"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="20dp" />
 </RelativeLayout>
