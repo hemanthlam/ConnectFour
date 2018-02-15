@@ -39,28 +39,9 @@ public class Game2Activity extends GameActivity {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.player1Color); }
             });
-        //else
-        //    System.out.println("Something Went Wrong");
-        this.winnerText = (TextView) findViewById(R.id.winnerText);
-        this.winnerText.setVisibility(View.INVISIBLE);
 
-        roundButton = (Button) findViewById(R.id.roundButton);
-        roundButton.setVisibility(View.INVISIBLE);
-        roundButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                restartGame();
-            }
-        });
-        mainMenuButton = (Button) findViewById(R.id.menuButton);
-        mainMenuButton.setVisibility(View.INVISIBLE);
-        mainMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
-            }
-        });
+        // Initialize Game End Screen
+        thisActivity.initializeGameEndScreen();
     }
 
 }

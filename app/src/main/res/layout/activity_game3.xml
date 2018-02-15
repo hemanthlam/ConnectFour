@@ -804,34 +804,6 @@
 
         </RelativeLayout>
     </FrameLayout>
-    <TextView
-        android:id="@+id/winnerText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/roundButton"
-        android:layout_centerHorizontal="true"
-        android:text="Test Text"
-        android:textSize="30sp" />
-
-    <Button
-        android:id="@+id/menuButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="122dp"
-        android:layout_toStartOf="@+id/winnerText"
-        android:background="@color/colorPrimaryDark"
-        android:text="Main Menu" />
-
-    <Button
-        android:id="@+id/roundButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/menuButton"
-        android:layout_alignBottom="@+id/menuButton"
-        android:layout_toEndOf="@+id/winnerText"
-        android:background="@color/colorPrimaryDark"
-        android:text="Next Round" />
 
     <TextView
         android:id="@+id/Player1Points"
@@ -850,7 +822,7 @@
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="100dp"
         android:text="0"
         android:textAlignment="center"
         android:textSize="20dp" />
