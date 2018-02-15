@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -17,13 +16,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.util.Random;
-
-import java.util.Dictionary;
 
 /**
  * Created by Sean on 1/25/2018.
@@ -46,8 +40,9 @@ public class GameActivity extends AppCompatActivity {
     protected String player2Color;
     protected ImageView p1HighlightView;
     protected ImageView p2HighlightView;
+    protected GameActivity thisActivity;
     protected TextView winnerText;
-    GameActivity thisActivity;
+    protected RelativeLayout gameEndMenu;
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
@@ -152,10 +147,12 @@ public class GameActivity extends AppCompatActivity {
             for (int i = 0; i < box.getChildCount();++i){
                 box.getChildAt(i).setClickable(false);
             }
-            winnerText.setVisibility(View.VISIBLE);
+            //winnerText.setVisibility(View.VISIBLE);
             winnerText.setText(message);
-            mainMenuButton.setVisibility(View.VISIBLE);
-            roundButton.setVisibility(View.VISIBLE);
+            this.setGameEndWindowVisibility(true);
+            //mainMenuButton.setVisibility(View.VISIBLE);
+            //roundButton.setVisibility(View.VISIBLE);
+
             LinearLayout column;
             ImageView row1, row2, row3, row4;
             column = (LinearLayout) box.getChildAt(a[0][0]);
@@ -177,7 +174,29 @@ public class GameActivity extends AppCompatActivity {
                 box.getChildAt(i).setClickable(false);
             }
             winnerText.setText("Stalemate");
-            winnerText.setVisibility(View.VISIBLE);
+            this.setGameEndWindowVisibility(true);
+        }
+    }
+
+    // Sets the visiblity of the gamewindow. Animations and delays are used, and I didn't want this written more than once, so I put it here
+    // INPUT: visible (a boolean that, if set to true, indicates that the game end menu is to be visible. If false, indicates that it is to be hidden)
+    // OUTPUT: none
+    public void setGameEndWindowVisibility(boolean visible) {
+        if (visible) {
+            // https://stackoverflow.com/questions/4817933/what-is-the-equivalent-to-a-javascript-setinterval-settimeout-in-android-java
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // https://stackoverflow.com/questions/22454839/android-adding-simple-animations-while-setvisibilityview-gone
+                    thisActivity.gameEndMenu.setAlpha(0.0f);
+                    thisActivity.gameEndMenu.setVisibility(View.VISIBLE);
+                    thisActivity.gameEndMenu.animate().alpha(1.0f).setDuration(2000);
+                }
+            }, 2000);
+        }
+        else {
+            thisActivity.gameEndMenu.setAlpha(0.0f);
+            thisActivity.gameEndMenu.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -414,6 +433,93 @@ public class GameActivity extends AppCompatActivity {
         imageView.setImageBitmap(imageViewBitmap);
     }
 
+    // Draw the game-end menu (pops up whenever a game ends and gives the players the ability to exit to the main menu or keep playing)
+    // It remains hidden by default (it is presumed to be drawn at the beginning of the match and hidden later)
+    // INPUT: none
+    // OUTPUT: none
+    protected void initializeGameEndScreen() {
+        // Create the objects needed for the window
+        RelativeLayout container = new RelativeLayout(getWindow().getContext());
+        LinearLayout linearLayout = new LinearLayout(container.getContext());
+        TextView gameWinner = new TextView(linearLayout.getContext());
+        Button menuButton = new Button(container.getContext());
+        Button replayButton = new Button(container.getContext());
+
+        // Get Display Information and save it
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+        int windowWidth = displayMetrics.widthPixels;
+        int windowHeight = displayMetrics.heightPixels;
+        int elementHeight = windowHeight / 8;
+
+        // Style the relative layout
+        container.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+        // Style the linear layout on the screen
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((windowWidth/4)*3, ViewGroup.LayoutParams.WRAP_CONTENT);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setLayoutParams(layoutParams);
+        linearLayout.setX(windowWidth/8);
+        linearLayout.setY(displayMetrics.heightPixels / 4);
+        linearLayout.setDividerPadding(10);
+
+        // Add some detail to the text view
+        gameWinner.setText("Game Winner");
+        gameWinner.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        gameWinner.setTextSize(24);
+        gameWinner.setWidth(linearLayout.getWidth());
+        gameWinner.setMinHeight(elementHeight);
+
+        // Some detail for the buttons
+        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, elementHeight);
+        buttonLayoutParams.setMargins(0, 10, 0, 10);
+
+        // https://android--code.blogspot.com/2015/05/android-textview-layout-margin.html
+        // http://smartandroidians.blogspot.com/2009/12/setting-margin-for-widgets.html
+        // https://stackoverflow.com/questions/16552811/set-a-margin-between-two-buttons-programmatically-from-a-linearlayout
+
+        menuButton.setText("Main Menu");
+        menuButton.setLayoutParams(buttonLayoutParams);
+        menuButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        replayButton.setText("Next Round");
+        replayButton.setLayoutParams(buttonLayoutParams);
+        replayButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        // Add the text view and buttons to the linear layout
+        linearLayout.addView(gameWinner);
+        linearLayout.addView(menuButton);
+        linearLayout.addView(replayButton);
+
+        // Add linear layout to relative layout
+        container.addView(linearLayout);
+
+        // Add linear layout to screen
+        getWindow().addContentView(container, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Setting some variables so we can edit these values
+        this.gameEndMenu = container;
+        this.winnerText = gameWinner;
+        this.roundButton = replayButton;
+        this.mainMenuButton = menuButton;
+        this.setGameEndWindowVisibility(false);
+
+        // Set game end button listeners
+        this.roundButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                thisActivity.restartGame();
+            }
+        });
+        this.mainMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
     //Reset the game board
     protected void restartGame(){
         isGameOver = false;
@@ -423,9 +529,7 @@ public class GameActivity extends AppCompatActivity {
         }
         hidePieces();
         gameBoard.clearBoard();
-        roundButton.setVisibility(View.INVISIBLE);
-        mainMenuButton.setVisibility(View.INVISIBLE);
-        winnerText.setVisibility(View.INVISIBLE);
+        gameEndMenu.setVisibility(View.INVISIBLE);
         ++Round;
         ((TextView) findViewById(R.id.RoundNumber)).setText(Integer.toString(Round));
     }
