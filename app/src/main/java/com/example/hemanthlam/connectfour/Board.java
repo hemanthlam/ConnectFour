@@ -94,6 +94,7 @@ public class Board {
 
         int[][] connectedFour = new int[4][2];
         for (int row = maxRow-1; row >= 0; row--) {
+            count = 0;
             for(int col=0;col<maxCol;col++) {
                 if (boardBounds[col][row] == player) {
                     connectedFour[count][0] = col;
