@@ -1,5 +1,8 @@
 package com.example.hemanthlam.connectfour;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -49,6 +52,7 @@ public class GameActivity extends AppCompatActivity {
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,7 +224,6 @@ public class GameActivity extends AppCompatActivity {
                 this.p2HighlightView.setVisibility(View.VISIBLE);
                 this.p1HighlightView.setVisibility(View.INVISIBLE);
                 this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
-
             }
         }
     }
