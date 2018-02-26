@@ -806,33 +806,12 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/Player1Points"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignBaseline="@+id/Player2Points"
-        android:layout_alignBottom="@+id/Player2Points"
-        android:layout_toStartOf="@+id/Player2Points"
-        android:text="0"
-        android:textAlignment="center"
-        android:textSize="20dp" />
-
-    <TextView
-        android:id="@+id/Player2Points"
+        android:id="@+id/RoundNumber"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
-        android:text="0"
-        android:textAlignment="center"
-        android:textSize="20dp" />
-    <TextView
-        android:id="@+id/RoundNumber"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignBaseline="@+id/Player2Points"
-        android:layout_alignBottom="@+id/Player2Points"
-        android:layout_toEndOf="@+id/Player2Points"
         android:text="1"
         android:textAlignment="center"
         android:textSize="20dp" />
