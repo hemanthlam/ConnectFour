@@ -1,16 +1,19 @@
 package com.example.hemanthlam.connectfour;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 //The activity used for the 7 x 6 game board
 public class Game1Activity extends GameActivity {
+    String TAG = "Game1Activity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game1);
+        Log.d(TAG,"Board 7*6");
         box = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
         gameBoard = new Board("7x6");
         hidePieces();

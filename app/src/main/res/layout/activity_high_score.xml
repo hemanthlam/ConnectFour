@@ -19,10 +19,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="17dp"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
             android:text="High Scores"
             android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"
+            android:background="#ffffff"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="5dp"
+            android:layout_alignParentRight="true"
+            android:onClick="clearHighScores"/>
 
         <TextView
             android:id="@+id/highScoreOne"

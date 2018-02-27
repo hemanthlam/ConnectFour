@@ -21,7 +21,7 @@
             android:layout_height="40dp"
             android:layout_below="@+id/textView3"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="70dp"
             android:background="@color/colorPrimaryDark"
             android:entries="@array/gridArrays"
             android:textAlignment="center" />
@@ -32,21 +32,10 @@
             android:layout_height="40dp"
             android:layout_alignStart="@+id/gridSpinner"
             android:layout_below="@+id/gridSpinner"
-            android:layout_marginTop="93dp"
+            android:layout_marginTop="130dp"
             android:background="@color/colorPrimaryDark"
             android:entries="@array/gameArrays"
             android:prompt="@string/gridPrompt"
-            android:textAlignment="center" />
-
-        <Spinner
-            android:id="@+id/roundSpinner"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_alignEnd="@+id/textView3"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="64dp"
-            android:background="@color/colorPrimaryDark"
-            android:entries="@array/roundArrays"
             android:textAlignment="center" />
 
         <TextView
@@ -55,18 +44,30 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="17dp"
+            android:layout_marginTop="22dp"
             android:text="Game Setup"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/gridSpinner"
+            android:layout_below="@+id/textView3"
+            android:layout_marginTop="37dp"
+            android:text="Game Board Size"
             android:textSize="20sp" />
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/roundSpinner"
+
+            android:layout_alignBottom="@+id/gameSpinner"
             android:layout_alignStart="@+id/gameSpinner"
-            android:text="Rounds:"
-            android:textSize="25dp" />
+            android:layout_marginBottom="54dp"
+            android:text="Game Mode"
+            android:textSize="20sp" />
 
     </RelativeLayout>
 
