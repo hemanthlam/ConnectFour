@@ -1,15 +1,13 @@
 package com.example.hemanthlam.connectfour;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,12 +17,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
+import com.example.hemanthlam.connectfour.db.AppDatabase;
+import com.example.hemanthlam.connectfour.db.Player;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-
-import java.util.Dictionary;
-
 /**
  * Created by Sean on 1/25/2018.
  */
@@ -51,6 +48,8 @@ public class GameActivity extends AppCompatActivity {
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
+    private static final String TAG = "GameActivity";
+    private int lastFirstTurn = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +127,7 @@ public class GameActivity extends AppCompatActivity {
             animate(chip);
             findWinner();
             changeTurn();
+            Log.d(TAG,"Disc placed at col" + col);
         }
     }
 
@@ -135,6 +135,12 @@ public class GameActivity extends AppCompatActivity {
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
     public void findWinner(){
+        List<Player> list = new ArrayList<>();
+        AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
+        int topScore=0;
+        if(appDatabase.userDao().getTop5Scores().size()>0)
+            topScore = appDatabase.userDao().getTop5Scores().get(0).getScore();
+        Player player;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
         if(a!=null) {
@@ -143,15 +149,58 @@ public class GameActivity extends AppCompatActivity {
                 message = player1Name + " won";
                 ++p1Wins;
                 ((TextView) findViewById(R.id.Player1Points)).setText(Integer.toString(p1Wins));
+                player  = appDatabase.userDao().getPlayer(player1Name);
+                if(p1Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                }
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p1Wins);
+                    player.setName(player1Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p1Wins){
+                        player.setScore(p1Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+
+
+                list.add(player);
+                Log.d(TAG,"Player 1 won");
             }
             else {
                 message = player2Name + " won";
                 ++p2Wins;
                 ((TextView) findViewById(R.id.Player2Points)).setText(Integer.toString(p2Wins));
+                player  = appDatabase.userDao().getPlayer(player2Name);
+                if(p2Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                };
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p2Wins);
+                    player.setName(player2Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p2Wins){
+                        player.setScore(p2Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+                player.setName(player2Name);
+                player.setScore(p2Wins);
+                list.add(player);
+                Log.d(TAG,"Player 2 won");
             }
             for (int i = 0; i < box.getChildCount();++i){
                 box.getChildAt(i).setClickable(false);
             }
+
             winnerText.setVisibility(View.VISIBLE);
             winnerText.setText(message);
             mainMenuButton.setVisibility(View.VISIBLE);
@@ -177,6 +226,7 @@ public class GameActivity extends AppCompatActivity {
                 box.getChildAt(i).setClickable(false);
             }
             winnerText.setText("Stalemate");
+            Log.d(TAG,"Stalemate");
             winnerText.setVisibility(View.VISIBLE);
         }
     }
@@ -190,6 +240,7 @@ public class GameActivity extends AppCompatActivity {
 
         if(turn == 1)
             turn = 2;
+
         else
             turn = 1;
 
@@ -247,18 +298,14 @@ public class GameActivity extends AppCompatActivity {
     //    2) Change color of chip based on player turn
     //    3) Place it above board and drop it to it's position
     protected void animate(ImageView chip){
-        int player1ColorId;
-        int player2ColorId;
-
 
         if(turn == 1)
             chip.setImageResource(this.colorToDiscImgId(this.player1Color));
         else chip.setImageResource(this.colorToDiscImgId(this.player2Color));
         chip.setTranslationY(-1000);
         chip.setVisibility(View.VISIBLE);
-        chip.animate().translationYBy(1000).setDuration(500);
+        chip.animate().translationYBy(1000).setDuration(350);
     }
-
 
     // Create Player Name
     // Generates the textview and display icon that will display the player name
@@ -416,7 +463,16 @@ public class GameActivity extends AppCompatActivity {
 
     //Reset the game board
     protected void restartGame(){
+        Log.d(TAG, "Restarting the game");
         isGameOver = false;
+        if(lastFirstTurn == 1){
+            turn = 2;
+            lastFirstTurn = 2;
+        }
+        else{
+            turn =1;
+            lastFirstTurn = 1;
+        }
         for (int i = 0; i < box.getChildCount();++i){
             box.getChildAt(i).setEnabled(true);
             box.getChildAt(i).setClickable(true);
