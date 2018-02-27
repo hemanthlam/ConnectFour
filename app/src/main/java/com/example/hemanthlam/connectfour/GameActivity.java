@@ -1,28 +1,29 @@
 package com.example.hemanthlam.connectfour;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.os.Handler;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import java.util.Random;
-
+import android.widget.Toast;
+import com.example.hemanthlam.connectfour.db.AppDatabase;
+import com.example.hemanthlam.connectfour.db.Player;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * Created by Sean on 1/25/2018.
  */
@@ -52,7 +53,9 @@ public class GameActivity extends AppCompatActivity {
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
-
+    private static final String TAG = "GameActivity";
+    private int lastFirstTurn = 1;
+    protected String gameMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,7 @@ public class GameActivity extends AppCompatActivity {
             this.p2Name = "Online Player";
         else
             this.p2Name = this.activityData.getString("Player2", "AI");
+        this.gameMode = this.activityData.getString("Game");
 
         // Saving Player Colors
         this.p1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
@@ -130,6 +134,7 @@ public class GameActivity extends AppCompatActivity {
             animate(chip);
             findWinner();
             changeTurn();
+            Log.d(TAG,"Disc placed at col" + col);
         }
     }
 
@@ -137,6 +142,12 @@ public class GameActivity extends AppCompatActivity {
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
     public void findWinner(){
+        List<Player> list = new ArrayList<>();
+        AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
+        int topScore=0;
+        if(appDatabase.userDao().getTop5Scores().size()>0)
+            topScore = appDatabase.userDao().getTop5Scores().get(0).getScore();
+        Player player;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
         if(a!=null) {
@@ -145,11 +156,52 @@ public class GameActivity extends AppCompatActivity {
                 message = p1Name + " won";
                 ++p1Wins;
                 p1ScoreView.setText(Integer.toString(p1Wins));
+                player  = appDatabase.userDao().getPlayer(p1Name);
+                if(p1Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                }
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p1Wins);
+                    player.setName(p1Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p1Wins){
+                        player.setScore(p1Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+
+                list.add(player);
+                Log.d(TAG,"Player 1 won");
             }
             else {
                 message = p2Name + " won";
                 ++p2Wins;
                 p2ScoreView.setText(Integer.toString(p2Wins));
+                player  = appDatabase.userDao().getPlayer(p2Name);
+                if(p2Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                };
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p2Wins);
+                    player.setName(p2Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p2Wins){
+                        player.setScore(p2Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+                player.setName(p2Name);
+                player.setScore(p2Wins);
+                list.add(player);
+                Log.d(TAG,"Player 2 won");
             }
             for (int i = 0; i < box.getChildCount();++i){
                 box.getChildAt(i).setClickable(false);
@@ -179,6 +231,8 @@ public class GameActivity extends AppCompatActivity {
             }
             winnerText.setText("Stalemate");
             this.setGameEndWindowVisibility(true);
+            Log.d(TAG,"Stalemate");
+            winnerText.setVisibility(View.VISIBLE);
         }
     }
 
@@ -209,6 +263,7 @@ public class GameActivity extends AppCompatActivity {
     protected void changeTurn(){
         if(turn == 1)
             turn = 2;
+
         else
             turn = 1;
 
@@ -226,6 +281,12 @@ public class GameActivity extends AppCompatActivity {
                 this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
         }
+
+        // Online mode (this is where the turn handling will be done)
+        //if (this.gameMode.equals("Online Multiplayer"))
+        //{
+
+        //}
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -271,9 +332,8 @@ public class GameActivity extends AppCompatActivity {
         else chip.setImageResource(this.colorToDiscImgId(this.p2Color));
         chip.setTranslationY(-1000);
         chip.setVisibility(View.VISIBLE);
-        chip.animate().translationYBy(1000).setDuration(500);
+        chip.animate().translationYBy(1000).setDuration(350);
     }
-
 
     // Create Player Name
     // Generates the textview and display icon that will display the player name
@@ -529,7 +589,16 @@ public class GameActivity extends AppCompatActivity {
 
     //Reset the game board
     protected void restartGame(){
+        Log.d(TAG, "Restarting the game");
         isGameOver = false;
+        if(lastFirstTurn == 1){
+            turn = 2;
+            lastFirstTurn = 2;
+        }
+        else{
+            turn =1;
+            lastFirstTurn = 1;
+        }
         for (int i = 0; i < box.getChildCount();++i){
             box.getChildAt(i).setEnabled(true);
             box.getChildAt(i).setClickable(true);
