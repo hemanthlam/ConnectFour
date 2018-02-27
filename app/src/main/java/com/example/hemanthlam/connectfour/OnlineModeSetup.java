@@ -49,9 +49,6 @@ public class OnlineModeSetup extends Activity {
 
             @Override
             public void onClick(View v){
-                // Start by trying to get an updated list of peers
-                thisActivity.onlineMode.updatePeerList();
-
                 // Update the visibility of the get-hosts window
                 if (thisActivity.getHostsWindow != null)
                     thisActivity.getHostsWindow.setVisibility(View.VISIBLE);
