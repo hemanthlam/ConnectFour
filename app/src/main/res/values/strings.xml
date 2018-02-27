@@ -6,13 +6,11 @@
     <string name="gridPrompt"> Choose Grid </string>
 
     <string-array name="gridArrays">
-        <item>Board Size</item>
         <item>7 x 6</item>
         <item>8 x 7</item>
         <item>10 x 8</item>
     </string-array>
     <string-array name="gameArrays">
-        <item>Game Mode</item>
         <item>Local Multiplayer</item>
         <item>Online Multiplayer</item>
         <item>AI Mode (Single Player)</item>
@@ -31,4 +29,5 @@
         <item>11</item>
         <item>12</item>
     </string-array>
+    <string name="title_activity_online_mode_setup">OnlineModeSetup</string>
 </resources>
