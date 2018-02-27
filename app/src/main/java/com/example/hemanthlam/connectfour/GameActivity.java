@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.EventListener;
 import java.util.Random;
 
 /**
@@ -52,6 +53,8 @@ public class GameActivity extends AppCompatActivity {
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
+    protected String gameMode;
+
 
 
     @Override
@@ -69,6 +72,7 @@ public class GameActivity extends AppCompatActivity {
             this.p2Name = "Online Player";
         else
             this.p2Name = this.activityData.getString("Player2", "AI");
+        this.gameMode = this.activityData.getString("Game");
 
         // Saving Player Colors
         this.p1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
@@ -225,6 +229,12 @@ public class GameActivity extends AppCompatActivity {
                 this.p1HighlightView.setVisibility(View.INVISIBLE);
                 this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
+        }
+
+        // Online mode (this is where the turn handling will be done)
+        if (this.gameMode.equals("Online Multiplayer"))
+        {
+
         }
     }
 

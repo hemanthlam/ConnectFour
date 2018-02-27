@@ -15,14 +15,27 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Looper;
+import android.renderscript.ScriptGroup;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventListener;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 /**
  * File: OnlineModeBroadcastReceiver.java
@@ -62,6 +75,27 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
     public IntentFilter getIntentFilter() {
         return intentFilter;
     }
+
+    // Connection Things (for date exchange with client)
+    // Will be used to send and receive data
+    private OutputStream connectionOutputStream = null;
+    private InputStream connectioninputStream = null;
+
+    // For receiving data
+    private byte buffer[] = new byte[1024];
+
+    // Server Socket and client
+    private ServerSocket serverSocket = null;
+    private Socket client = null;
+
+    // Atomic Ints: http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurrent-map-examples/
+    private AtomicBoolean sendSignal = new AtomicBoolean(false);
+    private AtomicBoolean receiveSignal = new AtomicBoolean(false);
+    private AtomicBoolean continueThreadExecution = new AtomicBoolean(true);
+
+    // Data to send to the client (when sendSignal is set to true)
+    private String sendData = "";
+    private String receiveData = "";
 
     // A LinearLayout list to update with information
     // Because the requestPeers call (which will get our list of peers), is asynchronous, we have to update the list in the peer listener
@@ -144,6 +178,75 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         }
     };
 
+    // Initiate socket connection
+    // INPUT: none
+    // OUTPUT: none
+    public void initiateConnectionWithConnectedDevice() {
+        boolean connectionSucessful = false;
+
+        // Will be used to send and receive data
+        OutputStream connectionOutputStream = null;
+        InputStream connectioninputStream = null;
+
+        // For receiving data
+        byte buffer[] = new byte[1024];
+
+        // Server Socket and client
+        ServerSocket serverSocket = null;
+        Socket client = null;
+
+        try {
+            // The group owner is the server, therefore if the connected device is not the group owner, this is the server.
+            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+            if (!thisClass.connectedDeviceIsGroupOwner) {
+                // 8080 will be the send channel
+                this.serverSocket = new ServerSocket(8080);
+                this.client = serverSocket.accept();
+
+                // Setup the input streams
+                this.connectioninputStream = client.getInputStream();
+                this.connectionOutputStream = client.getOutputStream();
+
+                if (this.client == null || this.serverSocket == null || this.connectioninputStream == null || this.connectionOutputStream == null)
+                    connectionSucessful = false;
+            }
+            // Otherwise, this is the client
+            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+            else {
+                // Initiate connection to server
+                this.client = new Socket();
+                this.client.bind(null);
+                this.client.connect(new InetSocketAddress(thisClass.connectedDeviceAddress, 8080), 1000);
+
+                // Setup the input and output streams (I think we can use one port for this?)
+                this.connectioninputStream = client.getInputStream();
+                this.connectionOutputStream = client.getOutputStream();
+
+                // Verify
+                if (this.client == null || this.connectioninputStream == null || this.connectionOutputStream == null)
+                    connectionSucessful = false;
+            }
+        } catch (IOException InteruptedEx) {System.out.println("Connection Initialization Failed");}
+    }
+
+    // End Socket Connection
+    // INPUT: none
+    // OUTPUT: none
+    public void endConnectionWithConnectedDevice() {
+        // Close sockets and I/O streams
+        // I thought closing the individual sockets and streams would be better than putting all of them in one try catch (so if close() attempt fails, the rest don't have to)
+        if (serverSocket != null && !serverSocket.isClosed())
+            try {serverSocket.close();} catch (IOException ex) {};
+        if (client != null && !client.isClosed())
+            try {client.close();} catch (IOException ex) {};
+        if (connectioninputStream != null)
+            try {connectioninputStream.close();} catch (IOException ex) {};
+        if (connectionOutputStream != null)
+            try {connectionOutputStream.close();} catch (IOException ex) {};
+    }
+
+    // The Connection Information Listener
+    // Executes whenever a connection is successfully created
     private WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
@@ -155,7 +258,149 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         }
     };
 
+    // Attempts to get a move from another player (connected via a socket)
+    // INPUT: none
+    // OUTPUT: none
+    public String getMoveFromOtherPlayer() {
+        // Temporary Variable
+        String temp = "";
 
+        // This function can only execute if our thread function (controlling socket functionality) is runnin
+        if (this.continueThreadExecution.get()) {
+            // Read data off of the input buffer (a.k.a: get it from the client socket)
+            // The example simply shows you waiting until you get data... A timer was put in an an attempt to mitigate that
+            try {
+                while (this.connectioninputStream.read(buffer) != -1);
+                try {Thread.sleep(500);} catch(InterruptedException ex) {}
+            } catch(IOException ex) {}
+
+            // Copy data to the move data string
+            // https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
+            temp = new String(buffer);
+
+            // Update the appropriate signal variables
+            //this.receiveSignal.set(false);
+            //this.receiveSignal.notifyAll();
+        }
+
+        // Return result
+        return temp;
+    }
+
+    // Sends move data (contained in string) to other player
+    // INPUT: data (string to send)
+    // OUTPUT: none
+    public void setSendDataToOtherPlayer(String data) {
+        // This function can only execute if our thread function (controlling socket functionality) is running
+        if (this.continueThreadExecution.get()) {
+            //this.sendData = data;
+            //this.sendSignal.set(true);
+            //this.continueThreadExecution.notifyAll();
+
+            // Send string
+            try { this.connectionOutputStream.write(this.sendData.getBytes()); } catch (IOException ex) {}
+
+            // Reset variables
+            this.sendData = "";
+            //this.sendSignal.set(false);
+            //this.sendSignal.notifyAll(); // Notifies all threads waiting for the notification on this variable
+
+            //try {sendSignal.wait();} catch (InterruptedException ex) {}
+        }
+    }
+
+    //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+    void threadFunction() {
+        // Will be used to send and receive data
+        OutputStream connectionOutputStream = null;
+        InputStream connectioninputStream = null;
+
+        // For receiving data
+        byte buffer[] = new byte[1024];
+
+        // Server Socket and client
+        ServerSocket serverSocket = null;
+        Socket client = null;
+
+        try {
+            // The group owner is the server, therefore if the connected device is not the group owner, this is the server.
+            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+            if (!thisClass.connectedDeviceIsGroupOwner)
+            {
+                // 8080 will be the send channel
+                serverSocket = new ServerSocket(8080);
+                client = serverSocket.accept();
+
+                // Setup the input streams
+                connectioninputStream = client.getInputStream();
+                connectionOutputStream = client.getOutputStream();
+            }
+            // Otherwise, this is the client
+            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+            else {
+                // Initiate connection to server
+                client = new Socket();
+                client.bind(null);
+                client.connect(new InetSocketAddress(thisClass.connectedDeviceAddress, 8080), 1000);
+
+                // Setup the input and output streams (I think we can use one port for this?)
+                connectioninputStream = client.getInputStream();
+                connectionOutputStream = client.getOutputStream();
+            }
+
+            // Thread waiting: https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#wait()
+            while(this.continueThreadExecution.get()) {
+                // Wait for a signal (to let this thread know that something has been done)
+                try
+                {
+                    this.continueThreadExecution.wait();
+                }
+                catch (InterruptedException ex) {}
+
+                // Check to see if data structure (indicating that we need to send a move to the client) is updated to indicate that we do
+                if (this.sendSignal.get()) {
+                    // Send string
+                    connectionOutputStream.write(this.sendData.getBytes());
+
+                    // Reset variables
+                    this.sendData = "";
+                    this.sendSignal.set(false);
+                    this.sendSignal.notifyAll(); // Notifies all threads waiting for the notification on this variable
+                }
+
+                // Receive signal
+                //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+                else if (this.receiveSignal.get()) {
+                    // Read data off of the input buffer (a.k.a: get it from the client socket)
+                    // The example simply shows you waiting until you get data... A timer was put in an an attempt to mitigate that
+                    while (connectioninputStream.read(buffer) != -1);
+                        try {Thread.sleep(500);} catch(InterruptedException ex) {}
+
+                    // Copy data to the move data string
+                    // https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
+                    this.receiveData = new String(buffer);
+
+                    // Update the appropriate signal variables
+                    this.receiveSignal.set(false);
+                    this.receiveSignal.notifyAll();
+                }
+            }
+
+        } catch (IOException ex) {
+            System.out.println("Unable to create server socket");
+        }
+
+        // Close sockets and I/O streams
+        // I thought closing the individual sockets and streams would be better than putting all of them in one try catch (so if close() attempt fails, the rest don't have to)
+        if (serverSocket != null && !serverSocket.isClosed())
+            try {serverSocket.close();} catch (IOException ex) {};
+        if (client != null && !client.isClosed())
+            try {client.close();} catch (IOException ex) {};
+        if (connectioninputStream != null)
+            try {connectioninputStream.close();} catch (IOException ex) {};
+        if (connectionOutputStream != null)
+            try {connectionOutputStream.close();} catch (IOException ex) {};
+    }
 
     // Verifies if WifiP2P is supported
     // INPUT: none
@@ -256,19 +501,21 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
     // INPUT: none
     // OUTPUT: none, though it updates the class-wide discoverySuccessful class if discovery was successful
     public void initiatePeerDiscovery() {
-        wifiP2pManager.discoverPeers(this.wifiP2pChannel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                thisClass.discoverySuccessful = true;
-                System.out.println("Discovery of peers search succeeded (in theory)");
-            }
+        if (wifiP2pManager != null && wifiP2pChannel != null) {
+            wifiP2pManager.discoverPeers(this.wifiP2pChannel, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+                    thisClass.discoverySuccessful = true;
+                    System.out.println("Discovery of peers search succeeded (in theory)");
+                }
 
-            @Override
-            public void onFailure(int reasonCode) {
-                thisClass.discoverySuccessful = false;
-                System.out.println("Discovery of Peers search failed. Reason code: " + reasonCode);
-            }
-        });
+                @Override
+                public void onFailure(int reasonCode) {
+                    thisClass.discoverySuccessful = false;
+                    System.out.println("Discovery of Peers search failed. Reason code: " + reasonCode);
+                }
+            });
+        }
     }
 
     // Returns a copy of the latest list of peers
@@ -280,25 +527,28 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
     // https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html#discover
     public void connectToPeer(String deviceAddress) {
-        // Just in case
-        // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
-        this.initiatePeerDiscovery();
+        if (this.wifiP2pManager != null && this.wifiP2pChannel != null) {
+            // Just in case
+            // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
+            this.initiatePeerDiscovery();
 
-        // Configuration setup
-        WifiP2pConfig config = new WifiP2pConfig();
-        config.deviceAddress = deviceAddress;
-        config.wps.setup = WpsInfo.PBC;
+            // Configuration setup
+            WifiP2pConfig config = new WifiP2pConfig();
+            config.deviceAddress = deviceAddress;
+            config.wps.setup = WpsInfo.PBC;
 
-        wifiP2pManager.connect(this.wifiP2pChannel, config, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Now Connected!");
-            }
+            wifiP2pManager.connect(this.wifiP2pChannel, config, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+                    //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Now Connected!");
+                }
 
-            public void onFailure(int reason) {
-                ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Connection failed! Reason: " + reason);
-
-            }
-        });
+                public void onFailure(int reason) {
+                    ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Connection failed! Reason: " + reason);
+                }
+            });
+        }
+        else
+            ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Connection failed! Not able to use WiFi service.");
     }
 }
