@@ -5,11 +5,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Looper;
@@ -83,16 +85,20 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                 peers.addAll(refreshedPeers);
             }
 
-            // Clear out old values form the list
-            for (int i = 1; i < associatedActivity.hostList.getChildCount(); ++i)
-                associatedActivity.hostList.removeViewAt(i);
-
             // Update the linear layout of peers
             // That is, for every peer, add a button with peer information to the linear layout passed into the broadcast receiver class
             if (associatedActivity != null && associatedActivity.hostList != null) {
+
+                // Clear out old values form the list
+                for (int i = 1; i < associatedActivity.hostList.getChildCount(); ++i) {
+                    System.out.println("Removed Child: " + i);
+                    associatedActivity.hostList.removeViewAt(i);
+                }
+
                 for (WifiP2pDevice device : refreshedPeers) {
-                    // Get host information
+                    // Get host informwifiP2pManageration
                     hostInformation = device.deviceName + ": " + device.deviceAddress;
+                    System.out.println(device.toString());
 
                     // Create new button using that host information
                     Button temp = new Button(associatedActivity.hostList.getContext());
@@ -107,7 +113,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
                             // Cutting out the name portion (leaving only the address)
                             int startOfAddress = hostText.indexOf(":");
-                            hostText = hostText.substring(startOfAddress + 1);
+                            hostText = hostText.substring(startOfAddress + 2);
 
                             // Fill in the address in the host window
                             ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText(hostText);
@@ -115,6 +121,16 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                             // Hide the game window code associated with it
                             if (associatedActivity != null && associatedActivity.getHostsWindow != null)
                                 associatedActivity.getHostsWindow.setVisibility(View.INVISIBLE);
+                        }
+                    });
+
+                    // https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
+                    wifiP2pManager.requestGroupInfo(wifiP2pChannel, new WifiP2pManager.GroupInfoListener() {
+                        @Override
+                        public void onGroupInfoAvailable(WifiP2pGroup group) {
+                            String groupPassword;
+                            if (group != null)
+                                groupPassword = group.getPassphrase();
                         }
                     });
 
@@ -132,11 +148,14 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             java.net.InetAddress temp = wifiP2pInfo.groupOwnerAddress;
-            thisClass.connectedDeviceName = temp.getHostName();
-            thisClass.connectedDeviceAddress = temp.getHostAddress();
+            thisClass.connectedDeviceName = wifiP2pInfo.toString();/*wifiP2pInfo.groupOwnerAddress()*/;
+            thisClass.connectedDeviceAddress = wifiP2pInfo.groupOwnerAddress.toString(); /*temp.getHostAddress()*/;
             thisClass.connectedDeviceIsGroupOwner = wifiP2pInfo.isGroupOwner;
+            ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Connection IP: " + thisClass.connectedDeviceAddress);
         }
     };
+
+
 
     // Verifies if WifiP2P is supported
     // INPUT: none
@@ -199,14 +218,15 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
 
         // Determine if wifi P2P mode is enabled or not. if not, alert something
-        if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
+        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_DISABLED) {
                 // Alert wifi is disabled
             }
             else {
-                // Alert wifi is enabled
+                // Wifi is not disabled
             }
+
         }
         else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // THe peer list has changed
@@ -260,6 +280,10 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
     // https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html#discover
     public void connectToPeer(String deviceAddress) {
+        // Just in case
+        // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
+        this.initiatePeerDiscovery();
+
         // Configuration setup
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = deviceAddress;
@@ -268,7 +292,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         wifiP2pManager.connect(this.wifiP2pChannel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Now Connected!");
+                //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Now Connected!");
             }
 
             public void onFailure(int reason) {

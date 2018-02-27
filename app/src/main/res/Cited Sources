@@ -4,5 +4,6 @@ activity_online_mode_setup.xml
 -https://stackoverflow.com/questions/18251187/imageview-displaying-in-layout-but-not-on-actual-device
 OnlineModeSetup.java
 -https://stackoverflow.com/questions/7784418/get-all-child-views-inside-linearlayout-at-once
+-https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
 OnlineModeBroadcastReceiver.java
 -https://en.wikipedia.org/wiki/Foreach_loop#Java
