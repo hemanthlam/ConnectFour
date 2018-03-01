@@ -344,6 +344,7 @@ public class Board {
                         break;
                     }
                     ++current;
+                    AIVert[i] = current;
                 }
                 else if (boardBounds[i][j]== 0){
                     break;
@@ -357,11 +358,12 @@ public class Board {
         int current;
         int highestCurrent;
         for(int i  = height-1; i >= 0; --i){
-            current = 0;
-            highestCurrent = 0;
+            current = -1;
+            highestCurrent = -1;
             for(int j = 0; j < width; ++j){
                 if(boardBounds[j][i]==1) {
-                    current = 0;
+                    current = -1;
+                    AIHoriz[i][0] = current;
                 }
                 if(boardBounds[j][i]==2) {
                     ++current;
