@@ -303,16 +303,16 @@ public class Board {
         clearAIMemory();
         AIScoreHorizontal();
         AIScoreVertical();
-        for (int i = 0; i < width; ++i){
-            if(AIVert[i] > HighScore) {
-                HighScore = AIVert[i];
-                ChoiceCol = i;
-            }
-        }
         for(int i = 0; i < height; ++i){
             if(AIHoriz[i][0] > HighScore){
                 HighScore = AIHoriz[i][0];
                 ChoiceCol = AIHoriz[i][1];
+            }
+        }
+        for (int i = 0; i < width; ++i){
+            if(AIVert[i] > HighScore) {
+                HighScore = AIVert[i];
+                ChoiceCol = i;
             }
         }
         if(ChoiceCol == 0){
