@@ -34,7 +34,7 @@ public class GameActivity extends AppCompatActivity {
     protected Board gameBoard;
     protected RelativeLayout box;
     protected int turn = 1;
-    protected int gameType;
+    protected String gameType;
     protected int p1Wins = 0;
     protected int p2Wins = 0;
     protected int Round = 1;
@@ -70,10 +70,14 @@ public class GameActivity extends AppCompatActivity {
         // Temporary. This will need to be changed to something better later
         if (this.activityData.getString("Game").equals("Online Multiplayer"))
             this.p2Name = "Online Player";
-        else
+        else if (this.activityData.getString("Game").equals("AI Mode (Single Player)")) {
+            this.gameType = "AI Mode (Single Player)";
+            this.p2Name = "AI";
+        }
+        else {
+            this.gameType = "Local Multiplayer";
             this.p2Name = this.activityData.getString("Player2", "AI");
-        this.gameMode = this.activityData.getString("Game");
-
+        }
         // Saving Player Colors
         this.p1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
         if (this.activityData.getString("Player2Color") == null) {
@@ -129,12 +133,22 @@ public class GameActivity extends AppCompatActivity {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
                 return;
-            LinearLayout temp = (LinearLayout) box.getChildAt(col);
-            ImageView chip = (ImageView) temp.getChildAt(row);
+            LinearLayout tempCol = (LinearLayout) box.getChildAt(col);
+            ImageView chip = (ImageView) tempCol.getChildAt(row);
             animate(chip);
             findWinner();
-            changeTurn();
             Log.d(TAG,"Disc placed at col" + col);
+            if(gameType.equals("AI Mode (Single Player)")&& !isGameOver){
+                changeTurn();
+                int AIPos [] = gameBoard.AIChoice();
+                tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
+                chip = (ImageView) tempCol.getChildAt(AIPos[1]);
+                animate(chip);
+                findWinner();
+                changeTurn();
+            }
+            else if (!gameType.equals("AI Mode (Single Player)"))
+                changeTurn();
         }
     }
 
@@ -591,14 +605,6 @@ public class GameActivity extends AppCompatActivity {
     protected void restartGame(){
         Log.d(TAG, "Restarting the game");
         isGameOver = false;
-        if(lastFirstTurn == 1){
-            turn = 2;
-            lastFirstTurn = 2;
-        }
-        else{
-            turn =1;
-            lastFirstTurn = 1;
-        }
         for (int i = 0; i < box.getChildCount();++i){
             box.getChildAt(i).setEnabled(true);
             box.getChildAt(i).setClickable(true);
