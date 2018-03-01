@@ -50,7 +50,7 @@ public class NameActivity extends AppCompatActivity {
     }
 
 // When the user clicks the start button, a lot of information is passed over to the activities
-    protected void clickStart(View view){
+    public void clickStart(View view){
         Intent intent = null;
         switch (Board){
             case "7 x 6":

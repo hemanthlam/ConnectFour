@@ -40,5 +40,10 @@ public class Game1Activity extends GameActivity {
 
         // Initialize Game End Screen
         thisActivity.initializeGameEndScreen();
+
+        // Potential problem: what if it isn't set...
+        // The group host goes first, so if this isn't the group host, the turn needs to be changed
+        if (!(activityData.getBoolean("OnlineModeIsGroupHost")))
+            changeTurn();
     }
 }

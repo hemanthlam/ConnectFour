@@ -15,6 +15,29 @@
         android:layout_marginTop="5dp"
         android:background="@color/colorPrimary">
 
+        <Spinner
+            android:id="@+id/OnlineModeBoardSizeSelectionSpinner"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:layout_alignStart="@+id/OnlineModeHostEditText"
+            android:layout_below="@+id/OnlineMode_GameBoardSizeTextView"
+            android:layout_marginTop="12dp"
+            android:background="@color/colorPrimaryDark"
+            android:entries="@array/gridArrays"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/OnlineMode_GameBoardSizeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/OnlineModePlayer1RedButton"
+            android:layout_marginTop="19dp"
+            android:layout_toEndOf="@+id/OnlineModePlayer1Blue"
+            android:text="Game Board Size"
+            android:textColorLink="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/OnlineModeNameLabel"
             android:layout_width="wrap_content"
@@ -24,17 +47,17 @@
             android:layout_marginTop="17dp"
             android:text="Player Info"
             android:textColor="@android:color/background_light"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             tools:textColor="@android:color/white" />
 
         <EditText
-            android:id="@+id/OnlineMode_PlayerName"
+            android:id="@+id/OnlineModePlayerNameEditText"
             android:layout_width="300dp"
             android:layout_height="30dp"
             android:layout_below="@+id/OnlineModeNameLabel"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="19dp"
+            android:layout_marginTop="23dp"
             android:background="@android:color/background_light"
             android:ems="10"
             android:inputType="textPersonName"
@@ -46,65 +69,61 @@
             android:id="@+id/OnlineModePlayer1Blue"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_below="@+id/OnlineMode_PlayerName"
-            android:layout_marginEnd="24dp"
-            android:layout_marginTop="30dp"
-            android:layout_toStartOf="@+id/OnlineModeNameLabel"
-            android:visibility="visible"
-            android:src="@drawable/blue" />
+            android:layout_below="@+id/OnlineModePlayerNameEditText"
+            android:layout_marginTop="18dp"
+            android:layout_toEndOf="@+id/OnlineModePlayer1BlueButton"
+            android:src="@drawable/blue"
+            android:visibility="visible" />
 
         <ImageView
             android:id="@+id/OnlineModePlayer1Red"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_alignBottom="@+id/OnlineModePlayer1Blue"
             android:layout_alignTop="@+id/OnlineModePlayer1Blue"
-            android:layout_marginStart="27dp"
-            android:layout_toEndOf="@+id/OnlineModePlayer1Blue"
-            android:visibility="visible"
-            android:src="@drawable/red" />
+            android:layout_toEndOf="@+id/OnlineModePlayer1RedButton"
+            android:src="@drawable/red"
+            android:visibility="visible" />
 
         <ImageView
             android:id="@+id/OnlineModePlayer1Green"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_above="@+id/OnlineModeFindHostLabel"
-            android:layout_toEndOf="@+id/OnlineModeFindHostLabel"
-            android:visibility="visible"
-            android:src="@drawable/green" />
+            android:layout_alignTop="@+id/OnlineModePlayer1RedButton"
+            android:layout_toEndOf="@+id/OnlineModeNameLabel"
+            android:src="@drawable/green"
+            android:visibility="visible" />
 
         <ImageView
             android:id="@+id/OnlineModePlayer1Purple"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_alignEnd="@+id/OnlineMode_PlayerName"
-            android:layout_alignTop="@+id/OnlineModePlayer1Green"
-            android:visibility="visible"
-            android:src="@drawable/purple" />
+            android:layout_alignEnd="@+id/OnlineModePlayerNameEditText"
+            android:layout_alignTop="@+id/OnlineModePlayer1GreenButton"
+            android:src="@drawable/purple"
+            android:visibility="visible" />
 
         <RadioButton
             android:id="@+id/OnlineModePlayer1BlueButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/OnlineModePlayerNameEditText"
             android:layout_alignTop="@+id/OnlineModePlayer1Blue"
-            android:layout_toStartOf="@+id/OnlineModePlayer1Blue"
             android:buttonTint="@android:color/background_light" />
 
         <RadioButton
             android:id="@+id/OnlineModePlayer1RedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/OnlineModePlayer1Red"
             android:layout_alignTop="@+id/OnlineModePlayer1Red"
-            android:layout_marginEnd="29dp"
+            android:layout_toStartOf="@+id/OnlineModeFindHostLabel"
             android:buttonTint="@android:color/background_light" />
 
         <RadioButton
             android:id="@+id/OnlineModePlayer1GreenButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/OnlineModeFindHostLabel"
             android:layout_alignTop="@+id/OnlineModePlayer1Green"
-            android:layout_toStartOf="@+id/OnlineModePlayer1Green"
             android:buttonTint="@android:color/background_light" />
 
         <RadioButton
@@ -119,14 +138,13 @@
             android:id="@+id/OnlineModeFindHostLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/OnlineModeNameLabel"
-            android:layout_below="@+id/OnlineModePlayer1RedButton"
-            android:layout_marginTop="37dp"
-            android:layout_toEndOf="@+id/OnlineModePlayer1Blue"
+            android:layout_below="@+id/OnlineModeBoardSizeSelectionSpinner"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="18dp"
             android:text="Find Host"
             android:textAlignment="center"
             android:textColorLink="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <EditText
@@ -134,9 +152,9 @@
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_alignEnd="@+id/OnlineModePlayer1Purple"
-            android:layout_alignStart="@+id/OnlineMode_PlayerName"
+            android:layout_alignStart="@+id/OnlineModePlayer1BlueButton"
             android:layout_below="@+id/OnlineModeFindHostLabel"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="11dp"
             android:background="@android:color/background_light"
             android:ems="10"
             android:inputType="textPersonName"
@@ -150,7 +168,8 @@
             android:layout_alignBaseline="@+id/OnlineModeJoinHostGameButton"
             android:layout_alignBottom="@+id/OnlineModeJoinHostGameButton"
             android:layout_alignEnd="@+id/OnlineModeHostEditText"
-            android:layout_alignStart="@+id/OnlineModePlayer1GreenButton"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/OnlineModeJoinHostGameButton"
             android:background="@color/colorPrimaryDark"
             android:text="Finds Host" />
 
@@ -161,7 +180,7 @@
             android:layout_alignEnd="@+id/OnlineModePlayer1Red"
             android:layout_alignStart="@+id/OnlineModeHostEditText"
             android:layout_below="@+id/OnlineModeHostEditText"
-            android:layout_marginTop="27dp"
+            android:layout_marginTop="12dp"
             android:background="@color/colorPrimaryDark"
             android:text="Join Game" />
 
@@ -169,22 +188,22 @@
             android:id="@+id/OnlineModeHostGameLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_above="@+id/textView4"
             android:layout_alignStart="@+id/OnlineModeFindHostLabel"
-            android:layout_below="@+id/OnlineModeFindHostButton"
-            android:layout_marginTop="51dp"
+            android:layout_marginBottom="10dp"
             android:text="Host Game"
             android:textColor="@android:color/background_light"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/OnlineModeFindHostButton"
+            android:layout_alignEnd="@+id/OnlineModeHostEditText"
+            android:layout_alignParentBottom="true"
             android:layout_alignStart="@+id/OnlineModeJoinHostGameButton"
-            android:layout_below="@+id/OnlineModeHostGameLabel"
-            android:layout_marginTop="14dp"
+            android:layout_marginBottom="13dp"
             android:text="A.K.A: Wait here at this screen until someone connects to you!"
             android:textAlignment="center"
             android:textColor="@android:color/white" />

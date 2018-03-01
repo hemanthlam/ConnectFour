@@ -46,6 +46,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="22dp"
             android:text="Game Setup"
+            android:textColorLink="@android:color/white"
             android:textSize="20sp" />
 
         <TextView
@@ -56,6 +57,7 @@
             android:layout_below="@+id/textView3"
             android:layout_marginTop="37dp"
             android:text="Game Board Size"
+            android:textColorLink="@android:color/white"
             android:textSize="20sp" />
 
         <TextView
@@ -67,6 +69,7 @@
             android:layout_alignStart="@+id/gameSpinner"
             android:layout_marginBottom="54dp"
             android:text="Game Mode"
+            android:textColorLink="@android:color/white"
             android:textSize="20sp" />
 
     </RelativeLayout>

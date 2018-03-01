@@ -56,6 +56,9 @@ public class GameActivity extends AppCompatActivity {
     private static final String TAG = "GameActivity";
     private int lastFirstTurn = 1;
     protected String gameMode;
+    protected String isGroupOwner;
+    protected MultiplayerSession multiplayerSession;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,25 @@ public class GameActivity extends AppCompatActivity {
             }
         } else
             this.p2Color = this.activityData.getString("Player2Color").toLowerCase();
+
+        // Attempt to load online mode
+        if (this.gameMode.equals("Online Multiplayer")) {
+            // Go back to the main screen if the connection doesn't work
+            multiplayerSession = new MultiplayerSession();
+            if (multiplayerSession != null && multiplayerSession.initiateConnectionWithConnectedDevice(activityData.getString("OnlineModeGroupHostAddress"), activityData.getBoolean("OnlineModeIsGroupHost"))) {
+                Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_SHORT).show();
+                returnToMain();
+            }
+        }
+        else
+            multiplayerSession = null;
+    }
+
+    void returnToMain() {
+        if (multiplayerSession != null)
+            multiplayerSession.endConnectionWithConnectedDevice();
+        Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(mainActivity);
     }
 
     //Hide all UI pieces from board
@@ -133,8 +155,30 @@ public class GameActivity extends AppCompatActivity {
             ImageView chip = (ImageView) temp.getChildAt(row);
             animate(chip);
             findWinner();
+
+            // Send turn to other player (if in multi-player mode)
+            if (activityData.getString("Game").equals("Online Multiplayer")) {
+                // If our multiplayer session wasn't set up successfully
+                if (this.multiplayerSession == null) {
+                    Toast.makeText(getApplicationContext(), "NO MULTIPLAYER SESSION... Couldn't send move to online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                    try {
+                        Thread.sleep(4000);
+                    } catch (InterruptedException ex) {}
+                    returnToMain();
+                } else {
+                    // If things didn't work...
+                    if (!multiplayerSession.sendMoveToOtherPlayer(col)) {
+                        Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                        try {
+                            Thread.sleep(4000);
+                        } catch (InterruptedException ex) {}
+                        returnToMain();
+                    }
+                }
+            }
             changeTurn();
             Log.d(TAG,"Disc placed at col" + col);
+
         }
     }
 
@@ -263,7 +307,6 @@ public class GameActivity extends AppCompatActivity {
     protected void changeTurn(){
         if(turn == 1)
             turn = 2;
-
         else
             turn = 1;
 
@@ -278,15 +321,34 @@ public class GameActivity extends AppCompatActivity {
             {
                 this.p2HighlightView.setVisibility(View.VISIBLE);
                 this.p1HighlightView.setVisibility(View.INVISIBLE);
-                this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
+                System.out.println("Player 1 Highlight View: " + p2HighlightView.toString() + "----Player 2 Color: " + this.p2Color.toLowerCase());
+                //this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
         }
 
-        // Online mode (this is where the turn handling will be done)
-        //if (this.gameMode.equals("Online Multiplayer"))
-        //{
 
-        //}
+        // Online mode (this is where the turn handling will be done)
+        if (this.gameMode.equals("Online Multiplayer"))
+        {
+            if (this.multiplayerSession == null) {
+                Toast.makeText(getApplicationContext(), "NO MULTIPLAYER SESSION. Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                returnToMain();
+            }
+            else {
+                int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+                if (onlinePlayerMove == -1) {
+                    Toast.makeText(getApplicationContext(), "Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                    }
+                    returnToMain();
+                } else {
+                    placeDisc(onlinePlayerMove);
+                    changeTurn();
+                }
+            }
+        }
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -581,8 +643,7 @@ public class GameActivity extends AppCompatActivity {
         this.mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                returnToMain();
             }
         });
     }

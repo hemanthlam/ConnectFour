@@ -2,23 +2,24 @@ package com.example.hemanthlam.connectfour;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Bundle;
 import android.app.Activity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.util.List;
+import android.widget.Toast;
 
 public class OnlineModeSetup extends Activity {
 
@@ -29,7 +30,10 @@ public class OnlineModeSetup extends Activity {
     protected Button hideGetHostsWindowButton;
     protected LinearLayout hostList;
     protected RadioButton p1blue, p1red, p1green, p1purple;
-    protected String p1Color;
+    protected Intent intent;
+    protected String playerColor;
+    protected String playerName;
+    protected String boardSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +69,49 @@ public class OnlineModeSetup extends Activity {
             }
         });
 
+        // On joining a player game
         Button joinHostedGameButton = (Button) findViewById(R.id.OnlineModeJoinHostGameButton);
-        // Hide the find hosts window
         joinHostedGameButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
+                // Fill in intent with data
                 String address = ((EditText)findViewById(R.id.OnlineModeHostEditText)).getText().toString();
                 thisActivity.onlineMode.connectToPeer(address);
             }
         });
 
+        // Update intent data on spinner selection
+        Spinner boardSizeSelectionSpinner = (Spinner)findViewById(R.id.OnlineModeBoardSizeSelectionSpinner);
+        boardSizeSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                boardSize = adapterView.getSelectedItem().toString();
+                // Used some information from https://developer.android.com/reference/android/content/Intent.html#putExtra(java.lang.String, android.os.Parcelable[])
+                Toast.makeText(getApplicationContext(), boardSize, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        // Update Intent data on click
+        EditText nameEntryBox = (EditText)findViewById(R.id.OnlineModePlayerNameEditText);
+        nameEntryBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                playerName = editable.toString();
+                Toast.makeText(getApplicationContext(), playerName, Toast.LENGTH_SHORT).show();
+            }
+        });
         // Get radio buttons
         p1blue = (RadioButton) findViewById(R.id.OnlineModePlayer1BlueButton);
         p1red = (RadioButton) findViewById(R.id.OnlineModePlayer1RedButton);
@@ -205,7 +241,7 @@ public class OnlineModeSetup extends Activity {
                 p1green.setChecked(false);
                 p1purple.setChecked(false);
                 p1red.setChecked(false);
-
+                playerColor = "blue";
             }
         });
         this.p1red.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +251,7 @@ public class OnlineModeSetup extends Activity {
                 p1green.setChecked(false);
                 p1purple.setChecked(false);
                 p1blue.setChecked(false);
-
+                playerColor = "red";
             }
         });
         this.p1green.setOnClickListener(new View.OnClickListener() {
@@ -225,7 +261,7 @@ public class OnlineModeSetup extends Activity {
                 p1blue.setChecked(false);
                 p1purple.setChecked(false);
                 p1red.setChecked(false);
-
+                playerColor = "green";
             }
         });
         this.p1purple.setOnClickListener(new View.OnClickListener() {
@@ -235,6 +271,7 @@ public class OnlineModeSetup extends Activity {
                 p1green.setChecked(false);
                 p1blue.setChecked(false);
                 p1red.setChecked(false);
+                playerColor = "purple";
             }
         });
     }
