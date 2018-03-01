@@ -147,7 +147,7 @@ public class MultiplayerSession {
     }
 
     public void networkThread() {
-        
+
     }
 
     // Sends move data (contained in string) to other player
