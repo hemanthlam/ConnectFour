@@ -16,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"main activity");
         Button highscorebutton = (Button) findViewById(R.id.highscorebutton) ;
         Button playbutton = (Button) findViewById(R.id.playbutton);
+        Button onlineModebutton = (Button) findViewById(R.id.onlinemodesetupbutton);
+
         playbutton.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -33,6 +35,15 @@ public class MainActivity extends AppCompatActivity {
                 Intent startIntent = new Intent(getApplicationContext(), HighScoreActivity.class);
                 startActivity(startIntent);
                 Log.d(TAG,"View high scores");
+            }
+        });
+
+        onlineModebutton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v){
+                Intent startIntent = new Intent(getApplicationContext(), OnlineModeSetup.class);
+                startActivity(startIntent);
             }
         });
     }

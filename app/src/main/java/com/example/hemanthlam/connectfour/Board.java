@@ -1,5 +1,11 @@
 package com.example.hemanthlam.connectfour;
 
+import android.util.Log;
+
+import java.util.Random;
+
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by Jacob Crisan on 1/22/18.
  * File: Board.java
@@ -10,7 +16,8 @@ public class Board {
     // A multidimensional array to hold the connect four grid. It is a multi-dimensional array of booleans
     // (true indicates disc in appropriate part of grid, with false indicating otherwise)
     private int boardBounds[][];
-
+    private int AIVert[];
+    private int AIHoriz[][];
     // The number of rows and columns in the grid
     private int height;
     private int width;
@@ -45,7 +52,8 @@ public class Board {
             this.width = 0;
             return;
         }
-
+        this.AIHoriz = new int [height][2];
+        this.AIVert = new int [width];
         // Initialize disc array. Thankfully we don't need to resuse code!
         this.clearBoard();
     }
@@ -59,6 +67,16 @@ public class Board {
             for (int j = 0; j < this.height; ++j) {
                 this.boardBounds[i][j] = 0;
             }
+        }
+        clearAIMemory();
+    }
+
+    public void clearAIMemory(){
+        for(int i = 0; i < width;++i)
+            AIVert[i] = 0;
+        for(int i = 0; i < height;++i) {
+            AIHoriz[i][0] = 0;
+            AIHoriz[i][1] = 0;
         }
     }
 
@@ -90,7 +108,7 @@ public class Board {
     public int[][] checkHorizontal(int player){
         int maxCol = this.width,
                 maxRow = this.height,
-                count =0;
+                count;
 
         int[][] connectedFour = new int[4][2];
         for (int row = maxRow-1; row >= 0; row--) {
@@ -117,12 +135,12 @@ public class Board {
     public int[][] checkVertical(int player){
         int maxCol = this.width,
                 maxRow = this.height,
-                count =0;
+                count;
 
         int[][] connectedFour = new int[4][2];
         for (int col = 0; col<maxCol; col++) {
+            count = 0;
             for (int row = 0; row < maxRow; row++) {
-
                 if (boardBounds[col][row] == player) {
                     connectedFour[count][0] = col;
                     connectedFour[count][1] = row;
@@ -276,6 +294,93 @@ public class Board {
         return true;
     }
 
+    public int [] AIChoice(){
+        int ChoiceCol= -1;
+        int ChoiceRow = -1;
+        int HighScore = -1;
+        if(checkIfBoardFull()== true)
+            return null;
+        clearAIMemory();
+        AIScoreHorizontal();
+        AIScoreVertical();
+        for(int i = 0; i < height; ++i){
+            if(AIHoriz[i][0] > HighScore){
+                HighScore = AIHoriz[i][0];
+                ChoiceCol = AIHoriz[i][1];
+            }
+        }
+        for (int i = 0; i < width; ++i){
+            if(AIVert[i] > HighScore) {
+                HighScore = AIVert[i];
+                ChoiceCol = i;
+            }
+        }
+        if(ChoiceCol == 0){
+            do {
+                ChoiceCol = (new Random().nextInt(50) % width);
+            }while(boardBounds[ChoiceCol][0] !=0);
+        }
+        Log.d(TAG,"" + ChoiceCol);
+        ChoiceRow = findPosition(ChoiceCol, 2);
+        int temp [] = {ChoiceCol, ChoiceRow};
+        return temp;
+    }
+
+    public void AIScoreVertical(){
+        int current;
+        for(int i = 0; i < width; ++i){
+            current = 0;
+            for(int j = height-1; j >=0; --j){
+                if(boardBounds[i][j]==1) {
+                    if(j == 0){
+                        current = -1;
+                        break;
+                    }
+                    current = 0;
+                }
+                if(boardBounds[i][j]==2) {
+                    if(j == 0){
+                        current = -1;
+                        break;
+                    }
+                    ++current;
+                    AIVert[i] = current;
+                }
+                else if (boardBounds[i][j]== 0){
+                    break;
+                }
+            }
+            AIVert[i] = current;
+        }
+    }
+
+    public void AIScoreHorizontal(){
+        int current;
+        int highestCurrent;
+        for(int i  = height-1; i >= 0; --i){
+            current = -1;
+            highestCurrent = -1;
+            for(int j = 0; j < width; ++j){
+                if(boardBounds[j][i]==1) {
+                    current = -1;
+                    AIHoriz[i][0] = current;
+                }
+                if(boardBounds[j][i]==2) {
+                    ++current;
+                    if(current >= highestCurrent) {
+                        highestCurrent = current;
+                        AIHoriz[i][0] = current;
+                    }
+                }
+                else if (boardBounds[j][i]== 0){
+                    if(current == highestCurrent) {
+                        AIHoriz[i][1] = j;
+                    }
+                    current = 0;
+                }
+            }
+        }
+    }
 
 }
 

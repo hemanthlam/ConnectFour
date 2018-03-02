@@ -11,8 +11,8 @@
     <RelativeLayout
         android:layout_width="350dp"
         android:layout_height="450dp"
-        android:layout_marginTop="5dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
         android:background="@color/colorPrimary">
 
         <Spinner
@@ -78,50 +78,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="@color/colorPrimaryDark"
-        android:text="Continue"
-        android:onClick="clickContinue"/>
-
-    <!--<Button
-        android:id="@+id/board_87"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="75dp"
-        android:layout_marginTop="75dp"
-        android:background="@android:color/holo_red_light"
-        android:onClick="boardType"
-        android:padding="15dp"
-        android:text="@string/grid87"
-        android:textColor="@android:color/background_light"
-        android:textColorLink="@android:color/background_light"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/board_76"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/board_87"
-        android:layout_alignStart="@+id/board_87"
-        android:background="@color/colorPrimary"
-        android:onClick="boardType"
-        android:padding="15dp"
-        android:text="@string/grid76"
-        android:textColor="@android:color/background_light"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/board_108"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/board_87"
-        android:layout_below="@+id/board_87"
-        android:background="@color/colorPrimary"
-        android:onClick="boardType"
-        android:padding="15dp"
-        android:text="@string/grid108"
-        android:textColor="@android:color/background_light"
-        android:textSize="20sp" />-->
+        android:onClick="clickContinue"
+        android:text="Continue" />
 
 
 </RelativeLayout>
