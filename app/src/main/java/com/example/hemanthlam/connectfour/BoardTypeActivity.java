@@ -61,29 +61,20 @@ public class BoardTypeActivity extends AppCompatActivity {
     protected void clickContinue(View view){
         Intent intent = null;
         switch (gridSpinner.getSelectedItem().toString()){
-           /* case "Board Size":
-                intent = new Intent(getApplicationContext(), NameActivity.class);
-                intent.putExtra("Board", "7 x 6");
-                intent.putExtra("Game", gameType);
-                intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
-                break;*/
             case "7 x 6":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "7 x 6");
                 intent.putExtra("Game", gameType);
-               // intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
             case "8 x 7":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "8 x 7");
                 intent.putExtra("Game", gameType);
-                //intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
             case "10 x 8":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "10 x 8");
                 intent.putExtra("Game", gameType);
-                //intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
         }
         startActivity(intent);

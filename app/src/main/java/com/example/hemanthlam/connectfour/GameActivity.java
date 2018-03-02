@@ -1,5 +1,6 @@
 package com.example.hemanthlam.connectfour;
 
+import android.media.Image;
 import android.os.Handler;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -120,8 +121,8 @@ public class GameActivity extends AppCompatActivity {
         for(int i = 0; i < box.getChildCount();++i){
             LinearLayout curCol = (LinearLayout) box.getChildAt(i);
             for(int j = 0; j < curCol.getChildCount();++j){
-                View view = curCol.getChildAt(j);
-                view.setVisibility(View.INVISIBLE);
+                ImageView view = (ImageView)curCol.getChildAt(j);
+                view.setImageDrawable(getResources().getDrawable(R.drawable.white));
             }
         }
     }
@@ -162,6 +163,7 @@ public class GameActivity extends AppCompatActivity {
         if(appDatabase.userDao().getTop5Scores().size()>0)
             topScore = appDatabase.userDao().getTop5Scores().get(0).getScore();
         Player player;
+        String color;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
         if(a!=null) {
@@ -169,6 +171,7 @@ public class GameActivity extends AppCompatActivity {
             if(turn==1) {
                 message = p1Name + " won";
                 ++p1Wins;
+                color = p1Color;
                 p1ScoreView.setText(Integer.toString(p1Wins));
                 player  = appDatabase.userDao().getPlayer(p1Name);
                 if(p1Wins > topScore){
@@ -194,6 +197,7 @@ public class GameActivity extends AppCompatActivity {
             else {
                 message = p2Name + " won";
                 ++p2Wins;
+                color = p2Color;
                 p2ScoreView.setText(Integer.toString(p2Wins));
                 player  = appDatabase.userDao().getPlayer(p2Name);
                 if(p2Wins > topScore){
@@ -205,6 +209,7 @@ public class GameActivity extends AppCompatActivity {
                     player.setScore(p2Wins);
                     player.setName(p2Name);
                     appDatabase.userDao().insertAll(player);
+
                 }
                 else{
                     if(player.getScore() < p2Wins){
@@ -227,16 +232,19 @@ public class GameActivity extends AppCompatActivity {
             ImageView row1, row2, row3, row4;
             column = (LinearLayout) box.getChildAt(a[0][0]);
             row1 = (ImageView) column.getChildAt(a[0][1]);
-            row1.setImageResource(R.drawable.white);
+            thisActivity.drawCircleEdges((ImageView)row1,color);
+
             column = (LinearLayout) box.getChildAt(a[1][0]);
             row2 = (ImageView) column.getChildAt(a[1][1]);
-            row2.setImageResource(R.drawable.white);
+            thisActivity.drawCircleEdges((ImageView)row2, color);
+
             column = (LinearLayout) box.getChildAt(a[2][0]);
             row3 = (ImageView) column.getChildAt(a[2][1]);
-            row3.setImageResource(R.drawable.white);
+            thisActivity.drawCircleEdges((ImageView)row3, color);
+
             column = (LinearLayout) box.getChildAt(a[3][0]);
             row4 = (ImageView) column.getChildAt(a[3][1]);
-            row4.setImageResource(R.drawable.white);
+            thisActivity.drawCircleEdges((ImageView)row4, color);
         }
         if(gameBoard.checkIfBoardFull()) {
             isGameOver = true;
@@ -358,7 +366,7 @@ public class GameActivity extends AppCompatActivity {
     //            2 indicates middle of right side of screen (multiplayer)
     //            3 indicates middle of screen (single player)
     // OUTPUT: true if creation was successful, false if not (if any of the input parameters that were required were left empty)
-    protected boolean generatePlayerNamesAndIcons(String playerName, String discColor, int playerPosition, RelativeLayout parent) {
+    protected boolean generatePlayerNamesAndIcons(String playerName, String discColor, int playerPosition, RelativeLayout parent,int discSize) {
         // Initial Checks
         if (playerName == null || playerName.isEmpty())
             return false;
@@ -394,7 +402,7 @@ public class GameActivity extends AppCompatActivity {
         int windowWidth;
 
         // The size of the disc image (letting a player know what color they are)
-        int discSize = 80;
+       // int discSize = 80;
 
         // Get Display Information and save it
         DisplayMetrics displayMetrics = new DisplayMetrics();

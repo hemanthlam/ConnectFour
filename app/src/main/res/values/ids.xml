@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="GAME_1_INNER_RELATIVE"/>
+        <item type="id" name="frameLayout"/>
+        <item type="id" name="GAME_ONE_COLUMN_ZERO" />
+        <item type="id" name="GAME_ONE_COLUMN_ONE" />
+        <item type="id" name="GAME_ONE_COLUMN_TWO" />
+        <item type="id" name="GAME_ONE_COLUMN_THREE" />
+        <item type="id" name="GAME_ONE_COLUMN_FOUR" />
+        <item type="id" name="GAME_ONE_COLUMN_FIVE" />
+        <item type="id" name="GAME_ONE_COLUMN_SIX" />
+        <item type="id" name="GAME_ONE_COLUMN_SEVEN" />
+</resources>
