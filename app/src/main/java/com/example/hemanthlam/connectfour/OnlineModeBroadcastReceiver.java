@@ -17,6 +17,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Looper;
 import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,6 +49,8 @@ import java.util.concurrent.locks.Lock;
 // For use in online mode selection activity
 public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
+    private String TAG = "OnlineModeBroadcastReciever";
+
     // Will be used to help reference this class in listeners
     private OnlineModeBroadcastReceiver thisClass = this;
 
@@ -68,6 +71,9 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
     // Indicates if wifi discovery was successful
     boolean discoverySuccessful = false;
+
+    // Will be used so we can properly connect and disconnect from previously connected devices
+    private final Object connectionLock = new Object();
 
     // A list of available wifi peers
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
@@ -165,9 +171,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             if (wifiP2pInfo.groupOwnerAddress != null) {
                 connectedDeviceName = wifiP2pInfo.toString();/*wifiP2pInfo.groupOwnerAddress()*/
-                ;
                 connectedDeviceAddress = wifiP2pInfo.groupOwnerAddress.toString(); /*temp.getHostAddress()*/
-                ;
                 connectedDeviceIsGroupOwner = wifiP2pInfo.isGroupOwner;
                 ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText(connectedDeviceAddress);
 
@@ -188,9 +192,9 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                     gameScreen.putExtra("OnlineModeIsGroupHost", false);
                 else
                     gameScreen.putExtra("OnlineModeIsGroupHost", true);
+
                 associatedActivity.startActivity(gameScreen);
-            }
-            else
+            } else
                 Toast.makeText(associatedActivity.getApplicationContext(), "Disconnected from previous host?", Toast.LENGTH_SHORT);
         }
     };
@@ -324,7 +328,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
             this.wifiP2pChannel = this.wifiP2pManager.initialize(parentContext, Looper.getMainLooper(), null);
 
             // Disconnect fom any previously connected peers
-            resetPeerDiscovery();
+            resetConnectionSearch();
         }
         else
             System.out.println("Failed generating broadcast receiver!");
@@ -380,6 +384,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
             }
         }
         else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
+            return;
         }
     }
 
@@ -408,7 +413,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
     // For disabling peer discovery (an indirect way of disconneting from any previously connected devices)
     // INPUT: none
     // OUTPUT: none
-    public void resetPeerDiscovery() {
+    public void resetConnectionSearch() {
         if (wifiP2pManager != null && wifiP2pChannel != null) {
             // Referenced: https://groups.google.com/forum/#!topic/android-developers/6lwXJCnv5zU
             if (wifiP2pManager != null && this.wifiP2pChannel != null)
@@ -416,19 +421,19 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
                     @Override
                     public void onSuccess() {
-                        stopPeerDiscovery();
+                        initiatePeerDiscovery();
                     }
 
                     @Override
                     public void onFailure(int i) {
-                        System.out.println("Disconnecting from previously disconnected host didn't seem to work. There appears to be a stubborn connection. Error code: " + i);
-                        stopPeerDiscovery();
+                        initiatePeerDiscovery();
+                        System.out.println("Disconnecting from previously disconnected host didn't seem to work. There appears to be a stubborn connection? Error code: " + i);
                     }
                 });
         }
     }
 
-    private void stopPeerDiscovery() {
+    /*private void stopPeerDiscovery() {
         // Stop peer discovery (to disconnect from any perviously connected peers)
         // I remember a stack overflow post mentioning that stopping your peer search actually disconnects you from previously connected services
         // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
@@ -447,7 +452,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                 //initiatePeerDiscovery();
             }
         });
-    }
+    }*/
 
     // Returns a copy of the latest list of peers
     // INPUT: none

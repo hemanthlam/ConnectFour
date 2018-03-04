@@ -39,6 +39,7 @@ public class NameActivity extends AppCompatActivity {
         player1Color = "Blue";
         player2Color = "Red";
         radioButtonLogic();
+
         if(gameType.equals("Online Multiplayer")||gameType.equals("AI Mode (Single Player)")){
             player2Name.setText("Not available in this mode");
             player2Name.setFocusable(false);
@@ -90,6 +91,25 @@ public class NameActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Sets radio button to a specified truth value (if necessary)
+    // INPUT: radioButton (a refernece to the radioButton you are updating), value (the value of the radioButton)
+    // OUTPUT: mpm
+    /*protected void radioButtonUpdateEnabled(RadioButton radioButton, boolean value) {
+        // Set radioBUtton to true
+        if (value)
+        {
+            // If it isn't enabled, enable it
+            if (!radioButton.isEnabled())
+                radioButton.setEnabled(value);
+        }
+        // Set radio Button to false
+        else
+        {
+            // If it is enabled, disable it
+            if (radioButton.isEnabled())
+                radioButton.setEnabled(value);
+        }
+    }*/
 // Creates the button logic for all of the radio buttons
     protected void radioButtonLogic(){
         p1blue.setChecked(true);
@@ -99,6 +119,7 @@ public class NameActivity extends AppCompatActivity {
         p1blue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // A thread might speed this up
                 player1Color = "Blue";
                 p2blue.setEnabled(false);
                 p2green.setEnabled(true);

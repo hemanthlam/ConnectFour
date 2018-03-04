@@ -44,6 +44,10 @@ public class Game3Activity extends GameActivity {
         // Potential problem: what if it isn't set...
         // The group host goes first, so if this isn't the group host, the turn needs to be changed
         if (!(activityData.getBoolean("OnlineModeIsGroupHost")))
+            System.out.println("This device is the online group host!");
+        else{
+            System.out.println("This device is not the online group host!");
             changeTurn();
+        }
     }
 }

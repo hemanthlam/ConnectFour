@@ -37,6 +37,9 @@ public class OnlineModeSetup extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Determines when an activity can proceed to the next game activity window
+        boolean canProceed = false;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_mode_setup);
 
@@ -127,6 +130,7 @@ public class OnlineModeSetup extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        onlineMode.resetConnectionSearch();
         registerReceiver(onlineMode, onlineMode.getIntentFilter());
     }
 
