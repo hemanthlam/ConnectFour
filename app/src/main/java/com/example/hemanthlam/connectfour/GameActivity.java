@@ -1,29 +1,31 @@
 package com.example.hemanthlam.connectfour;
 
+import android.os.Handler;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.util.Random;
+import android.widget.Toast;
+import com.example.hemanthlam.connectfour.db.AppDatabase;
+import com.example.hemanthlam.connectfour.db.Player;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Dictionary;
+import static java.lang.System.exit;
 
 /**
  * Created by Sean on 1/25/2018.
@@ -35,22 +37,29 @@ public class GameActivity extends AppCompatActivity {
     protected Board gameBoard;
     protected RelativeLayout box;
     protected int turn = 1;
-    protected int gameType;
+    protected String gameType;
     protected int p1Wins = 0;
     protected int p2Wins = 0;
     protected int Round = 1;
     protected Bundle activityData;
-    protected String player1Name;
-    protected String player2Name;
-    protected String player1Color;
-    protected String player2Color;
+    protected String p1Name;
+    protected String p2Name;
+    protected String p1Color;
+    protected String p2Color;
     protected ImageView p1HighlightView;
     protected ImageView p2HighlightView;
+    protected TextView p1ScoreView;
+    protected TextView p2ScoreView;
+    protected GameActivity thisActivity;
     protected TextView winnerText;
-    GameActivity thisActivity;
+    protected RelativeLayout gameEndMenu;
     protected Button roundButton;
     protected Button mainMenuButton;
     private boolean isGameOver;
+    private static final String TAG = "GameActivity";
+    private int lastFirstTurn = 1;
+    protected String gameMode;
+    int[][] b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +70,20 @@ public class GameActivity extends AppCompatActivity {
         this.thisActivity = this;
         this.activityData = getIntent().getExtras();
         // Saving Player Names
-        this.player1Name = this.activityData.getString("Player1", "Player 1");
+        this.p1Name = this.activityData.getString("Player1", "Player 1");
         // Temporary. This will need to be changed to something better later
         if (this.activityData.getString("Game").equals("Online Multiplayer"))
-            this.player2Name = "Online Player";
+            this.p2Name = "Online Player";
+        else if(this.activityData.getString("Game").equals("AI Mode (Single Player)")) {
+            this.p2Name = this.activityData.getString("Player2", "AI");
+            gameType = "AI Mode (Single Player)";
+        }
         else
-            this.player2Name = this.activityData.getString("Player2", "AI");
+            this.p2Name = this.activityData.getString("Player2", "Player 2");
+        this.gameMode = this.activityData.getString("Game");
 
         // Saving Player Colors
-        this.player1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
+        this.p1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
         if (this.activityData.getString("Player2Color") == null) {
 
             // Generate a random color for the AI player
@@ -78,31 +92,31 @@ public class GameActivity extends AppCompatActivity {
 
             // RandNum
             if (randNum == 0) {
-                if (this.player1Color.equalsIgnoreCase("blue"))
-                    this.player2Color = "red";
+                if (this.p1Color.equalsIgnoreCase("blue"))
+                    this.p2Color = "red";
                 else
-                    this.player2Color = "blue";
+                    this.p2Color = "blue";
             }
             else if (randNum == 1) {
-                if (this.player1Color.equalsIgnoreCase("red"))
-                    this.player2Color = "green";
+                if (this.p1Color.equalsIgnoreCase("red"))
+                    this.p2Color = "green";
                 else
-                    this.player2Color = "red";
+                    this.p2Color = "red";
             }
             else if (randNum == 2) {
-                if (this.player1Color.equalsIgnoreCase("green"))
-                    this.player2Color = "purple";
+                if (this.p1Color.equalsIgnoreCase("green"))
+                    this.p2Color = "purple";
                 else
-                    this.player2Color = "green";
+                    this.p2Color = "green";
             }
             else {
-                if (this.player1Color.equalsIgnoreCase("green"))
-                    this.player2Color = "blue";
+                if (this.p1Color.equalsIgnoreCase("green"))
+                    this.p2Color = "blue";
                 else
-                    this.player2Color = "purple";
+                    this.p2Color = "purple";
             }
         } else
-            this.player2Color = this.activityData.getString("Player2Color").toLowerCase();
+            this.p2Color = this.activityData.getString("Player2Color").toLowerCase();
     }
 
     //Hide all UI pieces from board
@@ -118,7 +132,7 @@ public class GameActivity extends AppCompatActivity {
 
     //Place a disc in the correct slot on the board
     //if isGameOver dont place discs
-    protected void placeDisc(int col){
+    protected void placeDisc(int col) {
         if(!isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
@@ -127,35 +141,94 @@ public class GameActivity extends AppCompatActivity {
             ImageView chip = (ImageView) temp.getChildAt(row);
             animate(chip);
             findWinner();
+            b = gameBoard.findWinner(turn);
+            if(b != null)
+                return;
             changeTurn();
+            if(gameType == "AI Mode (Single Player)") {
+               int i[];
+               i = gameBoard.AIPlaceDisc(col, turn);
+               LinearLayout temp1 = (LinearLayout) box.getChildAt(i[0]);
+               ImageView chip1 = (ImageView) temp1.getChildAt(i[1]);
+               animate(chip1);
+               findWinner();
+               changeTurn();
+            }
+            Log.d(TAG,"Disc placed at col" + col);
         }
     }
 
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
-    public void findWinner(){
+    public void findWinner() {
+        List<Player> list = new ArrayList<>();
+        AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
+        int topScore=0;
+        if(appDatabase.userDao().getTop5Scores().size()>0)
+            topScore = appDatabase.userDao().getTop5Scores().get(0).getScore();
+        Player player;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
         if(a!=null) {
             isGameOver = true;
             if(turn==1) {
-                message = player1Name + " won";
+                message = p1Name + " won";
                 ++p1Wins;
-                ((TextView) findViewById(R.id.Player1Points)).setText(Integer.toString(p1Wins));
+                p1ScoreView.setText(Integer.toString(p1Wins));
+                player  = appDatabase.userDao().getPlayer(p1Name);
+                if(p1Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                }
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p1Wins);
+                    player.setName(p1Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p1Wins){
+                        player.setScore(p1Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+
+                list.add(player);
+                Log.d(TAG,"Player 1 won");
             }
             else {
-                message = player2Name + " won";
+                message = p2Name + " won";
                 ++p2Wins;
-                ((TextView) findViewById(R.id.Player2Points)).setText(Integer.toString(p2Wins));
+                p2ScoreView.setText(Integer.toString(p2Wins));
+                player  = appDatabase.userDao().getPlayer(p2Name);
+                if(p2Wins > topScore){
+                    Toast.makeText(getApplicationContext(),"You have reached a new high score", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"New High Score Reached");
+                };
+                if(player==null) {
+                    player = new Player();
+                    player.setScore(p2Wins);
+                    player.setName(p2Name);
+                    appDatabase.userDao().insertAll(player);
+                }
+                else{
+                    if(player.getScore() < p2Wins){
+                        player.setScore(p2Wins);
+                        appDatabase.userDao().update(player);
+                    }
+                }
+                player.setName(p2Name);
+                player.setScore(p2Wins);
+                list.add(player);
+                Log.d(TAG,"Player 2 won");
             }
             for (int i = 0; i < box.getChildCount();++i){
                 box.getChildAt(i).setClickable(false);
             }
-            winnerText.setVisibility(View.VISIBLE);
             winnerText.setText(message);
-            mainMenuButton.setVisibility(View.VISIBLE);
-            roundButton.setVisibility(View.VISIBLE);
+            this.setGameEndWindowVisibility(true);
+
             LinearLayout column;
             ImageView row1, row2, row3, row4;
             column = (LinearLayout) box.getChildAt(a[0][0]);
@@ -177,36 +250,63 @@ public class GameActivity extends AppCompatActivity {
                 box.getChildAt(i).setClickable(false);
             }
             winnerText.setText("Stalemate");
+            this.setGameEndWindowVisibility(true);
+            Log.d(TAG,"Stalemate");
             winnerText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Sets the visiblity of the gamewindow. Animations and delays are used, and I didn't want this written more than once, so I put it here
+    // INPUT: visible (a boolean that, if set to true, indicates that the game end menu is to be visible. If false, indicates that it is to be hidden)
+    // OUTPUT: none
+    public void setGameEndWindowVisibility(boolean visible) {
+        if (visible) {
+            // https://stackoverflow.com/questions/4817933/what-is-the-equivalent-to-a-javascript-setinterval-settimeout-in-android-java
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // https://stackoverflow.com/questions/22454839/android-adding-simple-animations-while-setvisibilityview-gone
+                    thisActivity.gameEndMenu.setAlpha(0.0f);
+                    thisActivity.gameEndMenu.setVisibility(View.VISIBLE);
+                    thisActivity.gameEndMenu.animate().alpha(1.0f).setDuration(2000);
+                }
+            }, 2000);
+        }
+        else {
+            thisActivity.gameEndMenu.setAlpha(0.0f);
+            thisActivity.gameEndMenu.setVisibility(View.INVISIBLE);
         }
     }
 
     //Switches turns between players. This means changing the highlights player icon and the turn
     //number/
     protected void changeTurn(){
-        // Variables
-        //ImageView p1Highlight = (ImageView)findViewById((int)11);
-        //ImageView p2Highlight = (ImageView)findViewById((int)12);
-
         if(turn == 1)
             turn = 2;
+
         else
             turn = 1;
 
         if (this.p1HighlightView != null && this.p2HighlightView != null) {
+            // Player 1
             if (this.turn == 1) {
                 this.p1HighlightView.setVisibility(View.VISIBLE);
                 this.p2HighlightView.setVisibility(View.INVISIBLE);
-                this.drawCircleEdges(this.p1HighlightView, this.player1Color.toLowerCase());
+                this.drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
             } else
-            //Player 2
+            // Player 2
             {
                 this.p2HighlightView.setVisibility(View.VISIBLE);
                 this.p1HighlightView.setVisibility(View.INVISIBLE);
-                this.drawCircleEdges(this.p2HighlightView, this.player2Color.toLowerCase());
-
+                this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
         }
+
+        // Online mode (this is where the turn handling will be done)
+        //if (this.gameMode.equals("Online Multiplayer"))
+        //{
+
+        //}
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -247,18 +347,13 @@ public class GameActivity extends AppCompatActivity {
     //    2) Change color of chip based on player turn
     //    3) Place it above board and drop it to it's position
     protected void animate(ImageView chip){
-        int player1ColorId;
-        int player2ColorId;
-
-
         if(turn == 1)
-            chip.setImageResource(this.colorToDiscImgId(this.player1Color));
-        else chip.setImageResource(this.colorToDiscImgId(this.player2Color));
+            chip.setImageResource(this.colorToDiscImgId(this.p1Color));
+        else chip.setImageResource(this.colorToDiscImgId(this.p2Color));
         chip.setTranslationY(-1000);
         chip.setVisibility(View.VISIBLE);
-        chip.animate().translationYBy(1000).setDuration(500);
+        chip.animate().translationYBy(1000).setDuration(350);
     }
-
 
     // Create Player Name
     // Generates the textview and display icon that will display the player name
@@ -295,6 +390,7 @@ public class GameActivity extends AppCompatActivity {
         // The image views discussed above
         ImageView playerImageView = new ImageView(imageViews.getContext());
         ImageView playerHiglightView = new ImageView(imageViews.getContext());
+        TextView playerScoreView = new TextView(imageViews.getContext());
 
         // Will be needed for drawing in the "highlight" view image
         Bitmap discBitmap;
@@ -329,6 +425,16 @@ public class GameActivity extends AppCompatActivity {
         imageViews.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         playerImageView.setLayoutParams(imageViewsLayout);
         playerHiglightView.setLayoutParams(imageViewsLayout);
+
+        // Setup the score views
+        playerScoreView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, discSize));
+        playerScoreView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        playerScoreView.setText("0");
+        playerScoreView.setTextSize(24);
+        // https://stackoverflow.com/questions/14108400/how-to-align-text-vertically-center-in-android
+        playerScoreView.setGravity(Gravity.CENTER_VERTICAL);
+
+        // Set disc colors
         switch (discColor) {
             case "blue":
                 playerImageView.setImageDrawable(getDrawable(R.drawable.blue));
@@ -343,13 +449,11 @@ public class GameActivity extends AppCompatActivity {
                 playerImageView.setImageDrawable(getDrawable(R.drawable.purple));
                 break;
         }
-        // We will need to reference these again, so an id will need to be set
-        // I went with 10 + 1 (to indicate player 1) or 10 + 2 (to indicate player 2)
-        //playerHiglightView.setId((int)(10+playerPosition));
 
         // Add individual image views to their relative layout container (the highlight view is placed on top fo the image view)
         imageViews.addView(playerImageView);
         imageViews.addView(playerHiglightView);
+        imageViews.addView(playerScoreView);
 
         // Add the text and image views to the main (player info) container
         infoContainer.addView(playerTextView);
@@ -362,11 +466,13 @@ public class GameActivity extends AppCompatActivity {
             infoContainer.setX(0);
             infoContainer.setY(25);
             this.p1HighlightView  = playerHiglightView;
+            this.p1ScoreView = playerScoreView;
         }
         else {
             infoContainer.setX(windowWidth/2);
             infoContainer.setY(25);
             this.p2HighlightView  = playerHiglightView; // To let the user know what the highlight view is
+            this.p2ScoreView = playerScoreView;
         }
 
         // Add the player info to the main (relative) layout, which is passed in as a parameter
@@ -414,18 +520,112 @@ public class GameActivity extends AppCompatActivity {
         imageView.setImageBitmap(imageViewBitmap);
     }
 
+    // Draw the game-end menu (pops up whenever a game ends and gives the players the ability to exit to the main menu or keep playing)
+    // It remains hidden by default (it is presumed to be drawn at the beginning of the match and hidden later)
+    // INPUT: none
+    // OUTPUT: none
+    protected void initializeGameEndScreen() {
+        // Create the objects needed for the window
+        RelativeLayout container = new RelativeLayout(getWindow().getContext());
+        LinearLayout linearLayout = new LinearLayout(container.getContext());
+        TextView gameWinner = new TextView(linearLayout.getContext());
+        Button menuButton = new Button(container.getContext());
+        Button replayButton = new Button(container.getContext());
+
+        // Get Display Information and save it
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
+        int windowWidth = displayMetrics.widthPixels;
+        int windowHeight = displayMetrics.heightPixels;
+        int elementHeight = windowHeight / 8;
+
+        // Style the relative layout
+        container.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+        // Style the linear layout on the screen
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((windowWidth/4)*3, ViewGroup.LayoutParams.WRAP_CONTENT);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setLayoutParams(layoutParams);
+        linearLayout.setX(windowWidth/8);
+        linearLayout.setY(displayMetrics.heightPixels / 4);
+        linearLayout.setDividerPadding(10);
+
+        // Add some detail to the text view
+        gameWinner.setText("Game Winner");
+        gameWinner.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        gameWinner.setTextSize(24);
+        gameWinner.setWidth(linearLayout.getWidth());
+        gameWinner.setMinHeight(elementHeight);
+
+        // Some detail for the buttons
+        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, elementHeight);
+        buttonLayoutParams.setMargins(0, 10, 0, 10);
+
+        // https://android--code.blogspot.com/2015/05/android-textview-layout-margin.html
+        // http://smartandroidians.blogspot.com/2009/12/setting-margin-for-widgets.html
+        // https://stackoverflow.com/questions/16552811/set-a-margin-between-two-buttons-programmatically-from-a-linearlayout
+
+        menuButton.setText("Main Menu");
+        menuButton.setLayoutParams(buttonLayoutParams);
+        menuButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        replayButton.setText("Next Round");
+        replayButton.setLayoutParams(buttonLayoutParams);
+        replayButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        // Add the text view and buttons to the linear layout
+        linearLayout.addView(gameWinner);
+        linearLayout.addView(menuButton);
+        linearLayout.addView(replayButton);
+
+        // Add linear layout to relative layout
+        container.addView(linearLayout);
+
+        // Add linear layout to screen
+        getWindow().addContentView(container, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Setting some variables so we can edit these values
+        this.gameEndMenu = container;
+        this.winnerText = gameWinner;
+        this.roundButton = replayButton;
+        this.mainMenuButton = menuButton;
+        this.setGameEndWindowVisibility(false);
+
+        // Set game end button listeners
+        this.roundButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                thisActivity.restartGame();
+            }
+        });
+        this.mainMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
     //Reset the game board
     protected void restartGame(){
+        Log.d(TAG, "Restarting the game");
         isGameOver = false;
+      /*  if(lastFirstTurn == 1){
+            turn = 2;
+            lastFirstTurn = 2;
+        }
+        else{
+            turn =1;
+            lastFirstTurn = 1;
+        }  */
         for (int i = 0; i < box.getChildCount();++i){
             box.getChildAt(i).setEnabled(true);
             box.getChildAt(i).setClickable(true);
         }
         hidePieces();
         gameBoard.clearBoard();
-        roundButton.setVisibility(View.INVISIBLE);
-        mainMenuButton.setVisibility(View.INVISIBLE);
-        winnerText.setVisibility(View.INVISIBLE);
+        gameEndMenu.setVisibility(View.INVISIBLE);
         ++Round;
         ((TextView) findViewById(R.id.RoundNumber)).setText(Integer.toString(Round));
     }

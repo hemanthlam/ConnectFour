@@ -10,10 +10,16 @@ public class Board {
     // A multidimensional array to hold the connect four grid. It is a multi-dimensional array of booleans
     // (true indicates disc in appropriate part of grid, with false indicating otherwise)
     private int boardBounds[][];
+    int a;
+    int[][] b;
+    int c[] = new int[7];
+    int q[] = new int[7];
 
     // The number of rows and columns in the grid
     private int height;
     private int width;
+
+    GameActivity gameActivity = new GameActivity();
 
     // Constructors
     public Board() {
@@ -26,8 +32,8 @@ public class Board {
         // Allocate disc array (boolean indicates if disc square is active or inactive)
         if (size.equalsIgnoreCase("7x6")) {
             this.boardBounds = new int[7][6];
-            this.height = 6;
-            this.width = 7;
+            this.height = 6; //row
+            this.width = 7; //coloumn
         } else if (size.equalsIgnoreCase("8x7")) {
             this.boardBounds = new int[8][7];
             this.width = 8;
@@ -62,10 +68,95 @@ public class Board {
         }
     }
 
+    //AI Algorithm
+    public int[] AIPlaceDisc(int col, int turn) {
+int d, flag = 0, z;
+
+        int i =0;
+            while(i<width) {
+                d = findPosition(i, 1);
+                if (findWinner(1) != null) {
+                    boardBounds[i][d] = 2;
+                    return new int[] {i,d};
+                } else {
+                    undo(i,d);
+                    i++;
+                }
+
+            }
+
+            //for(int p=0;p<width;p++)
+            //    for (int q=0;q<height;q++)
+             //       if(boardBounds[p][q]!=0)
+             //           flag ++;
+            //System.out.println("FLAG" + flag);
+
+            for(int p=0;p<width; p++) {
+                z = findPosition(p, turn);
+                if(z!=-2 || z!=-1) {
+                    return new int[] {p, z};
+                }
+                else
+                    continue;
+            }
+        return new int[] {width--, findPosition(width--, 2)};
+    }
+
+
+        /*    d = c[j];
+
+            for(int p=0; p<width; p++) {
+                q[j] = findPosition(p,1);
+
+                if(findWinner(1)!= null) {
+                    boardBounds[p][q[j]] = 0;
+                }
+
+            }
+
+
+            do {
+                if(k>=0)
+                    undo(k--,d);
+                if(i<width) {
+                    d = findPosition(k, 1);
+                    k++;
+                }
+                else {
+                    flag =1;
+                    System.exit(0);
+                }
+
+            } while (findWinner(1) != null);
+
+            if(findWinner(1)!= null) {
+                boardBounds[k--][d] = turn;
+                System.exit(0);
+            }
+            else if(flag == 1){
+                    a = findPosition(0, turn);
+                System.exit(0);
+            }
+            j++;
+        }
+
+        a = findPosition(k, turn);
+
+       // b = findWinner(turn);
+       // int i[][] = new int[width][height];
+         //   if (b != null) {
+           //     System.out.println("ASDFGHJKLZXCVNMQEWRTYUI");
+            //} */
+
+
+    public void undo(int col, int i){
+        boardBounds[col][i] = 0;
+    }
+
     // findPosition
     // INPUT: col (int)
     // OUTPUT: int
-    // Purpose: gets the index of the next availalble row in a specified column.
+    // Purpose: gets the index of the next available row in a specified column.
     //          When a disc is placed in that row, it no longer becomes available
     public int findPosition(int col, int player) {
         // Checking if given column is valid (if the index of the column exists in the array)
@@ -248,7 +339,7 @@ public class Board {
     //Checks to see if theres a winner for either player1 or player2
     //INPUT: The player with the current turn number (player1 == 1 and player2 == 2)
     //OUTPUT: The four (x,y) coordinates for the winning chips
-    public int[][] findWinner(int player){
+    public int[][] findWinner(int player) {
         int[][] connectedFour = null;
         connectedFour = checkHorizontal(player);
         if(connectedFour!=null)
@@ -275,7 +366,5 @@ public class Board {
         }
         return true;
     }
-
-
 }
 

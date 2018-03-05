@@ -205,7 +205,6 @@ public class NameActivity extends AppCompatActivity {
                 p2green.setChecked(false);
                 p2blue.setChecked(false);
                 p2red.setChecked(false);
-
             }
         });
     }
