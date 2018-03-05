@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
-
     defaultConfig {
-        applicationId "samina.fourup"
-        minSdkVersion 21
-        targetSdkVersion 21
+        applicationId "com.example.hemanthlam.connectfour"
+        minSdkVersion 22
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -17,8 +17,28 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+
+
+    /*compile 'android.arch.persistence.room:runtime:' + rootProject.archRoomVersion;
+    annotationProcessor 'android.arch.persistence.room:compiler:' + rootProject.archRoomVersion;*/
+
+    /*compile 'android.arch.persistence.room:runtime:' + rootProject.archRoomVersion
+    implementation "android.arch.lifecycle:common-java8:1.1.0"
+    annotationProcessor "android.arch.lifecycle:compiler:1.1.0"*/
+
+    implementation "android.arch.persistence.room:runtime:1.0.0-rc1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-rc1"
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
 }
