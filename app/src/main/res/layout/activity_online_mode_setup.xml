@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Online_Mode_Relative_Layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/universe"
+    tools:context="com.example.hemanthlam.connectfour.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="500dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/OnlineModeNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="17dp"
+            android:text="Player Info"
+            android:textColor="@android:color/background_light"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            tools:textColor="@android:color/white" />
+
+        <EditText
+            android:id="@+id/OnlineMode_PlayerName"
+            android:layout_width="300dp"
+            android:layout_height="30dp"
+            android:layout_below="@+id/OnlineModeNameLabel"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="19dp"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Wrex"
+            android:textColor="@android:color/background_dark" />
+
+        <!-- Used Info From here for all the image views: https://stackoverflow.com/questions/18251187/imageview-displaying-in-layout-but-not-on-actual-device -->
+        <ImageView
+            android:id="@+id/OnlineModePlayer1Blue"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@+id/OnlineMode_PlayerName"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="30dp"
+            android:layout_toStartOf="@+id/OnlineModeNameLabel"
+            android:visibility="visible"
+            android:src="@drawable/blue" />
+
+        <ImageView
+            android:id="@+id/OnlineModePlayer1Red"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@+id/OnlineModePlayer1Blue"
+            android:layout_alignTop="@+id/OnlineModePlayer1Blue"
+            android:layout_marginStart="27dp"
+            android:layout_toEndOf="@+id/OnlineModePlayer1Blue"
+            android:visibility="visible"
+            android:src="@drawable/red" />
+
+        <ImageView
+            android:id="@+id/OnlineModePlayer1Green"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_above="@+id/OnlineModeFindHostLabel"
+            android:layout_toEndOf="@+id/OnlineModeFindHostLabel"
+            android:visibility="visible"
+            android:src="@drawable/green" />
+
+        <ImageView
+            android:id="@+id/OnlineModePlayer1Purple"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/OnlineMode_PlayerName"
+            android:layout_alignTop="@+id/OnlineModePlayer1Green"
+            android:visibility="visible"
+            android:src="@drawable/purple" />
+
+        <RadioButton
+            android:id="@+id/OnlineModePlayer1BlueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/OnlineModePlayer1Blue"
+            android:layout_toStartOf="@+id/OnlineModePlayer1Blue"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/OnlineModePlayer1RedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/OnlineModePlayer1Red"
+            android:layout_alignTop="@+id/OnlineModePlayer1Red"
+            android:layout_marginEnd="29dp"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/OnlineModePlayer1GreenButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/OnlineModePlayer1Green"
+            android:layout_toStartOf="@+id/OnlineModePlayer1Green"
+            android:buttonTint="@android:color/background_light" />
+
+        <RadioButton
+            android:id="@+id/OnlineModePlayer1PurpleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/OnlineModePlayer1Purple"
+            android:layout_toStartOf="@+id/OnlineModePlayer1Purple"
+            android:buttonTint="@android:color/background_light" />
+
+        <TextView
+            android:id="@+id/OnlineModeFindHostLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/OnlineModeNameLabel"
+            android:layout_below="@+id/OnlineModePlayer1RedButton"
+            android:layout_marginTop="37dp"
+            android:layout_toEndOf="@+id/OnlineModePlayer1Blue"
+            android:text="Find Host"
+            android:textAlignment="center"
+            android:textColorLink="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/OnlineModeHostEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/OnlineModePlayer1Purple"
+            android:layout_alignStart="@+id/OnlineMode_PlayerName"
+            android:layout_below="@+id/OnlineModeFindHostLabel"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/background_light"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Host Name"
+            android:textColor="@android:color/background_dark" />
+
+        <Button
+            android:id="@+id/OnlineModeFindHostButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/OnlineModeJoinHostGameButton"
+            android:layout_alignBottom="@+id/OnlineModeJoinHostGameButton"
+            android:layout_alignEnd="@+id/OnlineModeHostEditText"
+            android:layout_alignStart="@+id/OnlineModePlayer1GreenButton"
+            android:background="@color/colorPrimaryDark"
+            android:text="Finds Host" />
+
+        <Button
+            android:id="@+id/OnlineModeJoinHostGameButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/OnlineModePlayer1Red"
+            android:layout_alignStart="@+id/OnlineModeHostEditText"
+            android:layout_below="@+id/OnlineModeHostEditText"
+            android:layout_marginTop="27dp"
+            android:background="@color/colorPrimaryDark"
+            android:text="Join Game" />
+
+        <TextView
+            android:id="@+id/OnlineModeHostGameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/OnlineModeFindHostLabel"
+            android:layout_below="@+id/OnlineModeFindHostButton"
+            android:layout_marginTop="51dp"
+            android:text="Host Game"
+            android:textColor="@android:color/background_light"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/OnlineModeFindHostButton"
+            android:layout_alignStart="@+id/OnlineModeJoinHostGameButton"
+            android:layout_below="@+id/OnlineModeHostGameLabel"
+            android:layout_marginTop="14dp"
+            android:text="A.K.A: Wait here at this screen until someone connects to you!"
+            android:textAlignment="center"
+            android:textColor="@android:color/white" />
+
+    </RelativeLayout>
+</RelativeLayout>
