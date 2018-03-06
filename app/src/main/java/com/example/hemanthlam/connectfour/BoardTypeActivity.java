@@ -19,29 +19,21 @@ public class BoardTypeActivity extends AppCompatActivity {
 
     protected Spinner gridSpinner;
     protected Spinner gameSpinner;
-    protected Spinner roundSpinner;
     String gameType = "Local Multiplayer";
     String TAG = "BoardTypeActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_type);
-        gridSpinner = (Spinner) findViewById(R.id.gridSpinner);
-        gameSpinner = (Spinner) findViewById(R.id.gameSpinner);
-        //roundSpinner = (Spinner) findViewById(R.id.roundSpinner);
+        gridSpinner = findViewById(R.id.gridSpinner);
+        gameSpinner = findViewById(R.id.gameSpinner);
         gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             // Saves the gridspinner information
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (gameSpinner.getSelectedItem().toString()) {
-                    /*case "Game Mode":
-                        gameType = "Local Multiplayer";
-                        break;*/
                     case "Local Multiplayer":
                         gameType = "Local Multiplayer";
-                        break;
-                    case "Online Multiplayer":
-                        gameType = "Online Multiplayer";
                         break;
                     case "AI Mode (Single Player)":
                         gameType = "AI Mode (Single Player)";
@@ -61,29 +53,20 @@ public class BoardTypeActivity extends AppCompatActivity {
     protected void clickContinue(View view){
         Intent intent = null;
         switch (gridSpinner.getSelectedItem().toString()){
-           /* case "Board Size":
-                intent = new Intent(getApplicationContext(), NameActivity.class);
-                intent.putExtra("Board", "7 x 6");
-                intent.putExtra("Game", gameType);
-                intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
-                break;*/
             case "7 x 6":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "7 x 6");
                 intent.putExtra("Game", gameType);
-               // intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
             case "8 x 7":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "8 x 7");
                 intent.putExtra("Game", gameType);
-                //intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
             case "10 x 8":
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "10 x 8");
                 intent.putExtra("Game", gameType);
-                //intent.putExtra("Round",roundSpinner.getSelectedItem().toString());
                 break;
         }
         startActivity(intent);
