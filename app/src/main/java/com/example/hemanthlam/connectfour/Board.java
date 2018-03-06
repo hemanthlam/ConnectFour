@@ -16,16 +16,10 @@ public class Board {
     // A multidimensional array to hold the connect four grid. It is a multi-dimensional array of booleans
     // (true indicates disc in appropriate part of grid, with false indicating otherwise)
     private int boardBounds[][];
-    int a;
-    int[][] b;
-    int c[] = new int[7];
-    int q[] = new int[7];
 
     // The number of rows and columns in the grid
     private int height;
     private int width;
-
-    GameActivity gameActivity = new GameActivity();
 
     // Constructors
     public Board(String size) {
@@ -69,7 +63,7 @@ public class Board {
     }
 
     //AI Algorithm
-    public int[] AIPlaceDisc(int col, int turn) {
+    public int[] AIPlaceDisc(int turn) {
     int d, z;
 
         int i =0;

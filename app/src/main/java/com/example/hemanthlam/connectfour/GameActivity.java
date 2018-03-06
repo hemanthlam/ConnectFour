@@ -151,7 +151,7 @@ public class GameActivity extends AppCompatActivity {
         LinearLayout tempCol;
         ImageView chip;
         changeTurn();
-        int AIPos [] = gameBoard.AIPlaceDisc(0,2);
+        int AIPos [] = gameBoard.AIPlaceDisc(2);
         tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
         chip = (ImageView) tempCol.getChildAt(AIPos[1]);
         animate(chip);
