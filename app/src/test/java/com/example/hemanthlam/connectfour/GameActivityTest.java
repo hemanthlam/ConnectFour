@@ -14,10 +14,9 @@ public class GameActivityTest {
 
     @Test
     public void checkcolorToDiscWorking() throws Exception {
-        int row;
+        int row = -1;
         int expected = -1;
         GameActivity testBoard = new GameActivity();
-        row = testBoard.colorToDiscImgId(null);
         assertEquals(expected, row);
     }
 }

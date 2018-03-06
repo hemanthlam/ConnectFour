@@ -55,8 +55,6 @@ public class GameActivity extends AppCompatActivity {
     protected Button mainMenuButton;
     private boolean isGameOver;
     private static final String TAG = "GameActivity";
-    private int lastFirstTurn = 1;
-    protected String gameMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,19 +138,25 @@ public class GameActivity extends AppCompatActivity {
             findWinner();
             Log.d(TAG,"Disc placed at col" + col);
             if(gameType.equals("AI Mode (Single Player)")&& !isGameOver){
-                changeTurn();
-                int AIPos [] = gameBoard.AIChoice();
-                tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
-                chip = (ImageView) tempCol.getChildAt(AIPos[1]);
-                animate(chip);
-                findWinner();
-                changeTurn();
+                placeAIDisc();
             }
             else if (!gameType.equals("AI Mode (Single Player)"))
                 changeTurn();
         }
     }
 
+    //Have the AI place a disc
+    protected void placeAIDisc(){
+        LinearLayout tempCol;
+        ImageView chip;
+        changeTurn();
+        int AIPos [] = gameBoard.AIChoice();
+        tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
+        chip = (ImageView) tempCol.getChildAt(AIPos[1]);
+        animate(chip);
+        findWinner();
+        changeTurn();
+    }
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
@@ -166,6 +170,7 @@ public class GameActivity extends AppCompatActivity {
         String color;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
+        //Check if there is a winner
         if(a!=null) {
             isGameOver = true;
             if(turn==1) {
@@ -229,23 +234,14 @@ public class GameActivity extends AppCompatActivity {
             this.setGameEndWindowVisibility(true);
 
             LinearLayout column;
-            ImageView row1, row2, row3, row4;
-            column = (LinearLayout) box.getChildAt(a[0][0]);
-            row1 = (ImageView) column.getChildAt(a[0][1]);
-            thisActivity.drawCircleEdges((ImageView)row1,color);
-
-            column = (LinearLayout) box.getChildAt(a[1][0]);
-            row2 = (ImageView) column.getChildAt(a[1][1]);
-            thisActivity.drawCircleEdges((ImageView)row2, color);
-
-            column = (LinearLayout) box.getChildAt(a[2][0]);
-            row3 = (ImageView) column.getChildAt(a[2][1]);
-            thisActivity.drawCircleEdges((ImageView)row3, color);
-
-            column = (LinearLayout) box.getChildAt(a[3][0]);
-            row4 = (ImageView) column.getChildAt(a[3][1]);
-            thisActivity.drawCircleEdges((ImageView)row4, color);
+            ImageView row;
+            for(int i = 0; i < 4; ++i) {
+                column = (LinearLayout) box.getChildAt(a[i][0]);
+                row = (ImageView) column.getChildAt(a[i][1]);
+                thisActivity.drawCircleEdges(row, color);
+            }
         }
+        //Check if there is a stalemate
         if(gameBoard.checkIfBoardFull()) {
             isGameOver = true;
             for (int i = 0; i < box.getChildCount();++i){

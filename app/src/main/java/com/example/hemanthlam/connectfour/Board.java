@@ -23,11 +23,6 @@ public class Board {
     private int width;
 
     // Constructors
-    public Board() {
-        boardBounds = null;
-        height = 0;
-        width = 0;
-    }
     public Board(String size) {
 
         // Allocate disc array (boolean indicates if disc square is active or inactive)

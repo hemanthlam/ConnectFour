@@ -19,29 +19,21 @@ public class BoardTypeActivity extends AppCompatActivity {
 
     protected Spinner gridSpinner;
     protected Spinner gameSpinner;
-    protected Spinner roundSpinner;
     String gameType = "Local Multiplayer";
     String TAG = "BoardTypeActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_type);
-        gridSpinner = (Spinner) findViewById(R.id.gridSpinner);
-        gameSpinner = (Spinner) findViewById(R.id.gameSpinner);
-        //roundSpinner = (Spinner) findViewById(R.id.roundSpinner);
+        gridSpinner = findViewById(R.id.gridSpinner);
+        gameSpinner = findViewById(R.id.gameSpinner);
         gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             // Saves the gridspinner information
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (gameSpinner.getSelectedItem().toString()) {
-                    /*case "Game Mode":
-                        gameType = "Local Multiplayer";
-                        break;*/
                     case "Local Multiplayer":
                         gameType = "Local Multiplayer";
-                        break;
-                    case "Online Multiplayer":
-                        gameType = "Online Multiplayer";
                         break;
                     case "AI Mode (Single Player)":
                         gameType = "AI Mode (Single Player)";

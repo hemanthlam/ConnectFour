@@ -7,6 +7,7 @@ import android.view.View;
 
 import gr.net.maroulis.library.EasySplashScreen;
 
+//Corresponds to the application's splash screen
 public class SplashActivity extends AppCompatActivity {
 
     @Override
@@ -17,7 +18,7 @@ public class SplashActivity extends AppCompatActivity {
         EasySplashScreen config = new EasySplashScreen(SplashActivity.this)
                 .withFullScreen()
                 .withTargetActivity(MainActivity.class)
-                .withSplashTimeOut(5000)
+                .withSplashTimeOut(2000)
                 .withLogo(R.mipmap.gameicon)
                 .withBackgroundColor(Color.parseColor("#303f9f"));
 

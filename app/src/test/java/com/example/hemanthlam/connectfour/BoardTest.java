@@ -95,16 +95,35 @@ public class BoardTest {
         int[][] i;
         String expected =null;
         Board board1 = new Board(("7x6"));
+        for(int j = 0; j < 7;++j){
+            for(int k = 0; k < 6; ++k)
+                board1.findPosition(j, 1);
+        }
+        i = board1.findWinner(1);
+        assertNotNull(expected, i);
         i = board1.findWinner(2);
         assertEquals(expected, i);
 
         Board board2 = new Board(("8x7"));
+        for(int j = 0; j < 8;++j){
+            for(int k = 0; k < 7; ++k)
+                board2.findPosition(j, 1);
+        }
         i = board2.findWinner(1);
+        assertNotNull(expected, i);
+        i = board2.findWinner(2);
         assertEquals(expected, i);
 
         Board board3 = new Board(("10x8"));
+        for(int j = 0; j < 10;++j){
+            for(int k = 0; k < 8; ++k)
+                board3.findPosition(j, 1);
+        }
         i = board3.findWinner(1);
+        assertNotNull(i);
+        i = board3.findWinner(2);
         assertEquals(expected, i);
+
     }
 
     @Test
@@ -114,6 +133,11 @@ public class BoardTest {
         Board board1 = new Board(("7x6"));
         i = board1.checkIfBoardFull();
         assertEquals(expected, i);
+        for(int j = 0; j < 7;++j){
+            for(int k = 0; k < 6; ++k)
+                board1.findPosition(j, 1);
+        }
+        assertEquals(true, board1.checkIfBoardFull());
     }
 
 }
