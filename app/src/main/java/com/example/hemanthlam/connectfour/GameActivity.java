@@ -145,9 +145,10 @@ public class GameActivity extends AppCompatActivity {
             if(b != null)
                 return;
             changeTurn();
-            if(gameType == "AI Mode (Single Player)") {
-               int i[];
+            if(gameType == "AI Mode (Single Player)" && turn == 2) {
+               int i[] = new int[2];
                i = gameBoard.AIPlaceDisc(col, turn);
+               System.out.println(i[0]+"ZXC "+i[1]+ "ASDFGHJKLZXCVBNM");
                LinearLayout temp1 = (LinearLayout) box.getChildAt(i[0]);
                ImageView chip1 = (ImageView) temp1.getChildAt(i[1]);
                animate(chip1);

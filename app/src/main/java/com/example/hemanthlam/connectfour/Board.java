@@ -70,84 +70,42 @@ public class Board {
 
     //AI Algorithm
     public int[] AIPlaceDisc(int col, int turn) {
-int d, flag = 0, z;
+    int d, z;
 
         int i =0;
             while(i<width) {
                 d = findPosition(i, 1);
+                if(d==-1) {
+                    break;
+                }
+
                 if (findWinner(1) != null) {
                     boardBounds[i][d] = 2;
                     return new int[] {i,d};
-                } else {
+                } else if(d!=-2 || d!=-1)
                     undo(i,d);
-                    i++;
-                }
+                i++;
 
             }
 
-            //for(int p=0;p<width;p++)
-            //    for (int q=0;q<height;q++)
-             //       if(boardBounds[p][q]!=0)
-             //           flag ++;
-            //System.out.println("FLAG" + flag);
+        int p=0;
 
-            for(int p=0;p<width; p++) {
+            while(p<width) {
+                System.out.println("Enter WHILE LOOP");
                 z = findPosition(p, turn);
-                if(z!=-2 || z!=-1) {
-                    return new int[] {p, z};
+                System.out.println("CALCULATE Z " + z);
+                if(z == -2 || z == -1) {
+                    System.out.println("GO TO IF");
+                    //return new int[] {p, z};
                 }
                 else
-                    continue;
+                    return new int[] {p, z};
+                System.out.println("GO TO ELSE");
+                p++;
+
             }
         return new int[] {width--, findPosition(width--, 2)};
     }
-
-
-        /*    d = c[j];
-
-            for(int p=0; p<width; p++) {
-                q[j] = findPosition(p,1);
-
-                if(findWinner(1)!= null) {
-                    boardBounds[p][q[j]] = 0;
-                }
-
-            }
-
-
-            do {
-                if(k>=0)
-                    undo(k--,d);
-                if(i<width) {
-                    d = findPosition(k, 1);
-                    k++;
-                }
-                else {
-                    flag =1;
-                    System.exit(0);
-                }
-
-            } while (findWinner(1) != null);
-
-            if(findWinner(1)!= null) {
-                boardBounds[k--][d] = turn;
-                System.exit(0);
-            }
-            else if(flag == 1){
-                    a = findPosition(0, turn);
-                System.exit(0);
-            }
-            j++;
-        }
-
-        a = findPosition(k, turn);
-
-       // b = findWinner(turn);
-       // int i[][] = new int[width][height];
-         //   if (b != null) {
-           //     System.out.println("ASDFGHJKLZXCVNMQEWRTYUI");
-            //} */
-
 
     public void undo(int col, int i){
         boardBounds[col][i] = 0;
