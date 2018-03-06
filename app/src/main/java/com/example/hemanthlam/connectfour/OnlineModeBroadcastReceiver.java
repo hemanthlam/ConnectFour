@@ -173,7 +173,8 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                 connectedDeviceName = wifiP2pInfo.toString();/*wifiP2pInfo.groupOwnerAddress()*/
                 connectedDeviceAddress = wifiP2pInfo.groupOwnerAddress.toString(); /*temp.getHostAddress()*/
                 connectedDeviceIsGroupOwner = wifiP2pInfo.isGroupOwner;
-                ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText(connectedDeviceAddress);
+
+                //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText(connectedDeviceAddress);
 
                 // Load the new activity
                 Intent gameScreen;
@@ -187,11 +188,9 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                 gameScreen.putExtra("Player1", associatedActivity.playerName);
                 gameScreen.putExtra("Player1Color", associatedActivity.playerColor);
                 // Put data into intent
+                //System.out.println("BR Connected Device Address: " + connectedDeviceAddress);
                 gameScreen.putExtra("OnlineModeGroupHostAddress", connectedDeviceAddress);
-                if (connectedDeviceIsGroupOwner)
-                    gameScreen.putExtra("OnlineModeIsGroupHost", false);
-                else
-                    gameScreen.putExtra("OnlineModeIsGroupHost", true);
+                gameScreen.putExtra("OnlineModeIsGroupHost", !connectedDeviceIsGroupOwner);
 
                 associatedActivity.startActivity(gameScreen);
             } else

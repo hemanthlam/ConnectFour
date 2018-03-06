@@ -34,55 +34,86 @@ import java.util.List;
 //Where all of the important functions for the game board will be placed this will allow Game1Activity,
 //Game2Activity, and Game3Activity to share most of the same functions and variables.
 public class GameActivity extends AppCompatActivity {
-    protected Board gameBoard;
-    protected RelativeLayout box;
-    protected int turn = 1;
-    protected int gameType;
+
+    // For Logging Purposes
+    private static final String TAG = "GameActivity";
+
+    // Game Activity Data
+    protected GameActivity thisActivity = this;
+    protected Board gameBoard = null;
+    protected RelativeLayout box = null;
+
+    // Player Data
     protected int p1Wins = 0;
     protected int p2Wins = 0;
-    protected int Round = 1;
-    protected Bundle activityData;
-    protected String p1Name;
-    protected String p2Name;
-    protected String p1Color;
-    protected String p2Color;
-    protected ImageView p1HighlightView;
-    protected ImageView p2HighlightView;
-    protected TextView p1ScoreView;
-    protected TextView p2ScoreView;
-    protected GameActivity thisActivity;
-    protected TextView winnerText;
-    protected RelativeLayout gameEndMenu;
-    protected Button roundButton;
-    protected Button mainMenuButton;
-    private boolean isGameOver;
-    private static final String TAG = "GameActivity";
-    private int lastFirstTurn = 1;
-    protected String gameMode;
-    protected String isGroupOwner;
-    protected MultiplayerSession multiplayerSession;
+    protected String p1Name = null;
+    protected String p2Name = null;
+    protected String p1Color = null;
+    protected String p2Color = null;
+    protected ImageView p1HighlightView = null;
+    protected ImageView p2HighlightView = null;
+    protected TextView p1ScoreView = null;
+    protected TextView p2ScoreView = null;
 
-    // Locks for multithreading
-    //https://stackoverflow.com/questions/5861894/how-to-synchronize-or-lock-upon-variables-in-java
-    protected Object interfaceLoadLock = new Object();
-    protected int interfaceElementsLoaded = 0;
+    // Game specific data
+    protected int turn = 1;
+    protected int Round = 1;
+    protected int gameType = -1;
+    protected Bundle activityData = null;
+    private boolean isGameOver = false;
+    private int lastFirstTurn = 1;
+    protected String gameMode = null;
+
+    // Variables for use with online mode (specifically)
+    protected MultiplayerSession multiplayerSession = null;
+    protected boolean onlineMode = false;
+    protected boolean onlineModeIsGroupHost = false;
+
+    // UI Elements (for use with UI generation)
+    protected RelativeLayout mainLayout = null; // Reference to the android activity used in the current game session
+    protected TextView winnerText = null;
+    protected RelativeLayout gameEndMenu = null;
+    protected Button roundButton = null;
+    protected Button mainMenuButton = null;
+
+    // For network thread/UI purposes
+    protected final Object playerDiscLock = new Object();
+    protected boolean playerDisc1Loaded = false;
+    protected boolean playerDisc2Loaded = false;
+
+    // For network thread (which takes care of turn switching in online mode) purposes
+    protected final Object networkThreadLock = new Object();
+    boolean continueNetworkThreadExecution = false;
+    boolean placementLockActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Call parent class
         super.onCreate(savedInstanceState);
 
-        // Save some of the data
-        this.thisActivity = this;
-        this.activityData = getIntent().getExtras();
+        // Get the avtivity data passed in from the previous activity
+        activityData = getIntent().getExtras();
+
+        //System.out.println("GA Group Host Address: " + activityData.getString("OnlineModeGroupHostAddress"));
+
+        // Getting the game mode
+        gameMode = activityData.getString("Game");
+
         // Saving Player Names
-        this.p1Name = this.activityData.getString("Player1", "Player 1");
-        // Temporary. This will need to be changed to something better later
-        if (this.activityData.getString("Game").equals("Online Multiplayer"))
-            this.p2Name = "Online Player";
+        p1Name = activityData.getString("Player1", "Player 1");
+        if (gameMode.equals("Online Multiplayer"))
+            p2Name = "Online Player";
         else
-            this.p2Name = this.activityData.getString("Player2", "AI");
-        this.gameMode = this.activityData.getString("Game");
+            p2Name = activityData.getString("Player2", "AI");
+
+        // Regarding onilne mode
+        gameMode = activityData.getString("Game");
+
+        // Saving online mode data
+        if (gameMode.equals("Online Multiplayer")) {
+            onlineMode = true;
+            onlineModeIsGroupHost = activityData.getBoolean("OnlineModeIsGroupHost");
+        }
 
         // Saving Player Colors
         this.p1Color = this.activityData.getString("Player1Color", "blue").toLowerCase();
@@ -118,41 +149,125 @@ public class GameActivity extends AppCompatActivity {
                     this.p2Color = "purple";
             }
         } else
-            this.p2Color = this.activityData.getString("Player2Color").toLowerCase();
-
-        // Attempt to load online mode
-        if (this.gameMode.equals("Online Multiplayer")) {
-            // Go back to the main screen if the connection doesn't work
-            multiplayerSession = new MultiplayerSession();
-            /*if (multiplayerSession == null) {
-                Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_SHORT).show();
-                returnToMain();
-            }
-            else
-            {*/
-                if (!multiplayerSession.initiateConnectionWithConnectedDevice(activityData.getString("OnlineModeGroupHostAddress"), activityData.getBoolean("OnlineModeIsGroupHost")))
-                {
-                    Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_SHORT).show();
-                    try { Thread.sleep(4000);} catch (InterruptedException ex) {}
-                    returnToMain();
-                }
-            //}
-
-            }
-        else
-            multiplayerSession = null;
+            this.p2Color = activityData.getString("Player2Color").toLowerCase();
     }
 
-    void returnToMain() {
+    // Draws initial score circle highlights, depending on the game mode (a user interface generation function)
+    // INPUT: none
+    // OUTPUT: none
+    protected void drawInitialHighlights() {
+        if (p1HighlightView != null && p2HighlightView != null) {
+            p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    if (!onlineMode || onlineModeIsGroupHost) {
+                        drawCircleEdges((ImageView) view, p1Color);
+
+                        // Will be used to help us guage when we can start online mode
+                        // This is a bit of an estimation
+                        synchronized (playerDiscLock) {
+                            playerDisc1Loaded = true;
+                            if (playerDisc2Loaded) {
+                                playerDiscLock.notify();
+                            }
+                        }
+                    }
+                }
+            });
+            p2HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    if (onlineMode && !onlineModeIsGroupHost) {
+                        drawCircleEdges((ImageView) view, p2Color);
+
+                        // Will be used to help us guage when we can start online mode
+                        // This is a bit of an estimation
+                        synchronized (playerDiscLock) {
+                            playerDisc2Loaded = true;
+                            if (playerDisc1Loaded)
+                                playerDiscLock.notify();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Returns to the main menu (loads that activity)
+    // INPUT: none
+    // OUTPUT: none
+    protected void returnToMain() {
         if (multiplayerSession != null) {
+            // End session with connected player
             multiplayerSession.endConnectionWithConnectedDevice();
+
+            // Notify the network (remote disc placement) thread that we need to stop executing
+            synchronized (networkThreadLock) {
+                continueNetworkThreadExecution = false;
+                networkThreadLock.notify();
+            }
         }
         Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(mainActivity);
     }
 
-    //Hide all UI pieces from board
-    protected void hidePieces(){
+    // Executes on activity start
+    // https://stackoverflow.com/questions/18703841/call-method-on-activity-load-android
+    // INPUT: none
+    // OUTPUT: none
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Address of device to connect to if in online mode
+        String address;
+        if (onlineMode)
+            address = activityData.getString("OnlineModeGroupHostAddress");
+        else
+            address = null;
+
+        // Attempt to load online mode
+        if (onlineMode) {
+            // Create a new multiplayer session variables
+            multiplayerSession = new MultiplayerSession();
+
+            // Attempt to initialize a multiplayer session. If it doesn't, return to the main menu
+            if (!(multiplayerSession.initiateConnectionWithConnectedDevice(address, onlineModeIsGroupHost))) {
+                Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_LONG).show();
+                returnToMain();
+            }
+            else {
+                // If the multiplayer session was created successfully, and the device running this instance of the connect four app is not the group host
+                // set the turn to 2 (turn #2 is reserved for the online player, while turn #1 corresponds to the local player)
+                // Setting the turn to 2 indicates we want to wait for input from the online player
+                if (!onlineModeIsGroupHost) {
+                    turn = 2;
+                    placementLockActive = true;
+                } else {
+                    turn = 1;
+                    placementLockActive = false;
+                }
+
+                // Start the network thread (which will handle communications with the other device)
+                // It seemed wise to have this running in a different thread so that it didn't interfere with the UI thread
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (multiplayerSession != null)
+                            networkThread();
+                    }
+                }).start();
+            }
+        }
+        // If we are in offline mode, we don't need a multiplayer session
+        else
+            multiplayerSession = null;
+    }
+
+    // Hide all UI pieces from board
+    // INPUT: none
+    // OUTPUT: none
+    protected void hidePieces() {
         for(int i = 0; i < box.getChildCount();++i){
             LinearLayout curCol = (LinearLayout) box.getChildAt(i);
             for(int j = 0; j < curCol.getChildCount();++j){
@@ -164,7 +279,9 @@ public class GameActivity extends AppCompatActivity {
 
     //Place a disc in the correct slot on the board
     //if isGameOver dont place discs
-    protected void placeDisc(int col){
+    // INPUT: col (column from which to place disc)
+    // OUTPUT: none
+    protected void placeDisc(int col) {
         if(!isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
@@ -175,29 +292,140 @@ public class GameActivity extends AppCompatActivity {
             findWinner();
 
             // Send turn to other player (if in multi-player mode)
-            /*if (activityData.getString("Game").equals("Online Multiplayer")) {
+            if (onlineMode && turn == 1) {
                 // If our multiplayer session wasn't set up successfully
                 if (this.multiplayerSession == null) {
-                    Toast.makeText(getApplicationContext(), "NO MULTIPLAYER SESSION... Couldn't send move to online player... exiting back to main", Toast.LENGTH_SHORT).show();
-                    try {Thread.sleep(2000);} catch (InterruptedException ex) {}
+                    Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
+                    //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
                     returnToMain();
                 } else {
                     // If things didn't work...
                     if (!multiplayerSession.sendMoveToOtherPlayer(col)) {
-                        Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_SHORT).show();
-                        try {Thread.sleep(2000);} catch (InterruptedException ex) {}
+                        Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
+                        //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
                         returnToMain();
                     }
                 }
-            }*/
-            changeTurn();
+            }
+
+            // Log our progress
             Log.d(TAG,"Disc placed at col" + col);
+
+            // Change turns
+            changeTurn();
+        }
+    }
+
+    // Network thread function (waits for remote player input and attempt to change turns so thread so it doesn't interfere with animations)
+    // This function presumes online mode has been setup (otherwise it won't be called)
+    // INPUT: none
+    // OUTPUT: noen
+    protected void networkThread() {
+        // Wait for setup
+        synchronized (playerDiscLock)
+        {
+            try {
+                // Waits for the signal from the main thread indicating that some UI setup has completed
+                // Stop waiting after 8 seconds (UI setup shouldn't take that long) in case things don't work out
+                playerDiscLock.wait(10000);
+
+                if (!playerDisc1Loaded || !playerDisc2Loaded)
+                    Log.d(TAG, "The Network Thread (which takes care of online mode interactions) ran into problems when executing the playerDiscLock.wait() operation (the playerDiscLock is supposed to be triggered when certain UI elements are finished loading). The operation seems to have timed out. Execution will still continue though....");
+                    // Might consider failing at this part of the code
+            } catch (InterruptedException exception) {
+                Log.d(TAG, "The Network Thread (which takes care of online mode interactions) ran into problems when waiting on the palyerDiscLock (which is supposed to be triggered when certain UI elements are loaded). Error code: " + exception.getMessage());
+            }
+        }
+
+        // Will be used to help us determine if we need to continue thread execution
+        boolean continueExecuting = true;
+
+        // For checking first turn (if this device is a connected client, it has to wait on a connection from the server before it can begin)
+        if (turn == 2 && multiplayerSession != null) {
+            // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+
+                    // Remove the placement Lock
+                    synchronized (networkThreadLock) {
+                        placementLockActive = false;
+                    }
+
+                    System.out.println("Signal Just Recieved");
+                }
+            });
+
+            // Get online player move
+
+            //placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+            //int onlinePlayerColumnSelection = multiplayerSession.getMoveFromOtherPlayer();
+
+            // Grid Layout
+            //RelativeLayout boardContainer = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
+
+            // Cheese
+            //https://stackoverflow.com/questions/4553374/how-to-simulate-a-button-click-using-code
+            //boardContainer.getChildAt(onlinePlayerColumnSelection).performClick();
+        }
+
+        // Start waiting for turns
+        while (continueExecuting) {
+            synchronized (networkThreadLock) {
+                try {
+                    // Wait on signal
+                    networkThreadLock.wait();
+                } catch (InterruptedException exception) {
+                    Log.d(TAG, "The network thread ran into problems waiting on a signal from the main thread (to either receive a move from the connected device or indicate that is has sent off a move to the other player)");
+                }
+            }
+
+            // If execution is to stop (which may be the case), the loop needs to stop executing
+            if (!continueNetworkThreadExecution) {
+                continueExecuting = false;
+                continue;
+            }
+
+            // Note: change turn should have been executed before this,
+            // so turn == 1 indicates that the remote player just sent a move over to this device,
+            // and turn == 2 indicates that the server just sent a move
+            if (turn == 2) {
+                // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+
+                        // Remove the placement Lock
+                        synchronized (networkThreadLock) {
+                            placementLockActive = false;
+                        }
+
+                        System.out.println("Signal Just Recieved");
+                    }
+                });
+
+
+                // Get online player move
+                //placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+                //int onlinePlayerColumnSelection = multiplayerSession.getMoveFromOtherPlayer();
+
+                // Grid Layout
+                //RelativeLayout boardContainer = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
+
+                // Cheese
+                //https://stackoverflow.com/questions/4553374/how-to-simulate-a-button-click-using-code
+                //boardContainer.getChildAt(onlinePlayerColumnSelection).performClick();
+            }
         }
     }
 
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
+    // INPUT: none
+    // OUTPUT: none
     public void findWinner(){
         List<Player> list = new ArrayList<>();
         AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
@@ -303,30 +531,34 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     // https://stackoverflow.com/questions/22454839/android-adding-simple-animations-while-setvisibilityview-gone
-                    thisActivity.gameEndMenu.setAlpha(0.0f);
-                    thisActivity.gameEndMenu.setVisibility(View.VISIBLE);
-                    thisActivity.gameEndMenu.animate().alpha(1.0f).setDuration(2000);
+                    gameEndMenu.setAlpha(0.0f);
+                    gameEndMenu.setVisibility(View.VISIBLE);
+                    gameEndMenu.animate().alpha(1.0f).setDuration(2000);
                 }
             }, 2000);
         }
         else {
-            thisActivity.gameEndMenu.setAlpha(0.0f);
-            thisActivity.gameEndMenu.setVisibility(View.INVISIBLE);
+            gameEndMenu.setAlpha(0.0f);
+            gameEndMenu.setVisibility(View.INVISIBLE);
         }
     }
 
-    //Switches turns between players. This means changing the highlights player icon and the turn
-    //number/
+    // Switches turns between players. This means changing the highlights player icon and the turn
+    // number
+    // INPUT: none
+    // OUTPUT: none
     protected void changeTurn() {
+        // Change the turn number
         if(turn == 1)
             turn = 2;
         else
             turn = 1;
 
-        if (this.p1HighlightView != null && this.p2HighlightView != null) {
+        // Take the appriate action (i.e update the highlight views)
+        if (p1HighlightView != null && p2HighlightView != null) {
             // Player 1
-            if (this.turn == 1) {
-                this.p1HighlightView.setVisibility(View.VISIBLE);
+            if (turn == 1) {
+                p1HighlightView.setVisibility(View.VISIBLE);
                 this.p2HighlightView.setVisibility(View.INVISIBLE);
                 this.drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
             } else
@@ -334,34 +566,39 @@ public class GameActivity extends AppCompatActivity {
             {
                 this.p2HighlightView.setVisibility(View.VISIBLE);
                 this.p1HighlightView.setVisibility(View.INVISIBLE);
-                //System.out.println("Player 1 Highlight View: " + p2HighlightView.toString() + "----Player 2 Color: " + this.p2Color.toLowerCase());
                 this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
         }
 
-
-        // Online mode (this is where the turn handling will be done)
-        /*if (this.gameMode.equals("Online Multiplayer") && turn == 2)
+        // Notify network t
+        if (onlineMode)
         {
-            if (this.multiplayerSession == null) {
-                Toast.makeText(getApplicationContext(), "NO MULTIPLAYER SESSION. Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+            if (multiplayerSession == null) {
+                Log.d(TAG, "Failed to get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
+                Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
                 returnToMain();
             }
-            else {
-                int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
-                if (onlinePlayerMove == -1) {
-                    Toast.makeText(getApplicationContext(), "Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                    }
-                    returnToMain();
-                } else {
-                    placeDisc(onlinePlayerMove);
-                    //changeTurn();
+
+            // Indicate that we want to wait for a turn from the remote player
+            if (turn == 2)
+            {
+                synchronized (networkThreadLock)
+                {
+                    // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
+                    continueNetworkThreadExecution = true;
+
+                    // Indicate the placementLock is active (which stops the local player from successfully placing any discs)
+                    // It will be deactivated (set to false) as soon as we get a move from the remote player
+                    placementLockActive = true;
+
+                    // Debug
+                    System.out.println("Notifying the network thread of move");
+
+                    // Notify the network thread (which should be waiting on this signal)
+                    networkThreadLock.notify();
                 }
             }
-        }*/
+        }
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -401,6 +638,7 @@ public class GameActivity extends AppCompatActivity {
     //    1) Check turn
     //    2) Change color of chip based on player turn
     //    3) Place it above board and drop it to it's position
+    // INPUT: chip (a refernece to the chip to animate)
     protected void animate(ImageView chip){
         if(turn == 1)
             chip.setImageResource(this.colorToDiscImgId(this.p1Color));
@@ -410,8 +648,8 @@ public class GameActivity extends AppCompatActivity {
         chip.animate().translationYBy(1000).setDuration(350);
     }
 
-    // Create Player Name
-    // Generates the textview and display icon that will display the player name
+    // Create Player Name and Color Image views
+    // (Generates the textview and display icon that will display the player name)
     // INPUT: playerName (name of the player),
     //        pieceColor (disc color associated with the player),
     //        playerPosition (indicates position of items to be generated)
@@ -430,8 +668,6 @@ public class GameActivity extends AppCompatActivity {
         if (parent == null )
             return false;
 
-        // Variables
-
         // Will hold the name of the player and an image of a disc letting them know what color they are
         LinearLayout infoContainer = new LinearLayout(parent.getContext());
 
@@ -448,11 +684,11 @@ public class GameActivity extends AppCompatActivity {
         TextView playerScoreView = new TextView(imageViews.getContext());
 
         // Will be needed for drawing in the "highlight" view image
-        Bitmap discBitmap;
-        Canvas discCanvas;
+        Bitmap discBitmap = null;
+        Canvas discCanvas = null;
 
         // Window width. These will be used for positioning
-        int windowWidth;
+        int windowWidth = 0;
 
         // The size of the disc image (letting a player know what color they are)
         int discSize = 80;
@@ -486,6 +722,7 @@ public class GameActivity extends AppCompatActivity {
         playerScoreView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         playerScoreView.setText("0");
         playerScoreView.setTextSize(24);
+
         // https://stackoverflow.com/questions/14108400/how-to-align-text-vertically-center-in-android
         playerScoreView.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -538,12 +775,21 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Draw the highlight on the disc images displaying the color of a player
-    // INPUT: imageView (the image view to draw the highlight circle on), color (the color, as a string, of the disc image, which is used to dictate the color of the highlight circle)
+    // INPUT:
+    //     -imageView (the image view to draw the highlight circle on),
+    //     -color (the color, as a string, of the disc image, which is used to dictate the color of the highlight circle)
     // OUTPUT: none
     protected void drawCircleEdges(ImageView imageView, String color) {
+        // Initial Checks (exit if either our color or image view is null)
+        if (imageView == null || color == null)
+        {
+            Log.d(TAG, "DrawCircleEdges failed (null disc image view or color). Image View is non-null: " + (imageView != null) + " Color is non-null: " + (color != null));
+            return;
+        }
+
         // Needed to draw the shapes (not sure if the bitmap obejct is required, but I saw it on a tutorial and I know it works, so I am rolling with it for now)
-        Bitmap imageViewBitmap;
-        Canvas imageViewCanvas;
+        Bitmap imageViewBitmap = null;
+        Canvas imageViewCanvas = null;
 
         // Paint style of player circle edge highlights
         Paint imageViewEdgePaint = new Paint();
@@ -661,7 +907,9 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    //Reset the game board
+    // Reset the game board
+    // INPUT: none
+    // OUTPUT: none
     protected void restartGame(){
         Log.d(TAG, "Restarting the game");
         isGameOver = false;

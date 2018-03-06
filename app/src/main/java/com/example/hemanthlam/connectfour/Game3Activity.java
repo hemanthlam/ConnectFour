@@ -12,6 +12,7 @@ public class Game3Activity extends GameActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainLayout = (RelativeLayout) findViewById(R.id.GAME_3_RELATIVE_LAYOUT);
         setContentView(R.layout.activity_game3);
         Log.d(TAG,"Board 10*8");
         box = (RelativeLayout) findViewById(R.id.GAME_3_INNER_RELATIVE);
@@ -30,6 +31,7 @@ public class Game3Activity extends GameActivity {
         // Generate player disk icons
         generatePlayerNamesAndIcons(this.p1Name, this.p1Color, 1, (RelativeLayout) findViewById(R.id.GAME_3_RELATIVE_LAYOUT));
         generatePlayerNamesAndIcons(this.p2Name, this.p2Color, 2, (RelativeLayout) findViewById(R.id.GAME_3_RELATIVE_LAYOUT));
+        drawInitialHighlights();
 
         // Required to draw the edge around player 1's icon when the game starts
         if (this.p1HighlightView != null)

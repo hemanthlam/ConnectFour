@@ -1,5 +1,7 @@
 package com.example.hemanthlam.connectfour;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +29,7 @@ public class MultiplayerSession {
 
     // Needed to setup sockets
     private String connectedDeviceAddress = "";
-    private boolean connectedDeviceIsGroupOwner = false;
+    private boolean isGroupOwner = false;
 
     // Atomic Ints: http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurrent-map-examples/
     private AtomicBoolean sendSignal = new AtomicBoolean(false);
@@ -38,39 +40,41 @@ public class MultiplayerSession {
     //private final Object continueThreadExecutinoLock = new Object();
     //private final Object sendSignalLock = new Object();
     //private final Object getSendSignalLock = new Object();
-    private AtomicBoolean setupThreadCompleted = new AtomicBoolean(false);
-    private AtomicBoolean setupThreadSignalRecieved = new AtomicBoolean(false);
+    //private AtomicBoolean setupThreadCompleted = new AtomicBoolean(false);
+    //private AtomicBoolean setupThreadSignalRecieved = new AtomicBoolean(false);
+    private final Object threadLock = new Object();
+    private boolean setupThreadCompleted = false;
+    private boolean setupThreadSignalRecieved = false;
 
     // Will be used for transferring data
     private int sendData = -1;
     private int receiveData = -1;
 
-    // COnnection Attempt Limit
-    private final int connectionAttemptLimit = 8;
+    // Server Socket and client
+    private ServerSocket serverSocket = null;
+    private Socket client = null; // https://stackoverflow.com/questions/14425826/variable-is-accessed-within-inner-class-needs-to-be-declared-final
 
-    // For receiving data
-    //private byte buffer[] = new byte[1024];
+    // This variable will be bullet proof!
+    // https://stackoverflow.com/questions/40413717/cant-connect-to-android-devices-when-using-network-service-discovery-through-wi (I thought that perhaps using a local integer might have been causing problems?)
+    private static final int port = 8916;
 
     // Initiate socket connection
     // INPUT: none
     // OUTPUT: true if the connection succeeded, false otherwise
-    public boolean initiateConnectionWithConnectedDevice(String connectedDeviceAddress, boolean connectedDeviceIsGroupOwner) {
+    public boolean initiateConnectionWithConnectedDevice(String connectedDeviceAddress, boolean isGroupOwner) {
         // Variables
         boolean connectionSucessful = true;
-        String deviceAddress = null;
 
         // Checking the address
-        if (connectedDeviceAddress != null && connectedDeviceAddress != "")
-            deviceAddress = connectedDeviceAddress.substring(1);
-
-        // Printout out the address
-        System.out.println("Connected Device Address: " + deviceAddress);
+        if (connectedDeviceAddress == null || connectedDeviceAddress == "")
+            return false;
 
         // Only proceed if we have valid input data
-        if (deviceAddress == null || connectedDeviceAddress != "") {
+        if (connectedDeviceAddress != null && connectedDeviceAddress != "") {
             // Assign data
-            this.connectedDeviceAddress = deviceAddress;
-            this.connectedDeviceIsGroupOwner = connectedDeviceIsGroupOwner;
+            this.connectedDeviceAddress = connectedDeviceAddress.substring(1);
+            System.out.println("Connected Device Address: " + connectedDeviceAddress.substring(1));
+            this.isGroupOwner = isGroupOwner;
 
             // https://developer.android.com/guide/components/processes-and-threads.html (used a bit of information, mostly the new Thread(Runnable) syntax and noted an example)
             // https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html (a little dated?)
@@ -81,10 +85,18 @@ public class MultiplayerSession {
                 }
             }).start();
 
-            // We can't exit this loop until the network thread finishes setting itself up
-            // This probably isn't the best way to do this, but unpredictable scheduling makes this more difficult then it should be
-            while (!(setupThreadCompleted.get()))
-                try { Thread.sleep(500); System.out.println("Waiting for setup to complete...");} catch (InterruptedException ex) {}
+            // --We can't exit this loop until the network thread finishes setting itself up
+            // --This probably isn't the best way to do this, but unpredictable scheduling makes this more difficult then it should be
+            // Check if the thread has been setup by checking the setupThreadComplete variable (which is set to true when the network thread function finishes running)
+            // There is a chance that it was already set (so we don't need to wait for it to complete), so we check if the the setupThreadComplete variable has already been set to true
+            // If it hasn't, we wait for the network thread to finish setup
+            synchronized (threadLock)
+            {
+                if (!setupThreadCompleted)
+                    try {threadLock.wait();} catch (InterruptedException ex) {}
+            }
+            //while (!setupThreadCompleted)
+            //    try { Thread.sleep(500); System.out.println("Waiting for setup to complete...");} catch (InterruptedException ex) {}
 
             //synchronized (setupThreadCompleted) {
             //    try {setupThreadCompleted.wait();} catch (InterruptedException ex) {}
@@ -152,9 +164,9 @@ public class MultiplayerSession {
             try {connectioninputStream.close();} catch (IOException ex) {System.out.println("Error in endConnectionWithConnectedDevice when trying to close input stream: " + ex.getMessage());};
         if (connectionOutputStream != null)
             try {connectionOutputStream.close();} catch (IOException ex) {System.out.println("Error in endConnectionWithConnectedDevice when trying to close output stream: " + ex.getMessage());};*/
-        synchronized (continueThreadExecution) {
+        synchronized (threadLock) {
             continueThreadExecution.set(false);
-            continueThreadExecution.notifyAll();
+            threadLock.notify();
         }
     }
 
@@ -223,86 +235,191 @@ public class MultiplayerSession {
         // Will be used to send and receive data
         OutputStream connectionOutputStream = null;
         InputStream connectioninputStream = null;
-
-        // For receiving data
-        //byte buffer[] = new byte[1024];
-        int port = 8020;
-
-        // Server Socket and client
-        ServerSocket serverSocket = null;
-        Socket client = null;
+        boolean continueExec = false;
+        int connectionAttemptLimit = 16;
 
         try {
             // The group owner is the server, therefore if the connected device is not the group owner, this is the server.
             // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-            if (!connectedDeviceIsGroupOwner)
+            if (isGroupOwner)
             {
+                // Create the Server socket and wait on connections
                 System.out.println("Server Setup Step 1");
-                // 8080 will be the send channel
-                serverSocket = new ServerSocket(8020);
+                serverSocket = new ServerSocket(7432);
                 client = serverSocket.accept();
                 System.out.println("Server Setup Step 2");
+
+                // Server.accept blocks until a connection to it successfully completes, but I would like to set a timeout (so if the connected device doesn't conenct within say, 10 seconds, it stops)
+                // According to https://stackoverflow.com/questions/2983835/how-can-i-interrupt-a-serversocket-accept-method, we can just start a new thread and close it (which will interrupt the accept() call)
+                /*new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(10000);
+                            if (!(connected.get())) {
+                                try {
+                                    serverSocket.close();
+                                    client.close();
+                                } catch (IOException ex) {
+                                    System.out.println("Server socket timed out when waiting for client device to connect. Exiting...");
+                                }
+                            }
+                        } catch (InterruptedException intEx) {}
+                    }
+                }).start();*/
 
                 // Setup the input streams
                 connectioninputStream = client.getInputStream();
                 connectionOutputStream = client.getOutputStream();
                 connected.set(true);
                 continueThreadExecution.set(true);
-                setupThreadCompleted.set(true);
-                System.out.println("Server connection to itself suceeded");
+                continueExec = true;
+                setupThreadCompleted = true;
             }
             // Otherwise, this is the client
             // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
             else {
-                // Initiate connection to server
+                // Create new socket
                 System.out.println("Client Setup Step 1");
+
+                // Create Client
                 client = new Socket();
                 client.bind(null);
 
-                // Int connection attempt setup
+                // Variables for use when attempting to connect to the server
                 boolean stopTryingToConnect = false;
                 int attempts = 0;
 
+                // Initiate connection to server (other device)
                 // Keep trying to connect until it suceeds or until you hit the connection attempt theshold
                 // This might be needed for hosts with slow load times
+                System.out.println("Connected Device Address: " + connectedDeviceAddress.toString());
                 while (!stopTryingToConnect) {
                     try {
-                        client.connect(new InetSocketAddress(connectedDeviceAddress, 8020), 1000);
+                        // Connect to the client
+                        client.connect(new InetSocketAddress(connectedDeviceAddress.toString(), 7432), 1500);
+
+                        // If this succeeds, we are done and set this variable to true to indicate that the while loop need not execute anymore
                         stopTryingToConnect = true;
+
                     } catch (IOException ex) {
+
+                        // Increcment our attempts (indicating that we have just tried again)
                         ++attempts;
+
+                        // Print an error message
+                        System.out.println("Client attempted to connect to server... but it failed. Error: " + ex.getMessage());
+
+                        // Wait a bit before trying to connect again
                         try {Thread.sleep(2000);} catch (InterruptedException intEx) {}
-                        if (attempts > connectionAttemptLimit)
+
+                        // Clear out the socket of old data
+                        client.close();
+                        client = null;
+
+                        // Exit if we hit our connection attempt limit. Try again with a new socket variable if we need it
+                        // I recreate the socket to avoid a bad file descriptor error
+                        if (attempts >= connectionAttemptLimit)
                             stopTryingToConnect = true;
+                        else {
+                            client = new Socket();
+                            client.bind(null);
+                        }
                     }
                 }
-                System.out.println("Client Setup Step 2");
 
+                // We weren't able to establish a connection...
+                if (client == null)
+                    return;
+
+                System.out.println("Client Setup Step 2");
                 // Setup the input and output streams (I think we can use one port for this?)
                 connectioninputStream = client.getInputStream();
                 connectionOutputStream = client.getOutputStream();
                 connected.set(true);
-                setupThreadCompleted.set(true);
+                setupThreadCompleted = true;
                 continueThreadExecution.set(true);
+                continueExec = true;
                 System.out.println("Client connection to server suceeded");
             }
 
-            // Lets the initialization thread know we got here
-            setupThreadCompleted.set(true);
+            // Lets the initialization thread know that thread execution has been completed (by sending a signal)
+            synchronized (threadLock) {
+                setupThreadCompleted = true;
+                threadLock.notify();
+            }
 
             // Thread waiting: https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#wait()
-            while(continueThreadExecution.get()) {
-                // Wait for a signal (to let this thread know that something has been done)
-                try
+            while(continueExec) {
+                synchronized (threadLock) {
+                    // Check if we want to continue thread execution
+                    if (!(continueThreadExecution.get()))
+                    {
+                        continueExec = false;
+                        continue;
+                    }
+                    // Wait for a signal (to let this thread know that something has been done)
+                    else
+                        try {threadLock.wait();} catch (InterruptedException ex) {}
+
+
+
+                    // Check to see if data structure (indicating that we need to send a move to the client) is updated to indicate that we do
+                    if (sendSignal.get()) {
+                        // Notify waiting thread
+                        System.out.println("Send Signal Sent");
+
+                        // Send data
+                        connectionOutputStream.write(sendData);
+                        System.out.println("Send Signal successfully wrote data to stream");
+
+                        // Reset variables
+                        sendData = -1;
+                        sendSignal.set(false);
+
+                        // Debug
+                        System.out.println("Send Signal Set sendSignal to false");
+
+                        // Notify waiting thread
+                        threadLock.notifyAll();
+
+                        // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
+                        /*synchronized(continueThreadExecution)
+                        {
+                            continueThreadExecution.notifyAll();
+                        }*/
+                    }
+
+                    // Receive signal
+                    //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+                    else if (receiveSignal.get()) {
+                        // Read data off of the input buffer (a.k.a: get it from the client socket)
+                        // The example simply shows you waiting until you get data... A timer was put in an an attempt to mitigate that
+                        // https://stackoverflow.com/questions/38163938/return-value-of-assignment-operation-in-java
+                        while ((receiveData = connectioninputStream.read()) == -1)
+                            try {Thread.sleep(500);} catch(InterruptedException ex) {}
+                        receiveSignal.set(false);
+
+                        threadLock.notifyAll();
+                        // Copy data to the move data string
+                        // https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
+                        //this.receiveData = -1;
+
+                        // Update the appropriate signal variables
+                        //receiveSignal.set(false);
+
+                        // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
+                        //synchronized(continueThreadExecution)
+                    /*{
+                        continueThreadExecution.notifyAll();
+                    }*/
+                    }
+
+
+                }
+                System.out.println("Multiplayer Loop has started");
+                /*try
                 {
-                    // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
-                    //if (!(setupThreadSignalRecieved.get())) {
-                    //    synchronized (setupThreadCompleted) {
-                    //        continueThreadExecution.notifyAll();
-                    //    }
-                    //}
-
-
                     // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
                     synchronized(continueThreadExecution)
                     {
@@ -314,60 +431,26 @@ public class MultiplayerSession {
                     //    continueThreadExecution.wait();
                     //}
                 }
-                catch (InterruptedException ex) {}
+                catch (InterruptedException ex) {}*/
 
-                // Check to see if data structure (indicating that we need to send a move to the client) is updated to indicate that we do
-                if (sendSignal.get()) {
-                    // Send data
-                    connectionOutputStream.write(sendData);
-
-                    // Reset variables
-                    sendData = -1;
-                    sendSignal.set(false);
-
-                    // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
-                    /*synchronized(continueThreadExecution)
-                    {
-                        continueThreadExecution.notifyAll();
-                    }*/
-                }
-
-                // Receive signal
-                //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-                else if (receiveSignal.get()) {
-                    // Read data off of the input buffer (a.k.a: get it from the client socket)
-                    // The example simply shows you waiting until you get data... A timer was put in an an attempt to mitigate that
-                    // https://stackoverflow.com/questions/38163938/return-value-of-assignment-operation-in-java
-
-                    while ((receiveData = connectioninputStream.read()) == -1);
-                    receiveSignal.set(false);
-                        //try {Thread.sleep(500);} catch(InterruptedException ex) {}
-
-                    // Copy data to the move data string
-                    // https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
-                    //this.receiveData = -1;
-
-                    // Update the appropriate signal variables
-                    //receiveSignal.set(false);
-
-                    // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time
-                    //synchronized(continueThreadExecution)
-                    /*{
-                        continueThreadExecution.notifyAll();
-                    }*/
-                }
             }
 
         } catch (IOException ex) {
             // Lets the initialization thread know we got here
-            setupThreadCompleted.set(true);
+            sendSignal.set(false);
+            receiveSignal.set(false);
+            connected.set(false);
             sendSignal.set(false);
             receiveSignal.set(false);
 
+            synchronized (threadLock) {
+                setupThreadCompleted = true;
+                threadLock.notify();
+            }
+
             // Some things to occur upon connection failure
             System.out.println("Unable to create server socket");
-            System.out.println("Eror: " + ex.getMessage());
-            connected.set(false);
+            System.out.println("Error: " + ex.getMessage());
         }
 
         // Close sockets and I/O streams
@@ -375,7 +458,12 @@ public class MultiplayerSession {
         if (serverSocket != null && !serverSocket.isClosed())
             try {serverSocket.close();} catch (IOException ex) {};
         if (client != null && !client.isClosed())
-            try {client.close();} catch (IOException ex) {};
+            try {
+                // https://stackoverflow.com/questions/43226607/application-crashes-after-i-closed-the-socket-waiting-for-reading-in-a-thread
+                client.shutdownInput();
+                client.shutdownOutput();
+                client.close();
+        } catch (IOException ex) {};
         if (connectioninputStream != null)
             try {connectioninputStream.close();} catch (IOException ex) {};
         if (connectionOutputStream != null)
@@ -396,13 +484,17 @@ public class MultiplayerSession {
             // Prepare some variables and wait for the network thread to automatically update the variables
             sendData = data;
             sendSignal.set(true);
-            synchronized (continueThreadExecution) {
-                continueThreadExecution.notifyAll();
+            synchronized (threadLock) {
+                threadLock.notifyAll();
+                System.out.println("Waiting on sendSignal...");
+                try {threadLock.wait();} catch (InterruptedException ex) {}
                 //try {continueThreadExecution.wait();} catch (InterruptedException ex) {};
             }
 
             // Keep spinning unitl the send signal command has been completed
-            while (sendSignal.get());
+            //while (sendSignal.get())
+            //    try {Thread.sleep(500); } catch(InterruptedException ex) {}
+
 
             // Note that the operation status
             if (sendData == -1)
@@ -437,17 +529,19 @@ public class MultiplayerSession {
         int playerTurn = -1;
 
         // This function can only execute if our thread function (controlling socket functionality) is running
-        if (this.connected.get()) {
+        if (connected.get()) {
             // Prep some variables and wait for the network thread to automatically update the variables
             receiveData = -1;
             receiveSignal.set(true);
-            synchronized (continueThreadExecution) {
-                continueThreadExecution.notifyAll();
+            synchronized (threadLock) {
+                threadLock.notifyAll();
+                try {threadLock.wait();} catch (InterruptedException ex) {}
                 //try {continueThreadExecution.wait();} catch (InterruptedException ex) {};
             }
 
             // Keep spinning until we get the signal indicating that data has been recieved the data over
-            while(this.receiveSignal.get())
+            //while(this.receiveSignal.get())
+            //    try {Thread.sleep(500); System.out.println("Waiting on sendSignal...");} catch(InterruptedException ex) {}
 
             // Save the result once we get it
             playerTurn = receiveData;

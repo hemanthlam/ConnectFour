@@ -8,10 +8,19 @@ import android.widget.RelativeLayout;
 
 //The activity used for the 7 x 6 game board
 public class Game1Activity extends GameActivity {
+
+    // Tag for logging purposes
     String TAG = "Game1Activity";
+
+    // onCreate function
+    // Executes when the activity is created (but before its UI elements are loaded)
+    // Info can be found here: https://developer.android.com/reference/android/app/Activity.html (though my understanding is also built on information from the various sources cited in the code and from some stackoverflow posts that I might not have mentioned here)
+    // INPUT: savedInstanceState (not sure_
+    // OUTPUT: none
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainLayout = (RelativeLayout) findViewById(R.id.GAME_2_RELATIVE_LAYOUT);
         setContentView(R.layout.activity_game1);
         Log.d(TAG,"Board 7*6");
         box = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
@@ -20,12 +29,17 @@ public class Game1Activity extends GameActivity {
         /*new Thread(new Runnable() {
             @Override
             public void run() {*/
+                // Load the game discs (they are hidden initially, and colored, moved up, and animated back down as they are placed by the user, if my understanding is correct)
                 for(int i = 0; i < box.getChildCount();++i){
                     final int I = i;
                     box.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            placeDisc(I);
+                            synchronized (networkThreadLock) {
+                                // If we are waiting on a move form an online player, we don't want to let the local player place any more discs
+                                if (!placementLockActive)
+                                    placeDisc(I);
+                            }
                         }
                     });
                 }
@@ -43,7 +57,11 @@ public class Game1Activity extends GameActivity {
         /*new Thread(new Runnable() {
             @Override
             public void run() {*/
-                generatePlayerNamesAndIcons(p1Name, p1Color, 1, (RelativeLayout) findViewById(R.id.GAME_1_RELATIVE_LAYOUT));
+
+        // Generate the player names and icons associated wtih player 1
+        // These elements are programatically generated
+        generatePlayerNamesAndIcons(p1Name, p1Color, 1, (RelativeLayout) findViewById(R.id.GAME_1_RELATIVE_LAYOUT));
+
                 /*synchronized (interfaceLoadLock) {
                     interfaceElementsLoaded += 1;
                     if (interfaceElementsLoaded >= 3)
@@ -54,7 +72,10 @@ public class Game1Activity extends GameActivity {
         /*new Thread(new Runnable() {
             @Override
             public void run() {*/
-                generatePlayerNamesAndIcons(p2Name, p2Color, 2, (RelativeLayout) findViewById(R.id.GAME_1_RELATIVE_LAYOUT));
+
+        // Generate the player names and icons associated with player 2
+        generatePlayerNamesAndIcons(p2Name, p2Color, 2, (RelativeLayout) findViewById(R.id.GAME_1_RELATIVE_LAYOUT));
+
                 /*synchronized (interfaceLoadLock) {
                     interfaceElementsLoaded += 1;
                     if (interfaceElementsLoaded >= 3)
@@ -63,29 +84,11 @@ public class Game1Activity extends GameActivity {
             }
         }).start();*/
 
-        // Required to draw the edge around player 1's icon when the game starts
-        if (activityData.get("Game").equals("Online Multiplayer") && !activityData.getBoolean("OnlineModeIsGroupHost"))
-        {
-            if (this.p2HighlightView != null)
-                this.p2HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                    @Override
-                    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.p1Color); }
-                });
-        }
-        else
-        {
-            if (this.p1HighlightView != null)
-                this.p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                    @Override
-                    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) { thisActivity.drawCircleEdges((ImageView)view, thisActivity.p1Color); }
-                });
-
-        }
         // Initialize Game End Screen
         /*new Thread(new Runnable() {
             @Override
             public void run() {*/
-                thisActivity.initializeGameEndScreen();
+                initializeGameEndScreen();
                 /*synchronized (interfaceLoadLock) {
                     interfaceElementsLoaded += 1;
                     if (interfaceElementsLoaded >= 4)
@@ -94,17 +97,28 @@ public class Game1Activity extends GameActivity {
             }
         }).start();*/
 
+        // Color the player discs (indicating which player is taking their turn first)
+        // If this is an online game, the server user goes first (so if your device is the server, the player 1 disc will get highlighted. If your device is the client, the player 2 disc is highlighted initially)
+        drawInitialHighlights();
     }
 
     // Some code to run when the game starts
-    public void startGame() {
-        if (!(activityData.getBoolean("OnlineModeIsGroupHost")))
-            Log.d(TAG,"This device is the online group host!");
-        else{
-            Log.d(TAG,"This device is not the online group host!");
-            changeTurn();
-        }
-    }
+    /*public void startGame() {
+        //if (!(activityData.getBoolean("OnlineModeIsGroupHost")))
+        //    Log.d(TAG,"This device is the online group host!");
+        //else{
+        //    Log.d(TAG,"This device is not the online group host!");
+        //    changeTurn();
+        //}
+    }*/
+
+
+    /*@Override
+    public void onStart() {
+        super.onStart();
+        if (gameMode.equals("Online Multiplayer"))
+            loadOnlineModeStartButton((RelativeLayout) findViewById(R.id.GAME_1_RELATIVE_LAYOUT));
+    }*/
 
     /*@Override
     public  void onResume() {

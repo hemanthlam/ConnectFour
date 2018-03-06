@@ -20,9 +20,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Cheese
         // I don't know if we need a seperate thread to run this, but why not give it a shot!
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        //new Thread(new Runnable() {
+            //@Override
+            //public void run() {
                 playbutton.setOnClickListener(new View.OnClickListener(){
 
                     @Override
@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(startIntent);
                     }
                 });
-            }
-        }).start();
+        //    }
+        //}).start();
 
     }
 }

@@ -140,6 +140,7 @@ public class OnlineModeSetup extends Activity {
     public void onPause() {
         super.onPause();
         unregisterReceiver(onlineMode);
+        //onlineMode.resetConnectionSearch();
     }
 
     // Setup the find hosts window (a hidden window that will appear once the user clicks the find hosts button)

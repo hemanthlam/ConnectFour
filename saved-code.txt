@@ -1,0 +1,201 @@
+// If this is online mode and we are the client, we need to wait for the first move from the other player
+        /*synchronized (elementsLoaded)
+        {
+            // Wait for setup to complete (i.e: wait for the two score circles to finish drawing)
+            if (!scoreCircle1Drawn || !scoreCircle2Drawn)
+                try {
+                    elementsLoaded.wait();
+                } catch(InterruptedException ex) {
+                    Log.d(TAG, "The GameActivity ran into some problems when dawing the score circles. Taking the first turn right now could cause some problems, so the progam is exiting");
+                    Toast.makeText(getApplicationContext(), "There were game setup problems, so the current game probably shouldn't begin. Returning back to the main function...", Toast.LENGTH_SHORT).show();
+                    returnToMain();
+                }
+        }*/
+
+if (activityData.get("Game").equals("Online Multiplayer") && !activityData.getBoolean("OnlineModeIsGroupHost"))
+        {
+            //if (p2HighlightView != null && p1HighlightView != null) {
+            p2HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    thisActivity.drawCircleEdges((ImageView) view, thisActivity.p2Color);
+                    synchronized (elementsLoaded) {
+                        scoreCircle2Drawn = true;
+                        // Wait for the first move (if you are not the host)
+                        //if (scoreCircle1Drawn) {
+                        //    turn = 2;
+                        //    placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+                        //}
+                        if (scoreCircle1Drawn) {
+                            continueRecieveThread = true;
+                            //sendRecieveLock.notify();
+                        }
+                    }
+                }
+            });
+            p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                    synchronized (elementsLoaded) {
+                        scoreCircle1Drawn = true;
+                        if (scoreCircle2Drawn){
+                            //if (scoreCircle1Drawn) {
+                            //    turn = 2;
+                            //    placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+                            //}
+                            if (scoreCircle2Drawn) {
+                                continueRecieveThread = true;
+                                //sendRecieveLock.notify();
+                            }
+                        }
+                    }
+                }
+            });
+            //}
+        }
+        else
+        {
+            if (p1HighlightView != null) {
+                p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    @Override
+                    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                        thisActivity.drawCircleEdges((ImageView) view, thisActivity.p1Color);
+                        synchronized (elementsLoaded) {
+                            scoreCircle1Drawn = true;
+                            // Initiate first turn
+                        }
+                    }
+                });
+                p2HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    @Override
+                    public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                        synchronized (elementsLoaded) {
+                            scoreCircle2Drawn = true;
+                        }
+                    }
+                });
+            }
+        }
+
+protected void onlineDiscPlacementThread() {
+        while (continueRecieveThread) {
+            synchronized (sendRecieveLock) {
+
+                // Wait for a recieve signal
+                try {
+                    sendRecieveLock.wait();
+                } catch (InterruptedException ex) {}
+
+                // Exits loop if we are done recieving from the client
+                if (!continueRecieveThread)
+                    continue;
+
+                // Get Move
+                System.out.println("Client is looking for player move");
+                final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+                System.out.println("Client has gotten player move");
+
+                // Act on the data
+                if (onlinePlayerMove == -1) {
+                    Toast.makeText(getApplicationContext(), "Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                } else {
+                    placeDisc(onlinePlayerMove);
+                    System.out.println("Just recieved move from other player...");
+                }
+
+                // This will exit on the next call if this value is not updated
+                //continueRecieveThread  = false;
+            }
+        }
+    }
+
+    // Locks for multithreading
+    //https://stackoverflow.com/questions/5861894/how-to-synchronize-or-lock-upon-variables-in-java
+    protected Object interfaceLoadLock = new Object();
+    protected int interfaceElementsLoaded = 0;
+
+    protected Object sendRecieveLock = new Object();
+    protected boolean sentMoveSuccessfully = false;
+    protected boolean continueRecieveThread = true;
+
+    protected final Object elementsLoaded = new Object();
+    protected boolean scoreCircle1Drawn = false;
+    protected boolean scoreCircle2Drawn = false;
+
+        // Online mode (this is where the turn handling will be done)
+        /*if (this.gameMode.equals("Online Multiplayer") && turn == 2)
+        {
+            // Alert recieve thread
+            synchronized (sendRecieveLock)
+            {
+                continueRecieveThread = true;
+                sendRecieveLock.notify();
+            }
+            // Check if our multiplayer session is still active (
+            if (this.multiplayerSession == null) {
+                Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                returnToMain();
+            }
+            else {
+                System.out.println("Client is looking for player move");
+                final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+                System.out.println("Server is looking for player move");
+
+                if (onlinePlayerMove == -1) {
+                    Toast.makeText(getApplicationContext(), "Couldn't get move from online player... exiting back to main", Toast.LENGTH_SHORT).show();
+                    returnToMain();
+                } else {
+                    placeDisc(onlinePlayerMove);
+                    System.out.println("Just recieved move from other player...");
+                }
+            }
+            changeTurn();
+        }*/
+
+// Loads a relative layout (on top of the game screen) to initiate the multiplayer game
+    // I had to do this because I thought this was a doable way to only initiate getting moves from the client
+    // The game starts when the user clicks the button
+    // INPUT: layout (a reference to the relative layout that you want to add the temporary start game screen to)
+    // OUTPUT: none
+    public void loadOnlineModeStartButton(RelativeLayout mainLayout) {
+        final RelativeLayout relativeLayout = new RelativeLayout(getApplicationContext());
+        Button startButton = new Button(relativeLayout.getContext());
+
+        // Relative layout things
+        ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        relativeLayout.setLayoutParams(layoutParams);
+
+        // Button design
+        startButton.setLayoutParams(layoutParams);
+        startButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        startButton.setText("Click to Start Online Game");
+        startButton.setTextColor(Color.WHITE);
+
+        // Some setup
+        relativeLayout.addView(startButton);
+        relativeLayout.setVisibility(View.VISIBLE);
+
+        // Attach to main screen
+        if (mainLayout != null) {
+            mainLayout.addView(relativeLayout);
+            startButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // This will only initially be the case if the game is in online mode
+                    // Remove layout visibility
+                    relativeLayout.setVisibility(View.INVISIBLE);
+
+                    // A slight pause for user experience
+                    try {Thread.sleep(1000);} catch (InterruptedException ex) {}
+
+                    // For the client device
+                    if (turn == 2) {
+                        // Gets move from online player
+                        placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+                    }
+                }
+            });
+        }
+        else
+            System.out.println("Main Layout Not Loaded");
+    }
