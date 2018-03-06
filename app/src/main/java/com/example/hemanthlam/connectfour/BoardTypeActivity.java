@@ -33,6 +33,7 @@ public class BoardTypeActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (gameSpinner.getSelectedItem().toString()) {
                     case "Local Multiplayer":
+                        System.out.println("SELECT LOCAL MULTI-PLAYER");
                         gameType = "Local Multiplayer";
                         break;
                     case "AI Mode (Single Player)":
@@ -54,6 +55,7 @@ public class BoardTypeActivity extends AppCompatActivity {
         Intent intent = null;
         switch (gridSpinner.getSelectedItem().toString()){
             case "7 x 6":
+                System.out.println("SELECT 7*6");
                 intent = new Intent(getApplicationContext(), NameActivity.class);
                 intent.putExtra("Board", "7 x 6");
                 intent.putExtra("Game", gameType);

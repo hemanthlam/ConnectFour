@@ -26,6 +26,7 @@ public class BoardTest {
         expected = 6;
         row = testBoard2.findPosition(0,0);
         assertEquals(expected, row);
+<<<<<<< HEAD
         expected = -2;
         row = testBoard2.findPosition(-10, 0);
         assertEquals(expected, row);
@@ -35,6 +36,17 @@ public class BoardTest {
         expected = 7;
         assertEquals(expected, row);
         expected = -2;
+=======
+        expected = -2;
+        row = testBoard2.findPosition(-10, 0);
+        assertEquals(expected, row);
+
+        Board testBoard3 = new Board("10x8");
+        row = testBoard3.findPosition(0,0);
+        expected = 7;
+        assertEquals(expected, row);
+        expected = -2;
+>>>>>>> 649658b22f57afdabe21e6eeafbe43aba38b8723
         row = testBoard3.findPosition(-10, 0);
         assertEquals(expected, row);
     }
@@ -95,16 +107,20 @@ public class BoardTest {
         int[][] i;
         String expected =null;
         Board board1 = new Board(("7x6"));
+<<<<<<< HEAD
         for(int j = 0; j < 7;++j){
             for(int k = 0; k < 6; ++k)
                 board1.findPosition(j, 1);
         }
         i = board1.findWinner(1);
         assertNotNull(expected, i);
+=======
+>>>>>>> 649658b22f57afdabe21e6eeafbe43aba38b8723
         i = board1.findWinner(2);
         assertEquals(expected, i);
 
         Board board2 = new Board(("8x7"));
+<<<<<<< HEAD
         for(int j = 0; j < 8;++j){
             for(int k = 0; k < 7; ++k)
                 board2.findPosition(j, 1);
@@ -124,6 +140,14 @@ public class BoardTest {
         i = board3.findWinner(2);
         assertEquals(expected, i);
 
+=======
+        i = board2.findWinner(1);
+        assertEquals(expected, i);
+
+        Board board3 = new Board(("10x8"));
+        i = board3.findWinner(1);
+        assertEquals(expected, i);
+>>>>>>> 649658b22f57afdabe21e6eeafbe43aba38b8723
     }
 
     @Test
@@ -133,11 +157,14 @@ public class BoardTest {
         Board board1 = new Board(("7x6"));
         i = board1.checkIfBoardFull();
         assertEquals(expected, i);
+<<<<<<< HEAD
         for(int j = 0; j < 7;++j){
             for(int k = 0; k < 6; ++k)
                 board1.findPosition(j, 1);
         }
         assertEquals(true, board1.checkIfBoardFull());
+=======
+>>>>>>> 649658b22f57afdabe21e6eeafbe43aba38b8723
     }
 
 }

@@ -25,7 +25,8 @@ import com.example.hemanthlam.connectfour.db.AppDatabase;
 import com.example.hemanthlam.connectfour.db.Player;
 import java.util.ArrayList;
 import java.util.List;
-/**
+import static java.lang.System.exit;
+ /**
  * Created by Sean on 1/25/2018.
  */
 
@@ -127,7 +128,7 @@ public class GameActivity extends AppCompatActivity {
 
     //Place a disc in the correct slot on the board
     //if isGameOver dont place discs
-    protected void placeDisc(int col){
+    protected void placeDisc(int col) {
         if(!isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
@@ -150,7 +151,7 @@ public class GameActivity extends AppCompatActivity {
         LinearLayout tempCol;
         ImageView chip;
         changeTurn();
-        int AIPos [] = gameBoard.AIChoice();
+        int AIPos [] = gameBoard.AIPlaceDisc(0,2);
         tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
         chip = (ImageView) tempCol.getChildAt(AIPos[1]);
         animate(chip);
@@ -160,7 +161,7 @@ public class GameActivity extends AppCompatActivity {
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
-    public void findWinner(){
+    public void findWinner() {
         List<Player> list = new ArrayList<>();
         AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
         int topScore=0;
@@ -214,7 +215,6 @@ public class GameActivity extends AppCompatActivity {
                     player.setScore(p2Wins);
                     player.setName(p2Name);
                     appDatabase.userDao().insertAll(player);
-
                 }
                 else{
                     if(player.getScore() < p2Wins){
