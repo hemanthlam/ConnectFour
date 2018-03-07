@@ -16,25 +16,19 @@ public class Board {
     // A multidimensional array to hold the connect four grid. It is a multi-dimensional array of booleans
     // (true indicates disc in appropriate part of grid, with false indicating otherwise)
     private int boardBounds[][];
-    private int AIVert[];
-    private int AIHoriz[][];
+
     // The number of rows and columns in the grid
     private int height;
     private int width;
 
     // Constructors
-    public Board() {
-        boardBounds = null;
-        height = 0;
-        width = 0;
-    }
     public Board(String size) {
 
         // Allocate disc array (boolean indicates if disc square is active or inactive)
         if (size.equalsIgnoreCase("7x6")) {
             this.boardBounds = new int[7][6];
-            this.height = 6;
-            this.width = 7;
+            this.height = 6; //row
+            this.width = 7; //coloumn
         } else if (size.equalsIgnoreCase("8x7")) {
             this.boardBounds = new int[8][7];
             this.width = 8;
@@ -52,8 +46,6 @@ public class Board {
             this.width = 0;
             return;
         }
-        this.AIHoriz = new int [height][2];
-        this.AIVert = new int [width];
         // Initialize disc array. Thankfully we don't need to resuse code!
         this.clearBoard();
     }
@@ -68,22 +60,55 @@ public class Board {
                 this.boardBounds[i][j] = 0;
             }
         }
-        clearAIMemory();
     }
 
-    public void clearAIMemory(){
-        for(int i = 0; i < width;++i)
-            AIVert[i] = 0;
-        for(int i = 0; i < height;++i) {
-            AIHoriz[i][0] = 0;
-            AIHoriz[i][1] = 0;
-        }
+    //AI Algorithm
+    public int[] AIPlaceDisc(int turn) {
+    int d, z;
+
+        int i =0;
+            while(i<width) {
+                d = findPosition(i, 1);
+                if(d==-1) {
+                    break;
+                }
+
+                if (findWinner(1) != null) {
+                    boardBounds[i][d] = 2;
+                    return new int[] {i,d};
+                } else if(d!=-2 || d!=-1)
+                    undo(i,d);
+                i++;
+
+            }
+
+        int p=0;
+
+            while(p<width) {
+                System.out.println("Enter WHILE LOOP");
+                z = findPosition(p, turn);
+                System.out.println("CALCULATE Z " + z);
+                if(z == -2 || z == -1) {
+                    System.out.println("GO TO IF");
+                    //return new int[] {p, z};
+                }
+                else
+                    return new int[] {p, z};
+                System.out.println("GO TO ELSE");
+                p++;
+
+            }
+        return new int[] {width--, findPosition(width--, 2)};
+    }
+
+    public void undo(int col, int i){
+        boardBounds[col][i] = 0;
     }
 
     // findPosition
     // INPUT: col (int)
     // OUTPUT: int
-    // Purpose: gets the index of the next availalble row in a specified column.
+    // Purpose: gets the index of the next available row in a specified column.
     //          When a disc is placed in that row, it no longer becomes available
     public int findPosition(int col, int player) {
         // Checking if given column is valid (if the index of the column exists in the array)
@@ -266,7 +291,7 @@ public class Board {
     //Checks to see if theres a winner for either player1 or player2
     //INPUT: The player with the current turn number (player1 == 1 and player2 == 2)
     //OUTPUT: The four (x,y) coordinates for the winning chips
-    public int[][] findWinner(int player){
+    public int[][] findWinner(int player) {
         int[][] connectedFour = null;
         connectedFour = checkHorizontal(player);
         if(connectedFour!=null)
@@ -293,94 +318,5 @@ public class Board {
         }
         return true;
     }
-
-    public int [] AIChoice(){
-        int ChoiceCol= -1;
-        int ChoiceRow = -1;
-        int HighScore = -1;
-        if(checkIfBoardFull()== true)
-            return null;
-        clearAIMemory();
-        AIScoreHorizontal();
-        AIScoreVertical();
-        for(int i = 0; i < height; ++i){
-            if(AIHoriz[i][0] > HighScore){
-                HighScore = AIHoriz[i][0];
-                ChoiceCol = AIHoriz[i][1];
-            }
-        }
-        for (int i = 0; i < width; ++i){
-            if(AIVert[i] > HighScore) {
-                HighScore = AIVert[i];
-                ChoiceCol = i;
-            }
-        }
-        if(ChoiceCol == 0){
-            do {
-                ChoiceCol = (new Random().nextInt(50) % width);
-            }while(boardBounds[ChoiceCol][0] !=0);
-        }
-        Log.d(TAG,"" + ChoiceCol);
-        ChoiceRow = findPosition(ChoiceCol, 2);
-        int temp [] = {ChoiceCol, ChoiceRow};
-        return temp;
-    }
-
-    public void AIScoreVertical(){
-        int current;
-        for(int i = 0; i < width; ++i){
-            current = 0;
-            for(int j = height-1; j >=0; --j){
-                if(boardBounds[i][j]==1) {
-                    if(j == 0){
-                        current = -1;
-                        break;
-                    }
-                    current = 0;
-                }
-                if(boardBounds[i][j]==2) {
-                    if(j == 0){
-                        current = -1;
-                        break;
-                    }
-                    ++current;
-                    AIVert[i] = current;
-                }
-                else if (boardBounds[i][j]== 0){
-                    break;
-                }
-            }
-            AIVert[i] = current;
-        }
-    }
-
-    public void AIScoreHorizontal(){
-        int current;
-        int highestCurrent;
-        for(int i  = height-1; i >= 0; --i){
-            current = -1;
-            highestCurrent = -1;
-            for(int j = 0; j < width; ++j){
-                if(boardBounds[j][i]==1) {
-                    current = -1;
-                    AIHoriz[i][0] = current;
-                }
-                if(boardBounds[j][i]==2) {
-                    ++current;
-                    if(current >= highestCurrent) {
-                        highestCurrent = current;
-                        AIHoriz[i][0] = current;
-                    }
-                }
-                else if (boardBounds[j][i]== 0){
-                    if(current == highestCurrent) {
-                        AIHoriz[i][1] = j;
-                    }
-                    current = 0;
-                }
-            }
-        }
-    }
-
 }
 
