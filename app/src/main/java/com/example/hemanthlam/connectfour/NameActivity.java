@@ -1,6 +1,7 @@
 package com.example.hemanthlam.connectfour;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ public class NameActivity extends AppCompatActivity {
     protected String player2Color;
     protected RadioButton p1blue, p1red, p1green, p1purple;
     protected RadioButton p2blue, p2red, p2green, p2purple;
+    int color;
 
 // Collects the information from the BoardTypeActivity including the grid size, game type, and round number
     @Override
@@ -24,6 +26,7 @@ public class NameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_name);
         Board = getIntent().getStringExtra("Board");
         gameType = getIntent().getStringExtra("Game");
+        color = getIntent().getIntExtra("Color", Color.CYAN);
         player1Name = findViewById(R.id.player1Name);
         player2Name = findViewById(R.id.player2Name);
         p1blue = findViewById(R.id.player1BlueButton);
@@ -78,6 +81,7 @@ public class NameActivity extends AppCompatActivity {
                 break;
 
         }
+        intent.putExtra("Color",color);
         startActivity(intent);
     }
 

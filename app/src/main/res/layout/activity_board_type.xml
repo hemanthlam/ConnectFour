@@ -16,6 +16,26 @@
         android:background="@color/colorPrimary">
 
         <Spinner
+            android:id="@+id/boardcolorspinner"
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:layout_alignStart="@+id/textView"
+            android:layout_below="@+id/textView"
+            android:background="@color/colorPrimaryDark"
+            android:entries="@array/boardcolors"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/gameSpinner"
+            android:layout_below="@+id/gameSpinner"
+            android:layout_marginTop="48dp"
+            android:text="Board Color"
+            android:textSize="20sp" />
+
+        <Spinner
             android:id="@+id/gridSpinner"
             android:layout_width="300dp"
             android:layout_height="40dp"
@@ -30,9 +50,8 @@
             android:id="@+id/gameSpinner"
             android:layout_width="300dp"
             android:layout_height="40dp"
-            android:layout_alignStart="@+id/gridSpinner"
-            android:layout_below="@+id/gridSpinner"
-            android:layout_marginTop="130dp"
+            android:layout_alignStart="@+id/textView2"
+            android:layout_below="@+id/textView2"
             android:background="@color/colorPrimaryDark"
             android:entries="@array/gameArrays"
             android:prompt="@string/gridPrompt"
@@ -62,10 +81,9 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:layout_alignBottom="@+id/gameSpinner"
-            android:layout_alignStart="@+id/gameSpinner"
-            android:layout_marginBottom="54dp"
+            android:layout_alignStart="@+id/gridSpinner"
+            android:layout_below="@+id/gridSpinner"
+            android:layout_marginTop="50dp"
             android:text="Game Mode"
             android:textSize="20sp" />
 
@@ -80,6 +98,5 @@
         android:background="@color/colorPrimaryDark"
         android:onClick="clickContinue"
         android:text="Continue" />
-
 
 </RelativeLayout>

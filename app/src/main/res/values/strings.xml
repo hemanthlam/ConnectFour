@@ -14,5 +14,12 @@
         <item>Local Multiplayer</item>
         <item>AI Mode (Single Player)</item>
     </string-array>
+    <string-array name="boardcolors">
+        <item>Black</item>
+        <item>Blue</item>
+        <item>Cyan</item>
+
+    </string-array>
     <string name="title_activity_online_mode_setup">OnlineModeSetup</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>
