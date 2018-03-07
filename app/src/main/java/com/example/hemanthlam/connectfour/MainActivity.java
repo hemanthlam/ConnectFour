@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v){
+                System.out.println("PLAY OFFLINE MODE");
                 Intent startIntent = new Intent(getApplicationContext(), BoardTypeActivity.class);
                 startActivity(startIntent);
                 Log.d(TAG,"play game");
