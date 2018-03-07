@@ -241,7 +241,7 @@ public class MultiplayerSession {
         try {
             // The group owner is the server, therefore if the connected device is not the group owner, this is the server.
             // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-            if (isGroupOwner)
+            if (!isGroupOwner)
             {
                 // Create the Server socket and wait on connections
                 System.out.println("Server Setup Step 1");
@@ -367,18 +367,18 @@ public class MultiplayerSession {
                     // Check to see if data structure (indicating that we need to send a move to the client) is updated to indicate that we do
                     if (sendSignal.get()) {
                         // Notify waiting thread
-                        System.out.println("Send Signal Sent");
+                        //System.out.println("Send Signal Sent");
 
                         // Send data
                         connectionOutputStream.write(sendData);
-                        System.out.println("Send Signal successfully wrote data to stream");
+                        //System.out.println("Send Signal successfully wrote data to stream");
 
                         // Reset variables
                         sendData = -1;
                         sendSignal.set(false);
 
                         // Debug
-                        System.out.println("Send Signal Set sendSignal to false");
+                        //System.out.println("Send Signal Set sendSignal to false");
 
                         // Notify waiting thread
                         threadLock.notifyAll();
@@ -417,7 +417,7 @@ public class MultiplayerSession {
 
 
                 }
-                System.out.println("Multiplayer Loop has started");
+                //System.out.println("Multiplayer Loop has started");
                 /*try
                 {
                     // Notifies the setup thread that we are done setting up. Because of timing issues, I had to move this here to execute every time

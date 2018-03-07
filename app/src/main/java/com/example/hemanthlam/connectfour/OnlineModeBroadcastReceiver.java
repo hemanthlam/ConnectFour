@@ -190,7 +190,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                 // Put data into intent
                 //System.out.println("BR Connected Device Address: " + connectedDeviceAddress);
                 gameScreen.putExtra("OnlineModeGroupHostAddress", connectedDeviceAddress);
-                gameScreen.putExtra("OnlineModeIsGroupHost", !connectedDeviceIsGroupOwner);
+                gameScreen.putExtra("OnlineModeIsServer", !connectedDeviceIsGroupOwner);
 
                 associatedActivity.startActivity(gameScreen);
             } else

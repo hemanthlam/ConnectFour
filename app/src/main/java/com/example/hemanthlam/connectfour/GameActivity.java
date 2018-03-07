@@ -1,6 +1,5 @@
 package com.example.hemanthlam.connectfour;
 
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.Random;
 import android.widget.Toast;
 import com.example.hemanthlam.connectfour.db.AppDatabase;
@@ -67,7 +65,7 @@ public class GameActivity extends AppCompatActivity {
     // Variables for use with online mode (specifically)
     protected MultiplayerSession multiplayerSession = null;
     protected boolean onlineMode = false;
-    protected boolean onlineModeIsGroupHost = false;
+    protected boolean onlineModeIsServer = false;
 
     // UI Elements (for use with UI generation)
     protected RelativeLayout mainLayout = null; // Reference to the android activity used in the current game session
@@ -85,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
     protected final Object networkThreadLock = new Object();
     boolean continueNetworkThreadExecution = false;
     boolean placementLockActive = false;
+    boolean isSendPhase = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +111,7 @@ public class GameActivity extends AppCompatActivity {
         // Saving online mode data
         if (gameMode.equals("Online Multiplayer")) {
             onlineMode = true;
-            onlineModeIsGroupHost = activityData.getBoolean("OnlineModeIsGroupHost");
+            onlineModeIsServer = activityData.getBoolean("OnlineModeIsServer");
         }
 
         // Saving Player Colors
@@ -160,7 +159,7 @@ public class GameActivity extends AppCompatActivity {
             p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                    if (!onlineMode || onlineModeIsGroupHost) {
+                    if (!onlineMode || onlineModeIsServer) {
                         drawCircleEdges((ImageView) view, p1Color);
 
                         // Will be used to help us guage when we can start online mode
@@ -169,6 +168,7 @@ public class GameActivity extends AppCompatActivity {
                             playerDisc1Loaded = true;
                             if (playerDisc2Loaded) {
                                 playerDiscLock.notify();
+                                System.out.println("playerDiscLock notified");
                             }
                         }
                     }
@@ -177,15 +177,18 @@ public class GameActivity extends AppCompatActivity {
             p2HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
-                    if (onlineMode && !onlineModeIsGroupHost) {
+                    if (onlineMode && !onlineModeIsServer) {
                         drawCircleEdges((ImageView) view, p2Color);
 
                         // Will be used to help us guage when we can start online mode
                         // This is a bit of an estimation
                         synchronized (playerDiscLock) {
                             playerDisc2Loaded = true;
-                            if (playerDisc1Loaded)
+                            if (playerDisc1Loaded) {
                                 playerDiscLock.notify();
+                                System.out.println("playerDiscLock notified");
+                            }
+
                         }
                     }
                 }
@@ -203,9 +206,13 @@ public class GameActivity extends AppCompatActivity {
 
             // Notify the network (remote disc placement) thread that we need to stop executing
             synchronized (networkThreadLock) {
-                continueNetworkThreadExecution = false;
-                networkThreadLock.notify();
+                if (continueNetworkThreadExecution)
+                {
+                    continueNetworkThreadExecution = false;
+                    networkThreadLock.notify();
+                }
             }
+            Toast.makeText(getApplicationContext(), "I hope you enjoyed your online game!", Toast.LENGTH_SHORT);
         }
         Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(mainActivity);
@@ -232,7 +239,7 @@ public class GameActivity extends AppCompatActivity {
             multiplayerSession = new MultiplayerSession();
 
             // Attempt to initialize a multiplayer session. If it doesn't, return to the main menu
-            if (!(multiplayerSession.initiateConnectionWithConnectedDevice(address, onlineModeIsGroupHost))) {
+            if (!(multiplayerSession.initiateConnectionWithConnectedDevice(address, onlineModeIsServer))) {
                 Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_LONG).show();
                 returnToMain();
             }
@@ -240,11 +247,13 @@ public class GameActivity extends AppCompatActivity {
                 // If the multiplayer session was created successfully, and the device running this instance of the connect four app is not the group host
                 // set the turn to 2 (turn #2 is reserved for the online player, while turn #1 corresponds to the local player)
                 // Setting the turn to 2 indicates we want to wait for input from the online player
-                if (!onlineModeIsGroupHost) {
+                if (!onlineModeIsServer) {
                     turn = 2;
+                    isSendPhase = false;
                     placementLockActive = true;
                 } else {
                     turn = 1;
+                    isSendPhase = true;
                     placementLockActive = false;
                 }
 
@@ -281,7 +290,8 @@ public class GameActivity extends AppCompatActivity {
     //if isGameOver dont place discs
     // INPUT: col (column from which to place disc)
     // OUTPUT: none
-    protected void placeDisc(int col) {
+    // Evidently you can also label a parameter variable as final
+    protected void placeDisc(final int col) {
         if(!isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
@@ -292,20 +302,26 @@ public class GameActivity extends AppCompatActivity {
             findWinner();
 
             // Send turn to other player (if in multi-player mode)
-            if (onlineMode && turn == 1) {
+            if (onlineMode && isSendPhase) {
                 // If our multiplayer session wasn't set up successfully
                 if (this.multiplayerSession == null) {
                     Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
                     //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
                     returnToMain();
                 } else {
-                    // If things didn't work...
-                    if (!multiplayerSession.sendMoveToOtherPlayer(col)) {
-                        Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
-                        //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
-                        returnToMain();
-                    }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // If things didn't work...
+                            if (!multiplayerSession.sendMoveToOtherPlayer(col)) {
+                                Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
+                                //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
+                                returnToMain();
+                            }
+                        }
+                    }).start();
                 }
+                System.out.println("Sent move to other player");
             }
 
             // Log our progress
@@ -325,13 +341,15 @@ public class GameActivity extends AppCompatActivity {
         synchronized (playerDiscLock)
         {
             try {
-                // Waits for the signal from the main thread indicating that some UI setup has completed
-                // Stop waiting after 8 seconds (UI setup shouldn't take that long) in case things don't work out
-                playerDiscLock.wait(10000);
+                if (!playerDisc1Loaded || !playerDisc2Loaded) {
+                    // Waits for the signal from the main thread indicating that some UI setup has completed
+                    // Stop waiting after 8 seconds (UI setup shouldn't take that long) in case things don't work out
+                    playerDiscLock.wait(6000);
 
-                if (!playerDisc1Loaded || !playerDisc2Loaded)
-                    Log.d(TAG, "The Network Thread (which takes care of online mode interactions) ran into problems when executing the playerDiscLock.wait() operation (the playerDiscLock is supposed to be triggered when certain UI elements are finished loading). The operation seems to have timed out. Execution will still continue though....");
                     // Might consider failing at this part of the code
+                    if (!playerDisc1Loaded || !playerDisc2Loaded)
+                        Log.d(TAG, "The Network Thread (which takes care of online mode interactions) ran into problems when executing the playerDiscLock.wait() operation (the playerDiscLock is supposed to be triggered when certain UI elements are finished loading). The operation seems to have timed out. Execution will still continue though....");
+                }
             } catch (InterruptedException exception) {
                 Log.d(TAG, "The Network Thread (which takes care of online mode interactions) ran into problems when waiting on the palyerDiscLock (which is supposed to be triggered when certain UI elements are loaded). Error code: " + exception.getMessage());
             }
@@ -341,41 +359,41 @@ public class GameActivity extends AppCompatActivity {
         boolean continueExecuting = true;
 
         // For checking first turn (if this device is a connected client, it has to wait on a connection from the server before it can begin)
-        if (turn == 2 && multiplayerSession != null) {
+        if (multiplayerSession != null && !isSendPhase) {
+            // Get move from other player
+            final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+
             // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    placeDisc(multiplayerSession.getMoveFromOtherPlayer());
-
-                    // Remove the placement Lock
-                    synchronized (networkThreadLock) {
-                        placementLockActive = false;
-                    }
-
-                    System.out.println("Signal Just Recieved");
+                    placeDisc(onlinePlayerMove);
                 }
             });
 
-            // Get online player move
-
-            //placeDisc(multiplayerSession.getMoveFromOtherPlayer());
-            //int onlinePlayerColumnSelection = multiplayerSession.getMoveFromOtherPlayer();
-
-            // Grid Layout
-            //RelativeLayout boardContainer = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
-
-            // Cheese
-            //https://stackoverflow.com/questions/4553374/how-to-simulate-a-button-click-using-code
-            //boardContainer.getChildAt(onlinePlayerColumnSelection).performClick();
+            System.out.println("Signal Just Received");
         }
 
         // Start waiting for turns
         while (continueExecuting) {
             synchronized (networkThreadLock) {
                 try {
-                    // Wait on signal
-                    networkThreadLock.wait();
+                    // Wait on signal (for 40 seconds max)
+                    networkThreadLock.wait(40000);
+
+                    // In the case that the connection timed out and we haven't recieved a response from the online player
+                    if (isSendPhase)
+                    {
+                        continueNetworkThreadExecution = false;
+                        continueExecuting = false;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),"Response from client took to long. Exiting...", Toast.LENGTH_SHORT);
+                                returnToMain();
+                            }
+                        });
+                    }
                 } catch (InterruptedException exception) {
                     Log.d(TAG, "The network thread ran into problems waiting on a signal from the main thread (to either receive a move from the connected device or indicate that is has sent off a move to the other player)");
                 }
@@ -387,37 +405,18 @@ public class GameActivity extends AppCompatActivity {
                 continue;
             }
 
-            // Note: change turn should have been executed before this,
-            // so turn == 1 indicates that the remote player just sent a move over to this device,
-            // and turn == 2 indicates that the server just sent a move
-            if (turn == 2) {
-                // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        placeDisc(multiplayerSession.getMoveFromOtherPlayer());
+            // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
+            final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (onlinePlayerMove != -1)
+                        placeDisc(onlinePlayerMove);
+                }
+            });
 
-                        // Remove the placement Lock
-                        synchronized (networkThreadLock) {
-                            placementLockActive = false;
-                        }
-
-                        System.out.println("Signal Just Recieved");
-                    }
-                });
-
-
-                // Get online player move
-                //placeDisc(multiplayerSession.getMoveFromOtherPlayer());
-                //int onlinePlayerColumnSelection = multiplayerSession.getMoveFromOtherPlayer();
-
-                // Grid Layout
-                //RelativeLayout boardContainer = (RelativeLayout) findViewById(R.id.GAME_1_INNER_RELATIVE);
-
-                // Cheese
-                //https://stackoverflow.com/questions/4553374/how-to-simulate-a-button-click-using-code
-                //boardContainer.getChildAt(onlinePlayerColumnSelection).performClick();
-            }
+            // Debug
+            System.out.println("Signal Just Recieved");
         }
     }
 
@@ -570,35 +569,50 @@ public class GameActivity extends AppCompatActivity {
             }
         }
 
-        // Notify network t
-        if (onlineMode)
-        {
-            if (multiplayerSession == null) {
-                Log.d(TAG, "Failed to get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
-                Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
-                returnToMain();
-            }
-
-            // Indicate that we want to wait for a turn from the remote player
-            if (turn == 2)
-            {
-                synchronized (networkThreadLock)
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Notify network thread
+                if (onlineMode)
                 {
-                    // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
-                    continueNetworkThreadExecution = true;
+                    // Update the boolean that indicates whether it is the send or recieve phase
+                    if (isSendPhase) {
+                        isSendPhase = false;
+                        placementLockActive = true;
+                    }
+                    else
+                    {
+                        isSendPhase = true;
+                        placementLockActive = false;
+                    }
 
-                    // Indicate the placementLock is active (which stops the local player from successfully placing any discs)
-                    // It will be deactivated (set to false) as soon as we get a move from the remote player
-                    placementLockActive = true;
+                    // Check if online mode was created successfully
+                    if (multiplayerSession == null) {
+                        Log.d(TAG, "Failed tonew Thread get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
+                        Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
+                        returnToMain();
+                    }
+                    // Indicate that we want to wait for a turn from the remote player
+                    else if (!isSendPhase)
+                    {
+                        synchronized (networkThreadLock)
+                        {
+                            // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
+                            continueNetworkThreadExecution = true;
 
-                    // Debug
-                    System.out.println("Notifying the network thread of move");
+                            // Debug
+                            System.out.println("Notifying the network thread of move");
 
-                    // Notify the network thread (which should be waiting on this signal)
-                    networkThreadLock.notify();
+                            // Notify the network thread (which should be waiting on this signal)
+                            networkThreadLock.notify();
+                        }
+                        System.out.println("Main thread just let go of synchronization lock");
+                    }
                 }
             }
-        }
+        }).start();
+
+        System.out.println("Change Turn Completed");
     }
 
     // returns the id of the disc image corresponding to the given color
