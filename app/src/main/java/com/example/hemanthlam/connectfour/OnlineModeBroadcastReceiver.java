@@ -43,53 +43,71 @@ import java.util.concurrent.locks.Lock;
  * File: OnlineModeBroadcastReceiver.java
  * Created by jcrisan on 2/25/18
  * Purpose: a class to handle mutltiplayer connections
- * Used a lot of info from: https://developer.android.com/guide/topics/connectivity/wifip2p.html and https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
+ * Used a lot of info from:
+ *    -https://developer.android.com/guide/topics/connectivity/wifip2p.html
+ *    -https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
  */
 
 // For use in online mode selection activity
+// This class handles online mode setup, and is used to initialize an online game once a connection has been established between two devices
 public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
+    // Used for logging
     private String TAG = "OnlineModeBroadcastReciever";
 
-    // Will be used to help reference this class in listeners
+    // Will be used to help reference this class in listeners (which can be called upon the success or failure of WifiP2PManager method calls)
+    // WifiP2PManger calls can be (or are) asynchronous, so listeners are executed once the method ends (you can't simply execute the code in the listeners after the initial WifiP2PManager calls returns, since it doesn't execute in serial)
+    // See this link for more information: https://developer.android.com/guide/topics/connectivity/wifip2p.html (this explanation was derived from some details in the "Wifi Peer-to-Peer" section of the document, and some knowledge gained from these links and potentially stack overflow posts (which I hopefully also cited in the code) as the code was put together
     private OnlineModeBroadcastReceiver thisClass = this;
 
-    // Will be needed for handline broadcast intents (see link below file purpose)
+    // Will be needed for handling broadcast intents (see links in file header)
+    // Intents notify you "of specific events detected by the Wi-Fi P2P framework, such as a dropped connection or a newly discovered peer" -https://developer.android.com/guide/topics/connectivity/wifip2p.html
     private final IntentFilter intentFilter = new IntentFilter();
 
-    // Wifi things
-    WifiP2pManager.Channel wifiP2pChannel;
-    WifiP2pManager wifiP2pManager;
-    WifiP2pDeviceList deviceList;
-    Context parentContext;
-    OnlineModeSetup associatedActivity;
+    // Variables needed for Wifi Peer to Peer Setup
+    private WifiP2pManager.Channel wifiP2pChannel;
+    private WifiP2pManager wifiP2pManager;
 
-    // Connection Info
-    String connectedDeviceName = "";
-    String connectedDeviceAddress = "";
+    // Some code will need to be executed in the activity associated with this broadcast receiver (which instantiates a copy of this online mode broadcast receiver)
+    // We therefore need references to that object (and its context)
+    private Context parentContext;
+    private OnlineModeSetup associatedActivity;
+
+    // Connection information (which is used after a connection to a device has been successfully setup, and is used by the GameActivity class to connect to a peer device when establishing an online game)
+    private String connectedDeviceName = "";
+    private String connectedDeviceAddress = "";
     boolean connectedDeviceIsGroupOwner = false;
 
-    // Indicates if wifi discovery was successful
-    boolean discoverySuccessful = false;
+    // This boolean is used to indicates if wifi discovery was successful (after a call to the appropriate WifiP2PManager object was made)
+    private boolean discoverySuccessful = false;
 
-    // Will be used so we can properly connect and disconnect from previously connected devices
-    private final Object connectionLock = new Object();
+    // Used to inciate if WifiP2P is enabled on the current device
+    private boolean WifiP2PEnabled = false;
+
+    // This object is used for when connecting and disconnecting from previously connected devices (since the calls are asynchronous, and hence occur in differen threads, this will be needed if the threads want to touch the same data)
+    //private final Object connectionLock = new Object();
 
     // A list of available wifi peers
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
 
-    // Will be needed for initalization
+    // Return a copy of the intentFilter object
+    // Will be needed for certain functions in the parent activity
+    // INPUT: none
+    // OUTPUT: a reference to the intentFiler object (I presume that a reference is passed, and not a deep copy)
     public IntentFilter getIntentFilter() {
         return intentFilter;
     }
 
     // A LinearLayout list to update with information
-    // Because the requestPeers call (which will get our list of peers), is asynchronous, we have to update the list in the peer listener
-    // (We can't just return a list of peers once it is done, if we want to be able to request updates of the list manually)
-    LinearLayout hostList;
+    // In the parent class, there will be a need to update a certain list with Wifi-Direct capable devices (so the user can select from this list when attempting to initiate a game with another player)
+    // But because the requestPeers call (which is used to get the list of peers) is asynchronous, we don't know when this call will finish (and it is on a separate thread, so a list of peers can't simply return a list with the results)
+    // The list still needs to be updated somehow though, and one way to do this is to pass a reference to the list here and have the asychronous call update it once it is done
+    // Another way to do this would be to send some sort of signal and pass the object to the parent class (and have it update the list), but might be more efficient (though it may be worse practice). Time is a bit short now though, so this remains the working solution.
+    private LinearLayout hostList;
 
     // A wifi P2P manager peer list listener
     // Updates list of peers if we find that the peers list is outdated
+    // INPUT: peerList (a list of peers returned by the WifiP2PManger
     private WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
         @Override
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -198,133 +216,43 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         }
     };
 
-    //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-    /*void threadFunction() {
-        // Will be used to send and receive data
-        OutputStream connectionOutputStream = null;
-        InputStream connectioninputStream = null;
-
-        // For receiving data
-        byte buffer[] = new byte[1024];
-
-        // Server Socket and client
-        ServerSocket serverSocket = null;
-        Socket client = null;
-
-        try {
-            // The group owner is the server, therefore if the connected device is not the group owner, this is the server.
-            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-            if (!thisClass.connectedDeviceIsGroupOwner)
-            {
-                // 8080 will be the send channel
-                serverSocket = new ServerSocket(8080);
-                client = serverSocket.accept();
-
-                // Setup the input streams
-                connectioninputStream = client.getInputStream();
-                connectionOutputStream = client.getOutputStream();
-            }
-            // Otherwise, this is the client
-            // https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-            else {
-                // Initiate connection to server
-                client = new Socket();
-                client.bind(null);
-                client.connect(new InetSocketAddress(thisClass.connectedDeviceAddress, 8080), 1000);
-
-                // Setup the input and output streams (I think we can use one port for this?)
-                connectioninputStream = client.getInputStream();
-                connectionOutputStream = client.getOutputStream();
-            }
-
-            // Thread waiting: https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#wait()
-            while(this.continueThreadExecution.get()) {
-                // Wait for a signal (to let this thread know that something has been done)
-                try
-                {
-                    this.continueThreadExecution.wait();
-                }
-                catch (InterruptedException ex) {}
-
-                // Check to see if data structure (indicating that we need to send a move to the client) is updated to indicate that we do
-                if (this.sendSignal.get()) {
-                    // Send string
-                    connectionOutputStream.write(this.sendData.getBytes());
-
-                    // Reset variables
-                    this.sendData = "";
-                    this.sendSignal.set(false);
-                    this.sendSignal.notifyAll(); // Notifies all threads waiting for the notification on this variable
-                }
-
-                // Receive signal
-                //https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
-                else if (this.receiveSignal.get()) {
-                    // Read data off of the input buffer (a.k.a: get it from the client socket)
-                    // The example simply shows you waiting until you get data... A timer was put in an an attempt to mitigate that
-                    while (connectioninputStream.read(buffer) != -1);
-                        try {Thread.sleep(500);} catch(InterruptedException ex) {}
-
-                    // Copy data to the move data string
-                    // https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
-                    this.receiveData = new String(buffer);
-
-                    // Update the appropriate signal variables
-                    this.receiveSignal.set(false);
-                    this.receiveSignal.notifyAll();
-                }
-            }
-
-        } catch (IOException ex) {
-            System.out.println("Unable to create server socket");
-        }
-
-        // Close sockets and I/O streams
-        // I thought closing the individual sockets and streams would be better than putting all of them in one try catch (so if close() attempt fails, the rest don't have to)
-        if (serverSocket != null && !serverSocket.isClosed())
-            try {serverSocket.close();} catch (IOException ex) {};
-        if (client != null && !client.isClosed())
-            try {client.close();} catch (IOException ex) {};
-        if (connectioninputStream != null)
-            try {connectioninputStream.close();} catch (IOException ex) {};
-        if (connectionOutputStream != null)
-            try {connectionOutputStream.close();} catch (IOException ex) {};
-    }*/
-
     // Verifies if WifiP2P is supported
     // INPUT: none
     // OUTPUT: true if wifiP2P is supported. False otherwise
     //public boolean
-    // Initlaize connection
-    // INPUT: parentContext (context of current activity. It will need to be passed in to the online mode class), activity (the activity associated with this online connection mode)
+
+    // Initializes WifiP2P connection and connects parent activity to this class
+    // INPUT:
+    //     parentContext (context of current activity. It will need to be passed in to the online mode class),
+    //     activity (the activity associated with this online connection mode)
     // OUTPUT: none
     // https://developer.android.com/guide/topics/connectivity/wifip2p.html#creating-app
+    // https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
     // https://stackoverflow.com/questions/4870667/how-can-i-use-getsystemservice-in-a-non-activity-class-locationmanager (this is where I got the information telling me how I needed a parent context to use the getSystemService function)
     public void initConnection(Context parent, OnlineModeSetup activity, LinearLayout givenHostList) {
+        // Connecting to parent
+        parentContext = parent;
+        associatedActivity = activity;
+        hostList = givenHostList;
 
-        // Variable Association
-        this.parentContext = parent;
-        this.associatedActivity = activity;
-        this.hostList = givenHostList;
+        // Handles changes in the Wi-Fi P2P status (comment copied from wifi-direct.html link)
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 
-        // Handles changes in the Wi-Fi P2P status
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        // Indicates change in list of available peers (comment copied from wifi-direct.html link)
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
 
-        // Indicates change in list of available peers
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        // Indicates the state of Wifi P2P connectivity has changed (comment copied from wifi-direct.html link)
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
-        // Indicates the state of Wifi P2P connectivity has changed
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-
-        // Indicates this device's details have changed
-        this.intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        // Indicates this device's details have changed (comment copied from wifi-direct.html link)
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
         // Wifi things
-        this.wifiP2pManager = (WifiP2pManager) activity.getSystemService(Context.WIFI_P2P_SERVICE);
+        wifiP2pManager = (WifiP2pManager) activity.getSystemService(Context.WIFI_P2P_SERVICE);
         if (wifiP2pManager != null)
         {
             // Initialize Channel
-            this.wifiP2pChannel = this.wifiP2pManager.initialize(parentContext, Looper.getMainLooper(), null);
+            wifiP2pChannel = wifiP2pManager.initialize(parentContext, Looper.getMainLooper(), null);
 
             // Disconnect fom any previously connected peers
             resetConnectionSearch();
@@ -333,7 +261,7 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
             System.out.println("Failed generating broadcast receiver!");
     }
 
-    // Get list of updated peers
+    // Schedules a peer list update
     // INPUT: a linear layout to put updated peer information in. Sadly, the requestPeers function is asynchronous, so we have to do something like this
     // OUTPUT: a list of the updated peers
     public void updatePeerList() {
@@ -342,14 +270,13 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
     }
 
 
-    // Receives connection information
-    // INPUT:
+    // This function is executed when connection information is received
+    // INPUT: context (I am not sure what this is for, but I don't use it), intent (the intent containing the information we will need to process)
     // OUTPUT: none
-    // Used information from sources mentioned in file header
+    // Used information from sources mentioned in file header (and various other points in the class code)
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        // Will hold actions from given intent
+        // The action that just occured (which led to the trigger of the onReceive function)
         String action = intent.getAction();
 
         // Determine if wifi P2P mode is enabled or not. if not, alert something
@@ -357,9 +284,13 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_DISABLED) {
                 // Alert wifi is disabled
+                Toast.makeText(associatedActivity.getApplicationContext(), "Wifi peer to peer has been disabled! You will not be able to play online games, and current online games will cease functioning.", Toast.LENGTH_LONG);
+                WifiP2PEnabled = false;
             }
             else {
-                // Wifi is not disabled
+                // Wifi is enabled
+                Toast.makeText(associatedActivity.getApplicationContext(), "Wifi peer to peer has been enabled. Presuming you can find another player, you should be able to play online.", Toast.LENGTH_LONG);
+                WifiP2PEnabled = true;
             }
 
         }
@@ -367,7 +298,6 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
             // The peer list has changed
             if (this.wifiP2pManager != null && this.discoverySuccessful)
                 this.wifiP2pManager.requestPeers(this.wifiP2pChannel, this.peerListListener);
-            // Log that the peer to peer list has changed
         }
         //
         else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
@@ -378,10 +308,11 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
 
             NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if (networkInfo.isConnected()) {
-                // We are connected to the other decivice
+                // We are connected to the other device
                 wifiP2pManager.requestConnectionInfo(this.wifiP2pChannel, connectionInfoListener);
             }
         }
+        // Not sure if anything shoudl really be done here
         else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             return;
         }
@@ -409,73 +340,50 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    // For disabling peer discovery (an indirect way of disconneting from any previously connected devices)
+    // For disconnecting from previously discovered hosts before looking for new hosts to connect to
     // INPUT: none
     // OUTPUT: none
     public void resetConnectionSearch() {
         if (wifiP2pManager != null && wifiP2pChannel != null) {
             // Referenced: https://groups.google.com/forum/#!topic/android-developers/6lwXJCnv5zU
-            if (wifiP2pManager != null && this.wifiP2pChannel != null)
-                wifiP2pManager.removeGroup(wifiP2pChannel, new WifiP2pManager.ActionListener() {
-
-                    @Override
-                    public void onSuccess() {
+            wifiP2pManager.removeGroup(wifiP2pChannel, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
                         initiatePeerDiscovery();
                     }
 
-                    @Override
-                    public void onFailure(int i) {
-                        initiatePeerDiscovery();
-                        System.out.println("Disconnecting from previously disconnected host didn't seem to work. There appears to be a stubborn connection? Error code: " + i);
-                    }
-                });
+                @Override
+                public void onFailure(int i) { initiatePeerDiscovery(); }
+            });
         }
     }
-
-    /*private void stopPeerDiscovery() {
-        // Stop peer discovery (to disconnect from any perviously connected peers)
-        // I remember a stack overflow post mentioning that stopping your peer search actually disconnects you from previously connected services
-        // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
-        // This is advantagous in this case
-        wifiP2pManager.stopPeerDiscovery(wifiP2pChannel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                // Initialize new peer discovery session
-                initiatePeerDiscovery();
-            }
-
-            @Override
-            public void onFailure(int i) {
-                // Initialize new peer discovery session
-                System.out.println("Disabling android peer to peer discovery didn't work. There appears to be a stubborn connection. Error code: " + i);
-                //initiatePeerDiscovery();
-            }
-        });
-    }*/
 
     // Returns a copy of the latest list of peers
     // INPUT: none
     // OUTPUT: a list of peers
-    public List<WifiP2pDevice> getListOfPeers() {
-        return this.peers;
-    }
+    //public List<WifiP2pDevice> getListOfPeers() {
+    //    return this.peers;
+    //}
 
+    // Connect to a peer using the address passed into the function
+    // INPUT: deviceAddress (the address of the device you are connecting to)
+    // OUTPUT: none
     // https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html#discover
     public void connectToPeer(String deviceAddress) {
         if (this.wifiP2pManager != null && this.wifiP2pChannel != null) {
-            // Just in case
-            // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
-            //this.initiatePeerDiscovery();
+            // https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect (an old, unused link, but I read it so I left this in here). The information in it may not actually be used
 
             // Configuration setup
             WifiP2pConfig config = new WifiP2pConfig();
             config.deviceAddress = deviceAddress;
             config.wps.setup = WpsInfo.PBC;
 
+            // Actual connection attempt
             wifiP2pManager.connect(this.wifiP2pChannel, config, new WifiP2pManager.ActionListener() {
                 @Override
                 public void onSuccess() {
-                    //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Now Connected!");
+                    if (!WifiP2PEnabled)
+                        ((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText("Wifi Peer to Peer is disabled. We can't conenct to any peers!");
                 }
 
                 public void onFailure(int reason) {

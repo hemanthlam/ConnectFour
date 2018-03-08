@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -21,48 +22,47 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class OnlineModeSetup extends Activity {
+public class OnlineModeSetup extends AppCompatActivity {
 
-    protected OnlineModeBroadcastReceiver onlineMode;
-    protected RelativeLayout getHostsWindow;
+    protected OnlineModeBroadcastReceiver onlineMode = null;
+    protected boolean canPlayOnlineGames = false;
+    protected RelativeLayout getHostsWindow = null;
     protected OnlineModeSetup thisActivity = this;
-    //protected Button selectHighlightedHostButton;
-    protected Button hideGetHostsWindowButton;
-    protected LinearLayout hostList;
-    protected RadioButton p1blue, p1red, p1green, p1purple;
-    protected Intent intent;
-    protected String playerColor;
-    protected String playerName;
-    protected String boardSize;
+    protected Button hideGetHostsWindowButton = null;
+    protected LinearLayout hostList = null;
+    protected RadioButton p1blue = null, p1red = null, p1green = null, p1purple = null;
+    protected String playerColor = null;
+    protected String playerName = null;
+    protected String boardSize = null;
 
+    // Called when the OnlineModeSetup class is being created
+    // INPUT: savedInstanceState (comes with the call, though we don't use it)
+    // OUTPUT: none
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Determines when an activity can proceed to the next game activity window
-        boolean canProceed = false;
-
+        // Setup things
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_mode_setup);
 
-        // Generate the find hosts window
+        // Generate the find hosts window (a separate window that will contain a list of WifiP2P hosts the current player can connect to)
         this.setupGameFindWindow();
 
         // Generate the broadcast reciever
         this.onlineMode = new OnlineModeBroadcastReceiver();
         this.onlineMode.initConnection(this.getBaseContext(), this, hostList);
 
-        // Show the find hosts window
+        // A button that shows the find hosts window when clicked
         Button showFindHostsButton = (Button) findViewById(R.id.OnlineModeFindHostButton);
         showFindHostsButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
-                // Update the visibility of the get-hosts window
-                if (thisActivity.getHostsWindow != null)
-                    thisActivity.getHostsWindow.setVisibility(View.VISIBLE);
+                if (getHostsWindow != null)
+                    getHostsWindow.setVisibility(View.VISIBLE);
             }
         });
 
-        // Hide the find hosts window
+        // A button that hides the connect hosts button when it is clicked
         hideGetHostsWindowButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -72,7 +72,7 @@ public class OnlineModeSetup extends Activity {
             }
         });
 
-        // On joining a player game
+        // A button that initiates the process of connecting to a peer once the peer's information is loaded into the appropriate EditView (it doesn't end up doing anything if you can't connect)
         Button joinHostedGameButton = (Button) findViewById(R.id.OnlineModeJoinHostGameButton);
         joinHostedGameButton.setOnClickListener(new View.OnClickListener(){
 
@@ -80,7 +80,8 @@ public class OnlineModeSetup extends Activity {
             public void onClick(View v){
                 // Fill in intent with data
                 String address = ((EditText)findViewById(R.id.OnlineModeHostEditText)).getText().toString();
-                thisActivity.onlineMode.connectToPeer(address);
+                if (canPlayOnlineGames)
+                    onlineMode.connectToPeer(address);
             }
         });
 
@@ -143,11 +144,11 @@ public class OnlineModeSetup extends Activity {
         //onlineMode.resetConnectionSearch();
     }
 
-    // Setup the find hosts window (a hidden window that will appear once the user clicks the find hosts button)
+    // Setup the find hosts window (a hidden window that will appear once the user clicks the find hosts button, which presents the user with a list of WifiP2P hosts they can connect to)
     // INPUT: none
     // OUTPUT: none
     protected void setupGameFindWindow() {
-        // Get Display Information and save it
+        // Get Display Information and save it (would be nice in a utility class)
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getRealMetrics(displayMetrics);
         int buttonHeight = 100;
@@ -157,13 +158,13 @@ public class OnlineModeSetup extends Activity {
         // As we add elements to the relative layout, this will allow us to keep track of what Y offset we need to give the various elements we add to the layout
         int runningYOffset = 0;
 
-        // Setup the main window
+        // Object neede for setting up the main window
         RelativeLayout primaryLayout = (RelativeLayout) findViewById(R.id.Online_Mode_Relative_Layout);
         RelativeLayout findHostsWindow = new RelativeLayout(getWindow().getContext());
         findHostsWindow.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         findHostsWindow.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Text View
+        // Window Title Text View
         TextView titleTextView = new TextView(findHostsWindow.getContext());
         titleTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, buttonHeight));
         titleTextView.setTextSize(24);
@@ -172,7 +173,7 @@ public class OnlineModeSetup extends Activity {
         titleTextView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER);
         titleTextView.setText("Select Host");
 
-        // List of hosts
+        // List that will hold lis to of potential WifiP2P hosts
         LinearLayout hostListLayout = new LinearLayout(findHostsWindow.getContext());
         hostListLayout.setLayoutParams(new LinearLayout.LayoutParams((displayMetrics.widthPixels / 4) * 3, ViewGroup.LayoutParams.WRAP_CONTENT));
         hostListLayout.setOrientation(LinearLayout.VERTICAL);
@@ -198,36 +199,32 @@ public class OnlineModeSetup extends Activity {
             hostListLayout.addView(temp);
         }*/
 
-        // Hide Select Host Window Button
+        // A button that will be used to hid the Select Host window
         Button hideHostsWindowButton = new Button(findHostsWindow.getContext());
 
-        // Style buttons
+        // Styling the button
         ViewGroup.LayoutParams buttonLayoutParams = new ViewGroup.LayoutParams(buttonWidth, buttonHeight);
-        //selectHostButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         hideHostsWindowButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
-        //selectHostButton.setLayoutParams(buttonLayoutParams);
         hideHostsWindowButton.setLayoutParams(buttonLayoutParams);
-        //selectHostButton.setText("Select Host");
         hideHostsWindowButton.setText("Hide Select Hosts Window");
 
-        // Set Button Positions
-        //selectHostButton.setX(buttonX);
-        //selectHostButton.setY(displayMetrics.heightPixels - (2 * buttonHeight) - 100);
+        // Positioning the button
         hideHostsWindowButton.setX(buttonX);
-        hideHostsWindowButton.setY(displayMetrics.heightPixels - buttonHeight - 200);
+        hideHostsWindowButton.setY(displayMetrics.heightPixels - buttonHeight - 300);
 
-        // Add Buttons to window
+        // Adding the button and list to the Select Host window
         findHostsWindow.addView(hostListLayout);
         findHostsWindow.addView(hideHostsWindowButton);
+
+        // Adding the Select Hosts window to the main window (the activity window)
         primaryLayout.addView(findHostsWindow);
 
-        // Hidden by default
+        // The select host window is set to invisible by default (but is made visible when a certain button is clicked)
         findHostsWindow.setVisibility(View.INVISIBLE);
 
-        // Assign to class for later usage
+        // These are assinged to the OnlineModeSetup class for later usage
         this.getHostsWindow = findHostsWindow;
         this.hostList = hostListLayout;
-        //this.selectHighlightedHostButton = selectHostButton;
         this.hideGetHostsWindowButton = hideHostsWindowButton;
     }
 
