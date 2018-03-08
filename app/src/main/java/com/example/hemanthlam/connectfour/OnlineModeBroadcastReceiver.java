@@ -187,14 +187,14 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
         @Override
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
-            if (wifiP2pInfo.groupOwnerAddress != null) {
+            if (wifiP2pInfo.groupOwnerAddress != null && WifiP2PEnabled) {
                 connectedDeviceName = wifiP2pInfo.toString();/*wifiP2pInfo.groupOwnerAddress()*/
                 connectedDeviceAddress = wifiP2pInfo.groupOwnerAddress.toString(); /*temp.getHostAddress()*/
                 connectedDeviceIsGroupOwner = wifiP2pInfo.isGroupOwner;
 
                 //((EditText) associatedActivity.findViewById(R.id.OnlineModeHostEditText)).setText(connectedDeviceAddress);
 
-                // Load the new activity
+                // Create the intent for the new activity
                 Intent gameScreen;
                 if (associatedActivity.boardSize.equals("7 x 6"))
                     gameScreen = new Intent(associatedActivity.getApplicationContext(), Game1Activity.class);
@@ -202,17 +202,17 @@ public class OnlineModeBroadcastReceiver extends BroadcastReceiver {
                     gameScreen = new Intent(associatedActivity.getApplicationContext(), Game2Activity.class);
                 else
                     gameScreen = new Intent(associatedActivity.getApplicationContext(), Game3Activity.class);
+
                 gameScreen.putExtra("Game", "Online Multiplayer");
                 gameScreen.putExtra("Player1", associatedActivity.playerName);
                 gameScreen.putExtra("Player1Color", associatedActivity.playerColor);
-                // Put data into intent
-                //System.out.println("BR Connected Device Address: " + connectedDeviceAddress);
                 gameScreen.putExtra("OnlineModeGroupHostAddress", connectedDeviceAddress);
                 gameScreen.putExtra("OnlineModeIsServer", !connectedDeviceIsGroupOwner);
 
+                // Start Activity
                 associatedActivity.startActivity(gameScreen);
             } else
-                Toast.makeText(associatedActivity.getApplicationContext(), "Disconnected from previous host?", Toast.LENGTH_SHORT);
+                Toast.makeText(associatedActivity.getApplicationContext(), "Couldn't connect to device", Toast.LENGTH_SHORT);
         }
     };
 
