@@ -14,45 +14,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG,"main activity");
-        final Button highscorebutton = (Button) findViewById(R.id.highscorebutton) ;
-        final Button playbutton = (Button) findViewById(R.id.playbutton);
-        final Button onlineModebutton = (Button) findViewById(R.id.onlinemodesetupbutton);
 
-        // Cheese
-        // I don't know if we need a seperate thread to run this, but why not give it a shot!
-        //new Thread(new Runnable() {
-            //@Override
-            //public void run() {
-                playbutton.setOnClickListener(new View.OnClickListener(){
+        Button highscorebutton = findViewById(R.id.highscorebutton) ;
+        Button playbutton = findViewById(R.id.playbutton);
+        Button onlineModebutton = findViewById(R.id.onlinemodesetupbutton);
 
-                    @Override
-                    public void onClick(View v){
-                        Intent startIntent = new Intent(getApplicationContext(), BoardTypeActivity.class);
-                        startActivity(startIntent);
-                        Log.d(TAG,"play game");
-                    }
-                });
+        playbutton.setOnClickListener(new View.OnClickListener(){
 
-                highscorebutton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent startIntent = new Intent(getApplicationContext(), BoardTypeActivity.class);
+                startActivity(startIntent);
+                Log.d(TAG,"play local game");
+            }
+        });
 
-                    @Override
-                    public void onClick(View v){
-                        Intent startIntent = new Intent(getApplicationContext(), HighScoreActivity.class);
-                        startActivity(startIntent);
-                        Log.d(TAG,"View high scores");
-                    }
-                });
+        highscorebutton.setOnClickListener(new View.OnClickListener(){
 
-                onlineModebutton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent startIntent = new Intent(getApplicationContext(), HighScoreActivity.class);
+                startActivity(startIntent);
+                Log.d(TAG,"View high scores");
+            }
+        });
 
-                    @Override
-                    public void onClick(View v){
-                        Intent startIntent = new Intent(getApplicationContext(), OnlineModeSetup.class);
-                        startActivity(startIntent);
-                    }
-                });
-        //    }
-        //}).start();
+        onlineModebutton.setOnClickListener(new View.OnClickListener(){
 
+            @Override
+            public void onClick(View v){
+                Intent startIntent = new Intent(getApplicationContext(), OnlineModeSetup.class);
+                startActivity(startIntent);
+                Log.d(TAG, "play online game");
+            }
+        });
     }
 }

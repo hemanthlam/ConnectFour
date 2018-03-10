@@ -66,7 +66,7 @@ public class HighScoreActivity extends AppCompatActivity {
         Iterator<Player> iterator = AppDatabase.getAppDatabase(getApplicationContext()).userDao().getTop5Scores().iterator();
         while(iterator.hasNext()){
             Player next = iterator.next();
-            String s = next.getScore() + "\t" + next.getName();
+            String s = next.getScore() + "\t  " + next.getName();
             Log.d(TAG,"next high score" + s);
             textViews.get(i).setText(s);
             i++;

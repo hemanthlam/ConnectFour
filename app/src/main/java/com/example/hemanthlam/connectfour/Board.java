@@ -1,5 +1,11 @@
 package com.example.hemanthlam.connectfour;
 
+import android.util.Log;
+
+import java.util.Random;
+
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by Jacob Crisan on 1/22/18.
  * File: Board.java
@@ -16,18 +22,13 @@ public class Board {
     private int width;
 
     // Constructors
-    public Board() {
-        boardBounds = null;
-        height = 0;
-        width = 0;
-    }
     public Board(String size) {
 
         // Allocate disc array (boolean indicates if disc square is active or inactive)
         if (size.equalsIgnoreCase("7x6")) {
             this.boardBounds = new int[7][6];
-            this.height = 6;
-            this.width = 7;
+            this.height = 6; //row
+            this.width = 7; //coloumn
         } else if (size.equalsIgnoreCase("8x7")) {
             this.boardBounds = new int[8][7];
             this.width = 8;
@@ -45,7 +46,6 @@ public class Board {
             this.width = 0;
             return;
         }
-
         // Initialize disc array. Thankfully we don't need to resuse code!
         this.clearBoard();
     }
@@ -62,10 +62,53 @@ public class Board {
         }
     }
 
+    //AI Algorithm
+    public int[] AIPlaceDisc(int turn) {
+    int d, z;
+
+        int i =0;
+            while(i<width) {
+                d = findPosition(i, 1);
+                if(d==-1) {
+                    break;
+                }
+
+                if (findWinner(1) != null) {
+                    boardBounds[i][d] = 2;
+                    return new int[] {i,d};
+                } else if(d!=-2 || d!=-1)
+                    undo(i,d);
+                i++;
+
+            }
+
+        int p=0;
+
+            while(p<width) {
+                System.out.println("Enter WHILE LOOP");
+                z = findPosition(p, turn);
+                System.out.println("CALCULATE Z " + z);
+                if(z == -2 || z == -1) {
+                    System.out.println("GO TO IF");
+                    //return new int[] {p, z};
+                }
+                else
+                    return new int[] {p, z};
+                System.out.println("GO TO ELSE");
+                p++;
+
+            }
+        return new int[] {width--, findPosition(width--, 2)};
+    }
+
+    public void undo(int col, int i){
+        boardBounds[col][i] = 0;
+    }
+
     // findPosition
     // INPUT: col (int)
     // OUTPUT: int
-    // Purpose: gets the index of the next availalble row in a specified column.
+    // Purpose: gets the index of the next available row in a specified column.
     //          When a disc is placed in that row, it no longer becomes available
     public int findPosition(int col, int player) {
         // Checking if given column is valid (if the index of the column exists in the array)
@@ -90,7 +133,7 @@ public class Board {
     public int[][] checkHorizontal(int player){
         int maxCol = this.width,
                 maxRow = this.height,
-                count =0;
+                count;
 
         int[][] connectedFour = new int[4][2];
         for (int row = maxRow-1; row >= 0; row--) {
@@ -117,12 +160,12 @@ public class Board {
     public int[][] checkVertical(int player){
         int maxCol = this.width,
                 maxRow = this.height,
-                count =0;
+                count;
 
         int[][] connectedFour = new int[4][2];
         for (int col = 0; col<maxCol; col++) {
+            count = 0;
             for (int row = 0; row < maxRow; row++) {
-
                 if (boardBounds[col][row] == player) {
                     connectedFour[count][0] = col;
                     connectedFour[count][1] = row;
@@ -248,7 +291,7 @@ public class Board {
     //Checks to see if theres a winner for either player1 or player2
     //INPUT: The player with the current turn number (player1 == 1 and player2 == 2)
     //OUTPUT: The four (x,y) coordinates for the winning chips
-    public int[][] findWinner(int player){
+    public int[][] findWinner(int player) {
         int[][] connectedFour = null;
         connectedFour = checkHorizontal(player);
         if(connectedFour!=null)
@@ -275,7 +318,5 @@ public class Board {
         }
         return true;
     }
-
-
 }
 

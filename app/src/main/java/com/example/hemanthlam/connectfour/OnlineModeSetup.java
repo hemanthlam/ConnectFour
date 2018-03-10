@@ -25,7 +25,6 @@ import android.widget.Toast;
 public class OnlineModeSetup extends AppCompatActivity {
 
     protected OnlineModeBroadcastReceiver onlineMode = null;
-    protected boolean canPlayOnlineGames = false;
     protected RelativeLayout getHostsWindow = null;
     protected OnlineModeSetup thisActivity = this;
     protected Button hideGetHostsWindowButton = null;
@@ -45,7 +44,7 @@ public class OnlineModeSetup extends AppCompatActivity {
         setContentView(R.layout.activity_online_mode_setup);
 
         // Generate the find hosts window (a separate window that will contain a list of WifiP2P hosts the current player can connect to)
-        this.setupGameFindWindow();
+        setupGameFindWindow();
 
         // Generate the broadcast reciever
         this.onlineMode = new OnlineModeBroadcastReceiver();
@@ -63,12 +62,12 @@ public class OnlineModeSetup extends AppCompatActivity {
         });
 
         // A button that hides the connect hosts button when it is clicked
-        hideGetHostsWindowButton.setOnClickListener(new View.OnClickListener(){
+        this.hideGetHostsWindowButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
-                if (thisActivity.getHostsWindow != null)
-                    thisActivity.getHostsWindow.setVisibility(View.INVISIBLE);
+                if (getHostsWindow != null)
+                    getHostsWindow.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -80,8 +79,7 @@ public class OnlineModeSetup extends AppCompatActivity {
             public void onClick(View v){
                 // Fill in intent with data
                 String address = ((EditText)findViewById(R.id.OnlineModeHostEditText)).getText().toString();
-                if (canPlayOnlineGames)
-                    onlineMode.connectToPeer(address);
+                onlineMode.connectToPeer(address);
             }
         });
 
@@ -92,13 +90,11 @@ public class OnlineModeSetup extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 boardSize = adapterView.getSelectedItem().toString();
                 // Used some information from https://developer.android.com/reference/android/content/Intent.html#putExtra(java.lang.String, android.os.Parcelable[])
-                Toast.makeText(getApplicationContext(), boardSize, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), boardSize, Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
         // Update Intent data on click
@@ -113,14 +109,14 @@ public class OnlineModeSetup extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 playerName = editable.toString();
-                Toast.makeText(getApplicationContext(), playerName, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), playerName, Toast.LENGTH_SHORT).show();
             }
         });
         // Get radio buttons
-        p1blue = (RadioButton) findViewById(R.id.OnlineModePlayer1BlueButton);
-        p1red = (RadioButton) findViewById(R.id.OnlineModePlayer1RedButton);
-        p1green = (RadioButton) findViewById(R.id.OnlineModePlayer1GreenButton);
-        p1purple = (RadioButton) findViewById(R.id.OnlineModePlayer1PurpleButton);
+        this.p1blue = (RadioButton) findViewById(R.id.OnlineModePlayer1BlueButton);
+        this.p1red = (RadioButton) findViewById(R.id.OnlineModePlayer1RedButton);
+        this.p1green = (RadioButton) findViewById(R.id.OnlineModePlayer1GreenButton);
+        this.p1purple = (RadioButton) findViewById(R.id.OnlineModePlayer1PurpleButton);
 
         // Setup the radio button logic
         radioButtonLogic();
@@ -200,21 +196,22 @@ public class OnlineModeSetup extends AppCompatActivity {
         }*/
 
         // A button that will be used to hid the Select Host window
-        Button hideHostsWindowButton = new Button(findHostsWindow.getContext());
+        Button hideHostsWindowButton = new Button(hostListLayout.getContext());
 
         // Styling the button
-        ViewGroup.LayoutParams buttonLayoutParams = new ViewGroup.LayoutParams(buttonWidth, buttonHeight);
+        ViewGroup.LayoutParams buttonLayoutParams = new ViewGroup.LayoutParams(buttonWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         hideHostsWindowButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
         hideHostsWindowButton.setLayoutParams(buttonLayoutParams);
         hideHostsWindowButton.setText("Hide Select Hosts Window");
 
         // Positioning the button
-        hideHostsWindowButton.setX(buttonX);
-        hideHostsWindowButton.setY(displayMetrics.heightPixels - buttonHeight - 300);
+        //hideHostsWindowButton.setX(buttonX);
+        //hideHostsWindowButton.setY(displayMetrics.heightPixels - buttonHeight - 300);
+        hostListLayout.addView(hideHostsWindowButton);
 
         // Adding the button and list to the Select Host window
         findHostsWindow.addView(hostListLayout);
-        findHostsWindow.addView(hideHostsWindowButton);
+        //findHostsWindow.addView(hideHostsWindowButton);
 
         // Adding the Select Hosts window to the main window (the activity window)
         primaryLayout.addView(findHostsWindow);
@@ -223,20 +220,23 @@ public class OnlineModeSetup extends AppCompatActivity {
         findHostsWindow.setVisibility(View.INVISIBLE);
 
         // These are assinged to the OnlineModeSetup class for later usage
-        this.getHostsWindow = findHostsWindow;
-        this.hostList = hostListLayout;
-        this.hideGetHostsWindowButton = hideHostsWindowButton;
+        getHostsWindow = findHostsWindow;
+        hostList = hostListLayout;
+        hideGetHostsWindowButton = hideHostsWindowButton;
     }
 
+    // Handles radio button logic (logic that is executed when a radio button is selected in a name activity)
+    // INPUT: none
+    // OUTPUT: none
     protected void radioButtonLogic() {
         // Set default values
-        this.p1blue.setChecked(true);
-        this.p1red.setChecked(false);
-        this.p1green.setChecked(false);
-        this.p1purple.setChecked(false);
+        p1blue.setChecked(true);
+        p1red.setChecked(false);
+        p1green.setChecked(false);
+        p1purple.setChecked(false);
 
         // Switching Logic
-        this.p1blue.setOnClickListener(new View.OnClickListener() {
+        p1blue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //player1Color = "Blue";
@@ -246,7 +246,7 @@ public class OnlineModeSetup extends AppCompatActivity {
                 playerColor = "blue";
             }
         });
-        this.p1red.setOnClickListener(new View.OnClickListener() {
+        p1red.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //player1Color = "Red";
@@ -256,7 +256,7 @@ public class OnlineModeSetup extends AppCompatActivity {
                 playerColor = "red";
             }
         });
-        this.p1green.setOnClickListener(new View.OnClickListener() {
+        p1green.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //player1Color = "Green";
@@ -266,7 +266,7 @@ public class OnlineModeSetup extends AppCompatActivity {
                 playerColor = "green";
             }
         });
-        this.p1purple.setOnClickListener(new View.OnClickListener() {
+        p1purple.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //player1Color = "Purple";

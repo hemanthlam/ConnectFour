@@ -1,5 +1,6 @@
 package com.example.hemanthlam.connectfour;
 
+import android.media.Image;
 import android.os.Handler;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -25,21 +26,20 @@ import com.example.hemanthlam.connectfour.db.AppDatabase;
 import com.example.hemanthlam.connectfour.db.Player;
 import java.util.ArrayList;
 import java.util.List;
-/**
+import static java.lang.System.exit;
+ /**
  * Created by Sean on 1/25/2018.
  */
 
-//Where all of the important functions for the game board will be placed this will allow Game1Activity,
-//Game2Activity, and Game3Activity to share most of the same functions and variables.
 public class GameActivity extends AppCompatActivity {
-
     // For Logging Purposes
     private static final String TAG = "GameActivity";
 
     // Game Activity Data
     protected GameActivity thisActivity = this;
     protected Board gameBoard = null;
-    protected RelativeLayout box = null;
+    protected LinearLayout box = null;
+    protected Bundle activityData;
 
     // Player Data
     protected int p1Wins = 0;
@@ -56,30 +56,29 @@ public class GameActivity extends AppCompatActivity {
     // Game specific data
     protected int turn = 1;
     protected int Round = 1;
-    protected int gameType = -1;
-    protected Bundle activityData = null;
+    protected String gameType = null;
     private boolean isGameOver = false;
     private int lastFirstTurn = 1;
     protected String gameMode = null;
 
-    // Variables for use with online mode (specifically)
+    // Online mdoe connectivity variables
     protected MultiplayerSession multiplayerSession = null;
     protected boolean onlineMode = false;
     protected boolean onlineModeIsServer = false;
 
-    // UI Elements (for use with UI generation)
+    // UI Elements (for use with UI generation when in online mode)
     protected RelativeLayout mainLayout = null; // Reference to the android activity used in the current game session
     protected TextView winnerText = null;
     protected RelativeLayout gameEndMenu = null;
     protected Button roundButton = null;
     protected Button mainMenuButton = null;
 
-    // For network thread/UI purposes
+    // For network thread/UI purposes (this is again, an online mode thing)
     protected final Object playerDiscLock = new Object();
     protected boolean playerDisc1Loaded = false;
     protected boolean playerDisc2Loaded = false;
 
-    // For network thread (which takes care of turn switching in online mode) purposes
+    // For use with the network thread function (a function that will be called by a different thread
     protected final Object networkThreadLock = new Object();
     boolean continueNetworkThreadExecution = false;
     boolean placementLockActive = false;
@@ -96,22 +95,25 @@ public class GameActivity extends AppCompatActivity {
         //System.out.println("GA Group Host Address: " + activityData.getString("OnlineModeGroupHostAddress"));
 
         // Getting the game mode
-        gameMode = activityData.getString("Game");
+        this.gameMode = activityData.getString("Game");
 
         // Saving Player Names
-        p1Name = activityData.getString("Player1", "Player 1");
-        if (gameMode.equals("Online Multiplayer"))
-            p2Name = "Online Player";
-        else
-            p2Name = activityData.getString("Player2", "AI");
-
-        // Regarding onilne mode
-        gameMode = activityData.getString("Game");
+        this.p1Name = this.activityData.getString("Player1", "Player 1");
+        if (this.gameMode.equals("Online Multiplayer"))
+            this.p2Name = "Online Player";
+        else if (this.gameMode.equals("AI Mode (Single Player)")) {
+            this.gameType = "AI Mode (Single Player)";
+            this.p2Name = "AI";
+        }
+        else {
+            this.gameType = "Local Multiplayer";
+            this.p2Name = this.activityData.getString("Player2", "AI");
+        }
 
         // Saving online mode data
-        if (gameMode.equals("Online Multiplayer")) {
-            onlineMode = true;
-            onlineModeIsServer = activityData.getBoolean("OnlineModeIsServer");
+        if (this.gameMode.equals("Online Multiplayer")) {
+            this.onlineMode = true;
+            this.onlineModeIsServer = activityData.getBoolean("OnlineModeIsServer");
         }
 
         // Saving Player Colors
@@ -155,8 +157,8 @@ public class GameActivity extends AppCompatActivity {
     // INPUT: none
     // OUTPUT: none
     protected void drawInitialHighlights() {
-        if (p1HighlightView != null && p2HighlightView != null) {
-            p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        if (this.p1HighlightView != null && this.p2HighlightView != null) {
+            this.p1HighlightView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
                 public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
                     if (!onlineMode || onlineModeIsServer) {
@@ -228,18 +230,18 @@ public class GameActivity extends AppCompatActivity {
 
         // Address of device to connect to if in online mode
         String address;
-        if (onlineMode)
-            address = activityData.getString("OnlineModeGroupHostAddress");
+        if (this.onlineMode)
+            address = this.activityData.getString("OnlineModeGroupHostAddress");
         else
             address = null;
 
         // Attempt to load online mode
-        if (onlineMode) {
+        if (this.onlineMode) {
             // Create a new multiplayer session variables
-            multiplayerSession = new MultiplayerSession();
+            this.multiplayerSession = new MultiplayerSession();
 
             // Attempt to initialize a multiplayer session. If it doesn't, return to the main menu
-            if (!(multiplayerSession.initiateConnectionWithConnectedDevice(address, onlineModeIsServer))) {
+            if (!(this.multiplayerSession.initiateConnectionWithConnectedDevice(address, this.onlineModeIsServer))) {
                 Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_LONG).show();
                 returnToMain();
             }
@@ -247,14 +249,14 @@ public class GameActivity extends AppCompatActivity {
                 // If the multiplayer session was created successfully, and the device running this instance of the connect four app is not the group host
                 // set the turn to 2 (turn #2 is reserved for the online player, while turn #1 corresponds to the local player)
                 // Setting the turn to 2 indicates we want to wait for input from the online player
-                if (!onlineModeIsServer) {
-                    turn = 2;
-                    isSendPhase = false;
-                    placementLockActive = true;
+                if (!this.onlineModeIsServer) {
+                    this.turn = 2;
+                    this.isSendPhase = false;
+                    this.placementLockActive = true;
                 } else {
-                    turn = 1;
-                    isSendPhase = true;
-                    placementLockActive = false;
+                    this.turn = 1;
+                    this.isSendPhase = true;
+                    this.placementLockActive = false;
                 }
 
                 // Start the network thread (which will handle communications with the other device)
@@ -270,39 +272,39 @@ public class GameActivity extends AppCompatActivity {
         }
         // If we are in offline mode, we don't need a multiplayer session
         else
-            multiplayerSession = null;
+            this.multiplayerSession = null;
     }
 
     // Hide all UI pieces from board
     // INPUT: none
     // OUTPUT: none
     protected void hidePieces() {
-        for(int i = 0; i < box.getChildCount();++i){
-            LinearLayout curCol = (LinearLayout) box.getChildAt(i);
+        for(int i = 0; i < this.box.getChildCount();++i){
+            LinearLayout curCol = (LinearLayout) this.box.getChildAt(i);
             for(int j = 0; j < curCol.getChildCount();++j){
-                View view = curCol.getChildAt(j);
-                view.setVisibility(View.INVISIBLE);
+                ImageView view = (ImageView)curCol.getChildAt(j);
+                view.setImageDrawable(getResources().getDrawable(R.drawable.white));
             }
         }
     }
 
-    //Place a disc in the correct slot on the board
-    //if isGameOver dont place discs
+    // Place a disc in the correct slot on the board
+    // if isGameOver dont place discs
     // INPUT: col (column from which to place disc)
     // OUTPUT: none
-    // Evidently you can also label a parameter variable as final
+    // Evidently you can label a parameter variable as final
     protected void placeDisc(final int col) {
-        if(!isGameOver) {
+        if(!this.isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
                 return;
-            LinearLayout temp = (LinearLayout) box.getChildAt(col);
-            ImageView chip = (ImageView) temp.getChildAt(row);
+            LinearLayout tempCol = (LinearLayout) box.getChildAt(col);
+            ImageView chip = (ImageView) tempCol.getChildAt(row);
             animate(chip);
             findWinner();
 
             // Send turn to other player (if in multi-player mode)
-            if (onlineMode && isSendPhase) {
+            if (this.onlineMode && this.isSendPhase) {
                 // If our multiplayer session wasn't set up successfully
                 if (this.multiplayerSession == null) {
                     Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
@@ -416,29 +418,49 @@ public class GameActivity extends AppCompatActivity {
             });
 
             // Debug
-            System.out.println("Signal Just Recieved");
+            //System.out.println("Signal Just Recieved");
+            if(gameType.equals("AI Mode (Single Player)")&& !this.isGameOver) {
+                placeAIDisc();
+            }
+            else if (!gameType.equals("AI Mode (Single Player)"))
+                changeTurn();
         }
     }
 
+    //Have the AI place a disc
+    protected void placeAIDisc() {
+        LinearLayout tempCol;
+        ImageView chip;
+        changeTurn();
+        int AIPos [] = gameBoard.AIPlaceDisc(2);
+        tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
+        chip = (ImageView) tempCol.getChildAt(AIPos[1]);
+        animate(chip);
+        findWinner();
+        changeTurn();
+    }
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
     // INPUT: none
     // OUTPUT: none
-    public void findWinner(){
+    public void findWinner() {
         List<Player> list = new ArrayList<>();
         AppDatabase appDatabase = AppDatabase.getAppDatabase(this);
         int topScore=0;
         if(appDatabase.userDao().getTop5Scores().size()>0)
             topScore = appDatabase.userDao().getTop5Scores().get(0).getScore();
         Player player;
+        String color;
         final int[][] a = gameBoard.findWinner(turn);
         final String message;
+        //Check if there is a winner
         if(a!=null) {
             isGameOver = true;
             if(turn==1) {
                 message = p1Name + " won";
                 ++p1Wins;
+                color = p1Color;
                 p1ScoreView.setText(Integer.toString(p1Wins));
                 player  = appDatabase.userDao().getPlayer(p1Name);
                 if(p1Wins > topScore){
@@ -464,6 +486,7 @@ public class GameActivity extends AppCompatActivity {
             else {
                 message = p2Name + " won";
                 ++p2Wins;
+                color = p2Color;
                 p2ScoreView.setText(Integer.toString(p2Wins));
                 player  = appDatabase.userDao().getPlayer(p2Name);
                 if(p2Wins > topScore){
@@ -491,30 +514,24 @@ public class GameActivity extends AppCompatActivity {
                 box.getChildAt(i).setClickable(false);
             }
             winnerText.setText(message);
-            this.setGameEndWindowVisibility(true);
+            setGameEndWindowVisibility(true);
 
             LinearLayout column;
-            ImageView row1, row2, row3, row4;
-            column = (LinearLayout) box.getChildAt(a[0][0]);
-            row1 = (ImageView) column.getChildAt(a[0][1]);
-            row1.setImageResource(R.drawable.white);
-            column = (LinearLayout) box.getChildAt(a[1][0]);
-            row2 = (ImageView) column.getChildAt(a[1][1]);
-            row2.setImageResource(R.drawable.white);
-            column = (LinearLayout) box.getChildAt(a[2][0]);
-            row3 = (ImageView) column.getChildAt(a[2][1]);
-            row3.setImageResource(R.drawable.white);
-            column = (LinearLayout) box.getChildAt(a[3][0]);
-            row4 = (ImageView) column.getChildAt(a[3][1]);
-            row4.setImageResource(R.drawable.white);
+            ImageView row;
+            for(int i = 0; i < 4; ++i) {
+                column = (LinearLayout) box.getChildAt(a[i][0]);
+                row = (ImageView) column.getChildAt(a[i][1]);
+                thisActivity.drawCircleEdges(row, color);
+            }
         }
+        //Check if there is a stalemate
         if(gameBoard.checkIfBoardFull()) {
             isGameOver = true;
             for (int i = 0; i < box.getChildCount();++i){
                 box.getChildAt(i).setClickable(false);
             }
             winnerText.setText("Stalemate");
-            this.setGameEndWindowVisibility(true);
+            setGameEndWindowVisibility(true);
             Log.d(TAG,"Stalemate");
             winnerText.setVisibility(View.VISIBLE);
         }
@@ -558,14 +575,14 @@ public class GameActivity extends AppCompatActivity {
             // Player 1
             if (turn == 1) {
                 p1HighlightView.setVisibility(View.VISIBLE);
-                this.p2HighlightView.setVisibility(View.INVISIBLE);
-                this.drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
+                p2HighlightView.setVisibility(View.INVISIBLE);
+                drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
             } else
             // Player 2
             {
-                this.p2HighlightView.setVisibility(View.VISIBLE);
-                this.p1HighlightView.setVisibility(View.INVISIBLE);
-                this.drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
+                p2HighlightView.setVisibility(View.VISIBLE);
+                p1HighlightView.setVisibility(View.INVISIBLE);
+                drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
         }
 
@@ -612,7 +629,7 @@ public class GameActivity extends AppCompatActivity {
             }
         }).start();
 
-        System.out.println("Change Turn Completed");
+        //System.out.println("Change Turn Completed");
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -654,12 +671,14 @@ public class GameActivity extends AppCompatActivity {
     //    3) Place it above board and drop it to it's position
     // INPUT: chip (a refernece to the chip to animate)
     protected void animate(ImageView chip){
-        if(turn == 1)
-            chip.setImageResource(this.colorToDiscImgId(this.p1Color));
-        else chip.setImageResource(this.colorToDiscImgId(this.p2Color));
-        chip.setTranslationY(-1000);
-        chip.setVisibility(View.VISIBLE);
-        chip.animate().translationYBy(1000).setDuration(350);
+        if (chip != null) {
+            if (turn == 1)
+                chip.setImageResource(colorToDiscImgId(p1Color));
+            else chip.setImageResource(colorToDiscImgId(p2Color));
+            chip.setTranslationY(-1000);
+            chip.setVisibility(View.VISIBLE);
+            chip.animate().translationYBy(1000).setDuration(350);
+        }
     }
 
     // Create Player Name and Color Image views
@@ -671,7 +690,7 @@ public class GameActivity extends AppCompatActivity {
     //            2 indicates middle of right side of screen (multiplayer)
     //            3 indicates middle of screen (single player)
     // OUTPUT: true if creation was successful, false if not (if any of the input parameters that were required were left empty)
-    protected boolean generatePlayerNamesAndIcons(String playerName, String discColor, int playerPosition, RelativeLayout parent) {
+    protected boolean generatePlayerNamesAndIcons(String playerName, String discColor, int playerPosition, RelativeLayout parent,int discSize) {
         // Initial Checks
         if (playerName == null || playerName.isEmpty())
             return false;
@@ -705,7 +724,7 @@ public class GameActivity extends AppCompatActivity {
         int windowWidth = 0;
 
         // The size of the disc image (letting a player know what color they are)
-        int discSize = 80;
+       // int discSize = 80;
 
         // Get Display Information and save it
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -771,14 +790,14 @@ public class GameActivity extends AppCompatActivity {
         if (playerPosition == 1) {
             infoContainer.setX(0);
             infoContainer.setY(25);
-            this.p1HighlightView  = playerHiglightView;
-            this.p1ScoreView = playerScoreView;
+            p1HighlightView  = playerHiglightView;
+            p1ScoreView = playerScoreView;
         }
         else {
             infoContainer.setX(windowWidth/2);
             infoContainer.setY(25);
-            this.p2HighlightView  = playerHiglightView; // To let the user know what the highlight view is
-            this.p2ScoreView = playerScoreView;
+            p2HighlightView  = playerHiglightView; // To let the user know what the highlight view is
+            p2ScoreView = playerScoreView;
         }
 
         // Add the player info to the main (relative) layout, which is passed in as a parameter
@@ -900,20 +919,20 @@ public class GameActivity extends AppCompatActivity {
         getWindow().addContentView(container, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         // Setting some variables so we can edit these values
-        this.gameEndMenu = container;
-        this.winnerText = gameWinner;
-        this.roundButton = replayButton;
-        this.mainMenuButton = menuButton;
-        this.setGameEndWindowVisibility(false);
+        gameEndMenu = container;
+        winnerText = gameWinner;
+        roundButton = replayButton;
+        mainMenuButton = menuButton;
+        setGameEndWindowVisibility(false);
 
         // Set game end button listeners
-        this.roundButton.setOnClickListener(new View.OnClickListener() {
+        roundButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                thisActivity.restartGame();
+                restartGame();
             }
         });
-        this.mainMenuButton.setOnClickListener(new View.OnClickListener() {
+        mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 returnToMain();
@@ -927,14 +946,6 @@ public class GameActivity extends AppCompatActivity {
     protected void restartGame(){
         Log.d(TAG, "Restarting the game");
         isGameOver = false;
-        if(lastFirstTurn == 1){
-            turn = 2;
-            lastFirstTurn = 2;
-        }
-        else{
-            turn =1;
-            lastFirstTurn = 1;
-        }
         for (int i = 0; i < box.getChildCount();++i){
             box.getChildAt(i).setEnabled(true);
             box.getChildAt(i).setClickable(true);
