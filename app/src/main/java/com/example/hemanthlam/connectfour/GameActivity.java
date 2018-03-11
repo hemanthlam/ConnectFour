@@ -359,8 +359,12 @@ public class GameActivity extends AppCompatActivity {
             // Log our progress
             Log.d(TAG,"Disc placed at col" + col);
 
-            // Change turns
-            changeTurn();
+            // Change turns (and handle AI moves)
+            if(gameType.equals("AI Mode (Single Player)") && !isGameOver){
+                placeAIDisc();
+            }
+            else if (!gameType.equals("AI Mode (Single Player)"))
+                changeTurn();
         }
     }
 
@@ -442,32 +446,14 @@ public class GameActivity extends AppCompatActivity {
             }
 
             // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
-            if (onlineMode) {
-                final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (onlinePlayerMove != -1)
-                            placeDisc(onlinePlayerMove);
-                    }
-                });
-            } else if (gameType.equals("AI Mode (Single Player)"))
-            {
-                // Debug
-                //System.out.println("Signal Just Received");
-                if(gameType.equals("AI Mode (Single Player)")&& !this.isGameOver) {
-                    final int AIPos = gameBoard.AIPlaceDisc(2)[0];
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //placeAIDisc();
-                            placeDisc(AIPos);
-                        }
-                    });
+            final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (onlinePlayerMove != -1)
+                        placeDisc(onlinePlayerMove);
                 }
-                //else if (!gameType.equals("AI Mode (Single Player)"))
-                //    changeTurn();
-            }
+            });
         }
     }
 
@@ -475,14 +461,15 @@ public class GameActivity extends AppCompatActivity {
     protected void placeAIDisc() {
         LinearLayout tempCol;
         ImageView chip;
-        //changeTurn();
+        changeTurn();
         int AIPos [] = gameBoard.AIPlaceDisc(2);
         tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
         chip = (ImageView) tempCol.getChildAt(AIPos[1]);
         animate(chip);
-        //findWinner();
+        findWinner();
         changeTurn();
     }
+
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
     //and highlight the four winning pieces. If there is no winner, then check for a stalemate. If
     //there isn't a stalemate, then we continue
@@ -633,11 +620,11 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // Notify network thread
-                    if (onlineMode || gameType.equals("AI Mode (Single Player)")) {
+            if (onlineMode) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Notify network thread
                         // Update the boolean that indicates whether it is the send or recieve phase
                         if (isSendPhase) {
                             isSendPhase = false;
@@ -648,7 +635,7 @@ public class GameActivity extends AppCompatActivity {
                         }
 
                         // Check if online mode was created successfully
-                        if (onlineMode && multiplayerSession == null) {
+                        if (multiplayerSession == null) {
                             Log.d(TAG, "Failed tonew Thread get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
                             Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
                             returnToMain();
@@ -668,8 +655,12 @@ public class GameActivity extends AppCompatActivity {
                             System.out.println("Main thread just let go of synchronization lock");
                         }
                     }
-                }
-            }).start();
+                }).start();
+            }
+
+            //if(gameType.equals("AI Mode (Single Player)")){
+            //    placeAIDisc();
+            //}
         }
         //System.out.println("Change Turn Completed");
     }
