@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     public void displayRules(View view) {
         setContentView(R.layout.rules);
         TextView textView = (TextView) findViewById(R.id.textView5);
-        textView.setText("Players first choose a color and then take turns dropping colored discs from the top into a seven-column, six-row vertically suspended grid. The pieces fall straight down, occupying the next available space within the column. The objective of the game is to be the first to form a horizontal, vertical, or diagonal line of four of one's own discs.");
+        textView.setText("Players first choose a color and then take turns dropping colored discs from the top into a 7-column, 6-row or 8-column, 7-row  or 10-column, 8-row vertically suspended grid. The pieces fall straight down, occupying the next available space within the column. The objective of the game is to be the first to form a horizontal, vertical, or diagonal line of four of one's own discs.");
     }
 
     /**
