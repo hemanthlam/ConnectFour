@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="gr.pantrif:easy-android-splash-screen-0.0.1">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/easy-android-splash-screen-0.0.1.aar/057a442fe69753ce2fe042988eb1ea0f/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/easy-android-splash-screen-0.0.1.aar/057a442fe69753ce2fe042988eb1ea0f/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/easy-android-splash-screen-0.0.1.aar/6ce0f00bd3a7e32e4e63bdb6b5e3284d/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/easy-android-splash-screen-0.0.1.aar/6ce0f00bd3a7e32e4e63bdb6b5e3284d/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
