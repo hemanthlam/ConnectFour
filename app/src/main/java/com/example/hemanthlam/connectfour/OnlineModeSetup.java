@@ -33,6 +33,7 @@ public class OnlineModeSetup extends AppCompatActivity {
     protected String playerColor = null;
     protected String playerName = null;
     protected String boardSize = null;
+    protected boolean initiatedOnlineGame = false;
 
     // Called when the OnlineModeSetup class is being created
     // INPUT: savedInstanceState (comes with the call, though we don't use it)
@@ -79,6 +80,7 @@ public class OnlineModeSetup extends AppCompatActivity {
             public void onClick(View v){
                 // Fill in intent with data
                 String address = ((EditText)findViewById(R.id.OnlineModeHostEditText)).getText().toString();
+                initiatedOnlineGame = true;
                 onlineMode.connectToPeer(address);
             }
         });

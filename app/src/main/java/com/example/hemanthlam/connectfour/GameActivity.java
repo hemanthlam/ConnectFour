@@ -38,7 +38,7 @@ public class GameActivity extends AppCompatActivity {
     // Game Activity Data
     protected GameActivity thisActivity = this;
     protected Board gameBoard = null;
-    protected LinearLayout box = null;
+    protected RelativeLayout box = null;
     protected Bundle activityData;
 
     // Player Data
@@ -60,8 +60,11 @@ public class GameActivity extends AppCompatActivity {
     private boolean isGameOver = false;
     private int lastFirstTurn = 1;
     protected String gameMode = null;
+    protected String board = null;
+    protected int boardWidth = 7;
+    protected int boardHeight = 6;
 
-    // Online mdoe connectivity variables
+    // Online mode connectivity variables
     protected MultiplayerSession multiplayerSession = null;
     protected boolean onlineMode = false;
     protected boolean onlineModeIsServer = false;
@@ -83,19 +86,29 @@ public class GameActivity extends AppCompatActivity {
     boolean continueNetworkThreadExecution = false;
     boolean placementLockActive = false;
     boolean isSendPhase = false;
+    boolean isOnlineModeLoaded = false;
+    boolean initiatedOnlineGame = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Call parent class
         super.onCreate(savedInstanceState);
 
-        // Get the avtivity data passed in from the previous activity
-        activityData = getIntent().getExtras();
+        // Game information from other client (if in online mode)
+        String clientInformation = null;
 
-        //System.out.println("GA Group Host Address: " + activityData.getString("OnlineModeGroupHostAddress"));
+        // Address of device to connect to if in online mode
+        String address = null;
+
+        // Used for board size processing
+        int splitIndex = -1;
+
+        // Data passed in from the previous activity
+        activityData = getIntent().getExtras();
 
         // Getting the game mode
         this.gameMode = activityData.getString("Game");
+        this.board = activityData.getString("Board").replaceAll("\\s", ""); // https://stackoverflow.com/questions/5455794/removing-whitespace-from-strings-in-java
 
         // Saving Player Names
         this.p1Name = this.activityData.getString("Player1", "Player 1");
@@ -151,6 +164,69 @@ public class GameActivity extends AppCompatActivity {
             }
         } else
             this.p2Color = activityData.getString("Player2Color").toLowerCase();
+
+
+
+        // Attempt to load online mode
+        if (onlineMode) {
+            // Get address of device to connect to (a web socket is created)
+            address = activityData.getString("OnlineModeGroupHostAddress");
+
+            // Keeps track of whether the current device (the one running this code) initiated the online game. If so, it gets to decide the board size of the game.
+            initiatedOnlineGame = activityData.getBoolean("OnlineModeInitiatedGame");
+
+            // Create a new multiplayer session variables
+            this.multiplayerSession = new MultiplayerSession();
+
+            // Attempt to initialize a multiplayer session. If it doesn't, return to the main menu
+            // Removing all whitespace from a string: // https://stackoverflow.com/questions/5455794/removing-whitespace-from-strings-in-java
+            if ((clientInformation = multiplayerSession.initiateConnectionWithConnectedDevice(address, onlineModeIsServer, activityData.getString("Board").replaceAll("\\s", "") + "-" + p1Name, initiatedOnlineGame)) == null) {
+                Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_LONG).show();
+                returnToMain();
+            }
+            else {
+                // If the multiplayer session was created successfully, and the device running this instance of the connect four app is not the group host
+                // set the turn to 2 (turn #2 is reserved for the online player, while turn #1 corresponds to the local player)
+                // Setting the turn to 2 indicates we want to wait for input from the online player
+                if (!onlineModeIsServer) {
+                    // Initial Game Information
+                    turn = 2;
+                    isSendPhase = false;
+                    placementLockActive = true;
+                } else {
+                    turn = 1;
+                    isSendPhase = true;
+                    placementLockActive = false;
+                }
+
+                // Game start information
+                splitIndex = clientInformation.indexOf('-');
+                p2Name = clientInformation.substring(splitIndex+1);
+
+                if (initiatedOnlineGame) {
+                    // Get board information from other device
+                    board = clientInformation.substring(0, splitIndex);
+                }
+            }
+
+            // Start the network thread (which will handle communications with the other device)
+            // It seemed wise to have this running in a different thread so that it didn't interfere with the UI thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    networkThread();
+                }
+            }).start();
+        }
+        // If we are in offline mode, we don't need a multiplayer session
+        else {
+            this.multiplayerSession = null;
+        }
+
+        // Parse Board Information
+        splitIndex = board.indexOf('x');
+        boardWidth = Integer.parseInt(board.substring(0, splitIndex));
+        boardHeight = Integer.parseInt(board.substring(splitIndex+1));
     }
 
     // Draws initial score circle highlights, depending on the game mode (a user interface generation function)
@@ -214,7 +290,7 @@ public class GameActivity extends AppCompatActivity {
                     networkThreadLock.notify();
                 }
             }
-            Toast.makeText(getApplicationContext(), "I hope you enjoyed your online game!", Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(), "I hope you enjoyed your online game!", Toast.LENGTH_LONG);
         }
         Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(mainActivity);
@@ -227,52 +303,6 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Address of device to connect to if in online mode
-        String address;
-        if (this.onlineMode)
-            address = this.activityData.getString("OnlineModeGroupHostAddress");
-        else
-            address = null;
-
-        // Attempt to load online mode
-        if (this.onlineMode) {
-            // Create a new multiplayer session variables
-            this.multiplayerSession = new MultiplayerSession();
-
-            // Attempt to initialize a multiplayer session. If it doesn't, return to the main menu
-            if (!(this.multiplayerSession.initiateConnectionWithConnectedDevice(address, this.onlineModeIsServer))) {
-                Toast.makeText(getApplicationContext(), "Failed to initiate connection with client device. Returning to main menu", Toast.LENGTH_LONG).show();
-                returnToMain();
-            }
-            else {
-                // If the multiplayer session was created successfully, and the device running this instance of the connect four app is not the group host
-                // set the turn to 2 (turn #2 is reserved for the online player, while turn #1 corresponds to the local player)
-                // Setting the turn to 2 indicates we want to wait for input from the online player
-                if (!this.onlineModeIsServer) {
-                    this.turn = 2;
-                    this.isSendPhase = false;
-                    this.placementLockActive = true;
-                } else {
-                    this.turn = 1;
-                    this.isSendPhase = true;
-                    this.placementLockActive = false;
-                }
-
-                // Start the network thread (which will handle communications with the other device)
-                // It seemed wise to have this running in a different thread so that it didn't interfere with the UI thread
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (multiplayerSession != null)
-                            networkThread();
-                    }
-                }).start();
-            }
-        }
-        // If we are in offline mode, we don't need a multiplayer session
-        else
-            this.multiplayerSession = null;
     }
 
     // Hide all UI pieces from board
@@ -294,17 +324,17 @@ public class GameActivity extends AppCompatActivity {
     // OUTPUT: none
     // Evidently you can label a parameter variable as final
     protected void placeDisc(final int col) {
-        if(!this.isGameOver) {
+        System.out.println("Disc Just Placed...");
+        if(!isGameOver) {
             int row = gameBoard.findPosition(col, turn);
             if (row == -1)
                 return;
             LinearLayout tempCol = (LinearLayout) box.getChildAt(col);
             ImageView chip = (ImageView) tempCol.getChildAt(row);
             animate(chip);
-            findWinner();
 
             // Send turn to other player (if in multi-player mode)
-            if (this.onlineMode && this.isSendPhase) {
+            if (onlineMode && isSendPhase) {
                 // If our multiplayer session wasn't set up successfully
                 if (this.multiplayerSession == null) {
                     Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
@@ -323,7 +353,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                     }).start();
                 }
-                System.out.println("Sent move to other player");
+                //System.out.println("Sent move to other player");
             }
 
             // Log our progress
@@ -360,6 +390,9 @@ public class GameActivity extends AppCompatActivity {
         // Will be used to help us determine if we need to continue thread execution
         boolean continueExecuting = true;
 
+        // Indicate to the main thread that the network thread has been setup
+        isOnlineModeLoaded = true;
+
         // For checking first turn (if this device is a connected client, it has to wait on a connection from the server before it can begin)
         if (multiplayerSession != null && !isSendPhase) {
             // Get move from other player
@@ -369,7 +402,8 @@ public class GameActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    placeDisc(onlinePlayerMove);
+                    if (onlinePlayerMove != -1)
+                        placeDisc(onlinePlayerMove);
                 }
             });
 
@@ -408,22 +442,32 @@ public class GameActivity extends AppCompatActivity {
             }
 
             // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
-            final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (onlinePlayerMove != -1)
-                        placeDisc(onlinePlayerMove);
+            if (onlineMode) {
+                final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (onlinePlayerMove != -1)
+                            placeDisc(onlinePlayerMove);
+                    }
+                });
+            } else if (gameType.equals("AI Mode (Single Player)"))
+            {
+                // Debug
+                //System.out.println("Signal Just Received");
+                if(gameType.equals("AI Mode (Single Player)")&& !this.isGameOver) {
+                    final int AIPos = gameBoard.AIPlaceDisc(2)[0];
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //placeAIDisc();
+                            placeDisc(AIPos);
+                        }
+                    });
                 }
-            });
-
-            // Debug
-            //System.out.println("Signal Just Recieved");
-            if(gameType.equals("AI Mode (Single Player)")&& !this.isGameOver) {
-                placeAIDisc();
+                //else if (!gameType.equals("AI Mode (Single Player)"))
+                //    changeTurn();
             }
-            else if (!gameType.equals("AI Mode (Single Player)"))
-                changeTurn();
         }
     }
 
@@ -431,12 +475,12 @@ public class GameActivity extends AppCompatActivity {
     protected void placeAIDisc() {
         LinearLayout tempCol;
         ImageView chip;
-        changeTurn();
+        //changeTurn();
         int AIPos [] = gameBoard.AIPlaceDisc(2);
         tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
         chip = (ImageView) tempCol.getChildAt(AIPos[1]);
         animate(chip);
-        findWinner();
+        //findWinner();
         changeTurn();
     }
     //Finds if the player who is playing has won. If a player has won, we send a message to the UI
@@ -564,71 +608,69 @@ public class GameActivity extends AppCompatActivity {
     // INPUT: none
     // OUTPUT: none
     protected void changeTurn() {
-        // Change the turn number
-        if(turn == 1)
-            turn = 2;
-        else
-            turn = 1;
+        // Check for winner
+        findWinner();
 
-        // Take the appriate action (i.e update the highlight views)
-        if (p1HighlightView != null && p2HighlightView != null) {
-            // Player 1
-            if (turn == 1) {
-                p1HighlightView.setVisibility(View.VISIBLE);
-                p2HighlightView.setVisibility(View.INVISIBLE);
-                drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
-            } else
-            // Player 2
-            {
-                p2HighlightView.setVisibility(View.VISIBLE);
-                p1HighlightView.setVisibility(View.INVISIBLE);
-                drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
-            }
-        }
+        if (!isGameOver) {// Change the turn number
+            if (turn == 1)
+                turn = 2;
+            else
+                turn = 1;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Notify network thread
-                if (onlineMode)
+            // Take the appropriate action (i.e update the highlight views)
+            if (p1HighlightView != null && p2HighlightView != null) {
+                // Player 1
+                if (turn == 1) {
+                    p1HighlightView.setVisibility(View.VISIBLE);
+                    p2HighlightView.setVisibility(View.INVISIBLE);
+                    drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
+                } else
+                // Player 2
                 {
-                    // Update the boolean that indicates whether it is the send or recieve phase
-                    if (isSendPhase) {
-                        isSendPhase = false;
-                        placementLockActive = true;
-                    }
-                    else
-                    {
-                        isSendPhase = true;
-                        placementLockActive = false;
-                    }
-
-                    // Check if online mode was created successfully
-                    if (multiplayerSession == null) {
-                        Log.d(TAG, "Failed tonew Thread get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
-                        Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
-                        returnToMain();
-                    }
-                    // Indicate that we want to wait for a turn from the remote player
-                    else if (!isSendPhase)
-                    {
-                        synchronized (networkThreadLock)
-                        {
-                            // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
-                            continueNetworkThreadExecution = true;
-
-                            // Debug
-                            System.out.println("Notifying the network thread of move");
-
-                            // Notify the network thread (which should be waiting on this signal)
-                            networkThreadLock.notify();
-                        }
-                        System.out.println("Main thread just let go of synchronization lock");
-                    }
+                    p2HighlightView.setVisibility(View.VISIBLE);
+                    p1HighlightView.setVisibility(View.INVISIBLE);
+                    drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
                 }
             }
-        }).start();
 
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // Notify network thread
+                    if (onlineMode || gameType.equals("AI Mode (Single Player)")) {
+                        // Update the boolean that indicates whether it is the send or recieve phase
+                        if (isSendPhase) {
+                            isSendPhase = false;
+                            placementLockActive = true;
+                        } else {
+                            isSendPhase = true;
+                            placementLockActive = false;
+                        }
+
+                        // Check if online mode was created successfully
+                        if (onlineMode && multiplayerSession == null) {
+                            Log.d(TAG, "Failed tonew Thread get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
+                            Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
+                            returnToMain();
+                        }
+                        // Indicate that we want to wait for a turn from the remote player
+                        else if (!isSendPhase) {
+                            synchronized (networkThreadLock) {
+                                // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
+                                continueNetworkThreadExecution = true;
+
+                                // Debug
+                                System.out.println("Notifying the network thread of move");
+
+                                // Notify the network thread (which should be waiting on this signal)
+                                networkThreadLock.notify();
+                            }
+                            System.out.println("Main thread just let go of synchronization lock");
+                        }
+                    }
+                }
+            }).start();
+        }
         //System.out.println("Change Turn Completed");
     }
 
