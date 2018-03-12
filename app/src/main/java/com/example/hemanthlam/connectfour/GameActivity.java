@@ -422,7 +422,7 @@ public class GameActivity extends AppCompatActivity {
                     networkThreadLock.wait(40000);
 
                     // In the case that the connection timed out and we haven't recieved a response from the online player
-                    if (isSendPhase)
+                    /*if (isSendPhase)
                     {
                         continueNetworkThreadExecution = false;
                         continueExecuting = false;
@@ -433,7 +433,7 @@ public class GameActivity extends AppCompatActivity {
                                 returnToMain();
                             }
                         });
-                    }
+                    }*/
                 } catch (InterruptedException exception) {
                     Log.d(TAG, "The network thread ran into problems waiting on a signal from the main thread (to either receive a move from the connected device or indicate that is has sent off a move to the other player)");
                 }
@@ -462,11 +462,13 @@ public class GameActivity extends AppCompatActivity {
         LinearLayout tempCol;
         ImageView chip;
         changeTurn();
-        int AIPos [] = gameBoard.AIPlaceDisc(2);
-        tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
-        chip = (ImageView) tempCol.getChildAt(AIPos[1]);
-        animate(chip);
-        findWinner();
+        if (!isGameOver) {
+            int AIPos[] = gameBoard.AIPlaceDisc(2);
+            tempCol = (LinearLayout) box.getChildAt(AIPos[0]);
+            chip = (ImageView) tempCol.getChildAt(AIPos[1]);
+            animate(chip);
+            //findWinner();
+        }
         changeTurn();
     }
 
@@ -590,79 +592,86 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    // Notifies the network thread to wait on a new move from an online player
+    // (designed for use with online mode only)
+    // INPUT: none
+    // OUTPUT: none
+    protected void notifyNetworkThreadOfMove() {
+        //new Thread(new Runnable() {
+        //    @Override
+        //    public void run() {
+                // Notify network thread
+                // Check if online mode was created successfully
+                if (multiplayerSession == null) {
+                    Log.d(TAG, "Error: Can't get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
+                    Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
+                    returnToMain();
+                }
+                // Indicate that we want to wait for a turn from the remote player
+                else if (!isSendPhase) {
+                    synchronized (networkThreadLock) {
+                        // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
+                        continueNetworkThreadExecution = true;
+
+                        // Debug
+                        Log.d(TAG,"Info: Notifying the network thread of move");
+
+                        // Notify the network thread (which should be waiting on this signal)
+                        networkThreadLock.notify();
+                    }
+                }
+        //    }
+        //}).start();
+    }
+
     // Switches turns between players. This means changing the highlights player icon and the turn
     // number
     // INPUT: none
     // OUTPUT: none
     protected void changeTurn() {
-        // Check for winner
+        // Check for winner (if not in AI mode, since it does this already
         findWinner();
 
-        if (!isGameOver) {// Change the turn number
-            if (turn == 1)
-                turn = 2;
-            else
-                turn = 1;
+        // Switch turn
+        if (turn == 1)
+            turn = 2;
+        else
+            turn = 1;
 
-            // Take the appropriate action (i.e update the highlight views)
-            if (p1HighlightView != null && p2HighlightView != null) {
-                // Player 1
-                if (turn == 1) {
-                    p1HighlightView.setVisibility(View.VISIBLE);
-                    p2HighlightView.setVisibility(View.INVISIBLE);
-                    drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
-                } else
-                // Player 2
-                {
-                    p2HighlightView.setVisibility(View.VISIBLE);
-                    p1HighlightView.setVisibility(View.INVISIBLE);
-                    drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
-                }
+        // Take the appropriate action (i.e update the highlight views)
+        if (p1HighlightView != null && p2HighlightView != null) {
+            // Player 1
+            if (turn == 1) {
+                p1HighlightView.setVisibility(View.VISIBLE);
+                p2HighlightView.setVisibility(View.INVISIBLE);
+                drawCircleEdges(this.p1HighlightView, this.p1Color.toLowerCase());
+            } else
+            // Player 2
+            {
+                p2HighlightView.setVisibility(View.VISIBLE);
+                p1HighlightView.setVisibility(View.INVISIBLE);
+                drawCircleEdges(this.p2HighlightView, this.p2Color.toLowerCase());
             }
-
-            if (onlineMode) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Notify network thread
-                        // Update the boolean that indicates whether it is the send or recieve phase
-                        if (isSendPhase) {
-                            isSendPhase = false;
-                            placementLockActive = true;
-                        } else {
-                            isSendPhase = true;
-                            placementLockActive = false;
-                        }
-
-                        // Check if online mode was created successfully
-                        if (multiplayerSession == null) {
-                            Log.d(TAG, "Failed tonew Thread get move from online player. The multiplayer session doesn't seem to be active. Also, we shouldn't have run into this error (the program should have returned to the main screen by now)");
-                            Toast.makeText(getApplicationContext(), "There was an error trying to receive a move from the connected device. The multiplayer session didn't seem to be setup correctly. ", Toast.LENGTH_LONG);
-                            returnToMain();
-                        }
-                        // Indicate that we want to wait for a turn from the remote player
-                        else if (!isSendPhase) {
-                            synchronized (networkThreadLock) {
-                                // Indicate to the network thread that we want to continue execution (this is not necessary, but it is nice just to be safe)
-                                continueNetworkThreadExecution = true;
-
-                                // Debug
-                                System.out.println("Notifying the network thread of move");
-
-                                // Notify the network thread (which should be waiting on this signal)
-                                networkThreadLock.notify();
-                            }
-                            System.out.println("Main thread just let go of synchronization lock");
-                        }
-                    }
-                }).start();
-            }
-
-            //if(gameType.equals("AI Mode (Single Player)")){
-            //    placeAIDisc();
-            //}
         }
-        //System.out.println("Change Turn Completed");
+
+        // Update the boolean that indicates whether it is the send or receive phase
+        if (onlineMode) {
+            if (isSendPhase) {
+                isSendPhase = false;
+                placementLockActive = true;
+            } else {
+                isSendPhase = true;
+                placementLockActive = false;
+            }
+
+            // Only start looking for a new move
+            if (!isGameOver) {
+                notifyNetworkThreadOfMove();
+            }
+        }
+
+        // Log
+        Log.d(TAG, "Info: Change Turn Completed");
     }
 
     // returns the id of the disc image corresponding to the given color
@@ -702,7 +711,7 @@ public class GameActivity extends AppCompatActivity {
     //    1) Check turn
     //    2) Change color of chip based on player turn
     //    3) Place it above board and drop it to it's position
-    // INPUT: chip (a refernece to the chip to animate)
+    // INPUT: chip (a reference to the chip to animate)
     protected void animate(ImageView chip){
         if (chip != null) {
             if (turn == 1)
@@ -715,7 +724,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // Create Player Name and Color Image views
-    // (Generates the textview and display icon that will display the player name)
+    // (Generates the text view and display icon that will display the player name)
     // INPUT: playerName (name of the player),
     //        pieceColor (disc color associated with the player),
     //        playerPosition (indicates position of items to be generated)
@@ -988,5 +997,10 @@ public class GameActivity extends AppCompatActivity {
         gameEndMenu.setVisibility(View.INVISIBLE);
         ++Round;
         ((TextView) findViewById(R.id.RoundNumber)).setText(Integer.toString(Round));
+
+        // Only start looking for a new move
+        if (!isGameOver && onlineMode && multiplayerSession != null) {
+            notifyNetworkThreadOfMove();
+        }
     }
 }
