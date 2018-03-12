@@ -27,15 +27,13 @@ public class MainActivity extends AppCompatActivity {
         highscorebutton = findViewById(R.id.highscorebutton) ;
         playbutton = findViewById(R.id.playbutton);
         onlineModebutton = findViewById(R.id.onlinemodesetupbutton);
-
         playbutton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v){
-                System.out.println("PLAY OFFLINE MODE");
                 Intent startIntent = new Intent(getApplicationContext(), BoardTypeActivity.class);
                 startActivity(startIntent);
-                Log.d(TAG,"play game");
+                Log.d(TAG,"play local game");
             }
         });
 
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent startIntent = new Intent(getApplicationContext(), OnlineModeSetup.class);
                 startActivity(startIntent);
-                Log.d(TAG, "play online");
+                Log.d(TAG, "play online game");
             }
         });
     }
