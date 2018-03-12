@@ -87,6 +87,7 @@ public class OnlineModeSetup extends AppCompatActivity {
 
         // Update intent data on spinner selection
         Spinner boardSizeSelectionSpinner = (Spinner)findViewById(R.id.OnlineModeBoardSizeSelectionSpinner);
+        playerName = boardSizeSelectionSpinner.getSelectedItem().toString();
         boardSizeSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -101,6 +102,7 @@ public class OnlineModeSetup extends AppCompatActivity {
 
         // Update Intent data on click
         EditText nameEntryBox = (EditText)findViewById(R.id.OnlineModePlayerNameEditText);
+        playerName = nameEntryBox.getText().toString();
         nameEntryBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}

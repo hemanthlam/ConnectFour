@@ -360,10 +360,10 @@ public class GameActivity extends AppCompatActivity {
             Log.d(TAG,"Disc placed at col" + col);
 
             // Change turns (and handle AI moves)
-            if(gameType.equals("AI Mode (Single Player)") && !isGameOver){
+            if(gameMode.equals("AI Mode (Single Player)") && !isGameOver){
                 placeAIDisc();
             }
-            else if (!gameType.equals("AI Mode (Single Player)"))
+            else if (!gameMode.equals("AI Mode (Single Player)"))
                 changeTurn();
         }
     }
