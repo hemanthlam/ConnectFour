@@ -1,6 +1,7 @@
 package com.example.hemanthlam.connectfour;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,8 @@ public class BoardTypeActivity extends AppCompatActivity {
 
     protected Spinner gridSpinner;
     protected Spinner gameSpinner;
+    int color;
+    protected Spinner boardColorSpinner;
     String gameType = "Local Multiplayer";
     String TAG = "BoardTypeActivity";
     @Override
@@ -27,6 +30,7 @@ public class BoardTypeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_board_type);
         gridSpinner = findViewById(R.id.gridSpinner);
         gameSpinner = findViewById(R.id.gameSpinner);
+        boardColorSpinner = findViewById(R.id.boardcolorspinner);
         gameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             // Saves the gridspinner information
             @Override
@@ -42,6 +46,33 @@ public class BoardTypeActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, "Game type selected:" + gameType);
             }
+
+
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        boardColorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            // Saves the gridspinner information
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch(boardColorSpinner.getSelectedItem().toString()){
+                    case "Black" : color = Color.BLACK;
+                        break;
+                    case "Blue" : color = Color.parseColor("#250396");
+                        break;
+                    case "Cyan" : color = Color.CYAN;
+                        break;
+
+                    default: color = Color.CYAN;
+
+                };
+            }
+
+
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -71,6 +102,7 @@ public class BoardTypeActivity extends AppCompatActivity {
                 intent.putExtra("Game", gameType);
                 break;
         }
+        intent.putExtra("Color",color);
         startActivity(intent);
     }
 }
