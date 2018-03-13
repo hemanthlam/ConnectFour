@@ -82,7 +82,7 @@ public class BoardTypeActivity extends AppCompatActivity {
     }
     // Sets up our transition to the NameActivity. This will send the board, gameType, and round
     // information to the next page.
-    protected void clickContinue(View view){
+    public void clickContinue(View view){
         Intent intent = null;
         switch (gridSpinner.getSelectedItem().toString()){
             case "7 x 6":
