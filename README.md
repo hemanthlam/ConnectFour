@@ -1,5 +1,4 @@
 # ConnectFour
-Intial commit
 
 For the purpose of this project, the entire game is open source. To run Connect Four, you need a working version of Android Studio running on your computer.
 
