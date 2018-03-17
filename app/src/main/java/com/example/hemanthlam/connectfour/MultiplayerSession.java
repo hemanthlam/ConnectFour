@@ -201,7 +201,7 @@ public class MultiplayerSession {
     // OUTPUT: none
     void threadFunction() {
         boolean continueExec = false;
-        int connectionAttemptLimit = 16;
+        int connectionAttemptLimit = 24;
         byte buffer[] = new byte[1024];
 
         try {
@@ -211,6 +211,12 @@ public class MultiplayerSession {
             if (!isGroupOwner) {
                 // Create the Server socket and wait on connections
                 serverSocket = new ServerSocket(7432);
+
+                // Set timeout
+                // https://stackoverflow.com/questions/21934839/how-to-set-a-time-limit-for-serversocket-to-wait-for-the-client
+                serverSocket.setSoTimeout(12000);
+
+                // Accept connection from client
                 client = serverSocket.accept();
 
                 // Setup the input streams

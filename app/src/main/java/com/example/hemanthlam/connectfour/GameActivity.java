@@ -2,6 +2,7 @@ package com.example.hemanthlam.connectfour;
 
 import android.media.Image;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.content.Intent;
@@ -337,21 +338,21 @@ public class GameActivity extends AppCompatActivity {
             if (onlineMode && isSendPhase) {
                 // If our multiplayer session wasn't set up successfully
                 if (this.multiplayerSession == null) {
-                    Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
                     //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
                     returnToMain();
+                    Toast.makeText(getApplicationContext(), "The multiplayer session didn't set up successfully, so we couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
                 } else {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
+                    //new Thread(new Runnable() {
+                        //@Override
+                        //public void run() {
                             // If things didn't work...
                             if (!multiplayerSession.sendMoveToOtherPlayer(col)) {
-                                Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
                                 //try {Thread.sleep(2000);} catch (InterruptedException ex) {}
                                 returnToMain();
+                                Toast.makeText(getApplicationContext(), "Couldn't send move to online player... exiting back to main", Toast.LENGTH_LONG).show();
                             }
-                        }
-                    }).start();
+                        //}
+                    //}).start();
                 }
                 //System.out.println("Sent move to other player");
             }
@@ -447,13 +448,27 @@ public class GameActivity extends AppCompatActivity {
 
             // https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
             final int onlinePlayerMove = multiplayerSession.getMoveFromOtherPlayer();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (onlinePlayerMove != -1)
+            if (onlinePlayerMove != -1)
+            {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         placeDisc(onlinePlayerMove);
-                }
-            });
+                    }
+                });
+            }
+            else
+            {
+                continueExecuting = false;
+                continueNetworkThreadExecution = false;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        returnToMain();
+                    }
+                });
+            }
         }
     }
 
@@ -971,12 +986,32 @@ public class GameActivity extends AppCompatActivity {
         roundButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                restartGame();
+                // Send a "move" to the other player letting them know that they want to continue the game
+                //Toast.makeText(getApplicationContext(), "The game will restart if the other player wishes to continue playing. It will exit otherwise.", Toast.LENGTH_LONG);
+                if (multiplayerSession.sendMoveToOtherPlayer(1))
+                {
+                    if (multiplayerSession.getMoveFromOtherPlayer() == 1)
+                        restartGame();
+                    else
+                        returnToMain();
+                }
+                else
+                {
+                    Log.d(TAG, "Couldn't send game end signal after the 'Continue Game' button was clicked, so the game session was ended");
+                    //Toast.makeText(getApplicationContext(), "Couldn't send continue game signal to other device, so the session ended. Thank you for playing!", Toast.LENGTH_LONG);
+                    returnToMain();
+                }
             }
         });
+
         mainMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Let other player know
+                if (!multiplayerSession.sendMoveToOtherPlayer(0))
+                    Log.d(TAG, "Couldn't send game end signal after the 'Main Menu' was clicked. The game ended as planned, but things could be problematic on the other device?");
+
+                // Exit to the main menu
                 returnToMain();
             }
         });
