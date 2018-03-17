@@ -1,9 +1,54 @@
+Note: this document may not contain all of the sources cited used in the project (there may be more cited in the code itself). This was an effort to make source finding easier.
+
 Throughout the entire project:
 -developer.android.com (various pages that I may have not written down)
+
 activity_online_mode_setup.xml
 -https://stackoverflow.com/questions/18251187/imageview-displaying-in-layout-but-not-on-actual-device
+
 OnlineModeSetup.java
 -https://stackoverflow.com/questions/7784418/get-all-child-views-inside-linearlayout-at-once
 -https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
+
 OnlineModeBroadcastReceiver.java
 -https://en.wikipedia.org/wiki/Foreach_loop#Java
+-https://developer.android.com/guide/topics/connectivity/wifip2p.html
+-https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
+-https://stackoverflow.com/questions/4570037/java-substring-index-range
+-https://stackoverflow.com/questions/5455794/removing-whitespace-from-strings-in-java
+-https://stackoverflow.com/questions/4870667/how-can-i-use-getsystemservice-in-a-non-activity-class-locationmanager
+-https://android.googlesource.com/platform/development/+/master/samples/WiFiDirectDemo/src/com/example/android/wifidirect/DeviceListFragment.java
+-https://groups.google.com/forum/#!topic/android-developers/6lwXJCnv5zU
+-https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
+
+GameActivity:
+-https://stackoverflow.com/questions/18703841/call-method-on-activity-load-android
+-https://stackoverflow.com/questions/5161951/android-only-the-original-thread-that-created-a-view-hierarchy-can-touch-its-vi
+-https://stackoverflow.com/questions/4817933/what-is-the-equivalent-to-a-javascript-setinterval-settimeout-in-android-java
+-https://stackoverflow.com/questions/22454839/android-adding-simple-animations-while-setvisibilityview-gone
+-https://stackoverflow.com/questions/14108400/how-to-align-text-vertically-center-in-android
+-https://android--code.blogspot.com/2015/05/android-textview-layout-margin.html
+-http://smartandroidians.blogspot.com/2009/12/setting-margin-for-widgets.html
+-https://stackoverflow.com/questions/16552811/set-a-margin-between-two-buttons-programmatically-from-a-linearlayout
+
+BroadcastReceiverOld
+-https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
+
+activity_online_mode_setup.xml
+-https://stackoverflow.com/questions/18251187/imageview-displaying-in-layout-but-not-on-actual-device
+
+MultiplayerSession
+-http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurrent-map-examples/
+-https://stackoverflow.com/questions/40413717/cant-connect-to-android-devices-when-using-network-service-discovery-through-wi
+-https://developer.android.com/guide/components/processes-and-threads.html
+-https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html
+-https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
+-https://stackoverflow.com/questions/37026/java-notify-vs-notifyall-all-over-again
+-https://stackoverflow.com/questions/15056978/tcp-server-on-android-phone-crashes-at-accept (referenced?)
+-https://stackoverflow.com/questions/2983835/how-can-i-interrupt-a-serversocket-accept-method
+-https://stackoverflow.com/questions/21934839/how-to-set-a-time-limit-for-serversocket-to-wait-for-the-client
+-https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
+-https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#wait()
+-https://stackoverflow.com/questions/38163938/return-value-of-assignment-operation-in-java
+-https://stackoverflow.com/questions/43226607/application-crashes-after-i-closed-the-socket-waiting-for-reading-in-a-thread
+-https://developer.android.com/guide/topics/connectivity/wifip2p.html#creating-app
