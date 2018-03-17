@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * File" MultiplayerSession.java
  * Created by jcrisan on 2/28/18.
  * Purpose: a class to handle online mode interactions between two players (given an ip address to a connected peer)
+ * Referenced https://stackoverflow.com/questions/14425826/variable-is-accessed-within-inner-class-needs-to-be-declared-final (and other sources mentioned in the rest of this file)
  */
 
 public class MultiplayerSession {
@@ -43,7 +44,7 @@ public class MultiplayerSession {
 
     // Server Socket and client
     private ServerSocket serverSocket = null;
-    private Socket client = null; // https://stackoverflow.com/questions/14425826/variable-is-accessed-within-inner-class-needs-to-be-declared-final
+    private Socket client = null;
 
     // This variable will be bullet proof!
     // https://stackoverflow.com/questions/40413717/cant-connect-to-android-devices-when-using-network-service-discovery-through-wi (I thought that perhaps using a local integer might have been causing problems?)
