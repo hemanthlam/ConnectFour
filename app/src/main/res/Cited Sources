@@ -12,21 +12,11 @@ OnlineModeBroadcastReceiver.java
 -https://en.wikipedia.org/wiki/Foreach_loop#Java
 -https://developer.android.com/guide/topics/connectivity/wifip2p.html
 -https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
--https://developer.android.com/guide/topics/connectivity/wifip2p.html
--https://developer.android.com/guide/topics/connectivity/wifip2p.html
--https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
--https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
 -https://stackoverflow.com/questions/4570037/java-substring-index-range
--https://developer.android.com/guide/topics/connectivity/wifip2p.html#connecting
 -https://stackoverflow.com/questions/5455794/removing-whitespace-from-strings-in-java
--https://developer.android.com/guide/topics/connectivity/wifip2p.html#creating-app
--https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
 -https://stackoverflow.com/questions/4870667/how-can-i-use-getsystemservice-in-a-non-activity-class-locationmanager
--https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html
--https://android.googlesource.com/platform/development/+/master/samples/WiFiDirectDemo/src/com/example/android/wifidirect/
--DeviceListFragment.java
+-https://android.googlesource.com/platform/development/+/master/samples/WiFiDirectDemo/src/com/example/android/wifidirect/DeviceListFragment.java
 -https://groups.google.com/forum/#!topic/android-developers/6lwXJCnv5zU
--https://developer.android.com/training/connect-devices-wirelessly/wifi-direct.html#discover
 -https://stackoverflow.com/questions/23713176/what-can-fail-wifip2pmanager-connect
 
 GameActivity:
@@ -56,7 +46,6 @@ MultiplayerSession
 -https://stackoverflow.com/questions/2983835/how-can-i-interrupt-a-serversocket-accept-method
 -https://stackoverflow.com/questions/21934839/how-to-set-a-time-limit-for-serversocket-to-wait-for-the-client
 -https://stackoverflow.com/questions/17354891/java-bytebuffer-to-string
--https://stackoverflow.com/questions/37026/java-notify-vs-notifyall-all-over-again
 -https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#wait()
 -https://stackoverflow.com/questions/38163938/return-value-of-assignment-operation-in-java
 -https://stackoverflow.com/questions/43226607/application-crashes-after-i-closed-the-socket-waiting-for-reading-in-a-thread
