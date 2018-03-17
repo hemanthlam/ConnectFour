@@ -988,19 +988,20 @@ public class GameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Send a "move" to the other player letting them know that they want to continue the game
                 //Toast.makeText(getApplicationContext(), "The game will restart if the other player wishes to continue playing. It will exit otherwise.", Toast.LENGTH_LONG);
-                if (multiplayerSession.sendMoveToOtherPlayer(1))
-                {
-                    if (multiplayerSession.getMoveFromOtherPlayer() == 1)
-                        restartGame();
-                    else
+                if (onlineMode && multiplayerSession != null) {
+                    if (multiplayerSession.sendMoveToOtherPlayer(1)) {
+                        if (multiplayerSession.getMoveFromOtherPlayer() == 1)
+                            restartGame();
+                        else
+                            returnToMain();
+                    } else {
+                        Log.d(TAG, "Couldn't send game end signal after the 'Continue Game' button was clicked, so the game session was ended");
+                        //Toast.makeText(getApplicationContext(), "Couldn't send continue game signal to other device, so the session ended. Thank you for playing!", Toast.LENGTH_LONG);
                         returnToMain();
+                    }
                 }
                 else
-                {
-                    Log.d(TAG, "Couldn't send game end signal after the 'Continue Game' button was clicked, so the game session was ended");
-                    //Toast.makeText(getApplicationContext(), "Couldn't send continue game signal to other device, so the session ended. Thank you for playing!", Toast.LENGTH_LONG);
-                    returnToMain();
-                }
+                    restartGame();
             }
         });
 
@@ -1008,7 +1009,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Let other player know
-                if (!multiplayerSession.sendMoveToOtherPlayer(0))
+                if (onlineMode && multiplayerSession != null && !multiplayerSession.sendMoveToOtherPlayer(0))
                     Log.d(TAG, "Couldn't send game end signal after the 'Main Menu' was clicked. The game ended as planned, but things could be problematic on the other device?");
 
                 // Exit to the main menu
